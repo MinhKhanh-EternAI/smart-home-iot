@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Smart Home Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=1.0.2">
+</head>
+<body>
+    <script>
+        // Áp dụng theme tức thì trước khi render DOM để tránh chớp màn hình (flash of dark mode)
+        const savedTheme = localStorage.getItem("theme") || "light";
+        if (savedTheme === "light") {
+            document.body.classList.add("light-mode");
+        }
+    </script>
+    <div class="glass-bg"></div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-house-laptop logo-icon"></i>
+                <h2>SmartHome</h2>
+            </div>
+            <nav class="menu">
+                <a href="#dashboard" class="menu-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+                </a>
+                <a href="#rfid" class="menu-item" data-tab="rfid">
+                    <i class="fa-solid fa-id-card"></i> <span>RFID Manager</span>
+                </a>
+                <a href="#logs" class="menu-item" data-tab="logs">
+                    <i class="fa-solid fa-list-ul"></i> <span>Event Logs</span>
+                </a>
+                <a href="#config" class="menu-item" data-tab="config">
+                    <i class="fa-solid fa-sliders"></i> <span>System Config</span>
+                </a>
+            </nav>
+            <div class="connection-status" id="db-status">
+                <span class="status-dot offline"></span>
+                <span class="status-text">Disconnected</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">Hệ thống Điều khiển</h1>
+                    <p class="current-date" id="live-time">Thứ Ba, 16 Tháng 6, 2026</p>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle-btn" id="btn-theme-toggle" title="Chuyển chế độ Sáng/Tối">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="weather-widget">
+                        <div class="weather-icon">
+                            <i class="fa-solid fa-cloud-sun-rain"></i>
+                        </div>
+                        <div class="weather-info">
+                            <span class="weather-temp" id="weather-temp">28°C</span>
+                            <span class="weather-desc" id="weather-desc">Hà Nội - U ám</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+
+            <!-- Tab: Dashboard -->
+            <section id="tab-dashboard" class="tab-content active">
+                <!-- Sensors Grid -->
+                <div class="sensors-grid">
+                    <div class="sensor-card temperature">
+                        <div class="sensor-header">
+                            <i class="fa-solid fa-temperature-half icon"></i>
+                            <h3>Nhiệt độ Trong Nhà</h3>
+                        </div>
+                        <div class="sensor-value"><span id="temp-val">--</span>°C</div>
+                        <div class="sensor-footer">DHT11 Sensor</div>
+                    </div>
+                    <div class="sensor-card humidity">
+                        <div class="sensor-header">
+                            <i class="fa-solid fa-droplet icon"></i>
+                            <h3>Độ ẩm Trong Nhà</h3>
+                        </div>
+                        <div class="sensor-value"><span id="hum-val">--</span>%</div>
+                        <div class="sensor-footer">DHT11 Sensor</div>
+                    </div>
+                    <div class="sensor-card rain-card" id="rain-status-card">
+                        <div class="sensor-header">
+                            <i class="fa-solid fa-cloud-showers-heavy icon"></i>
+                            <h3>Trạng thái Mưa</h3>
+                        </div>
+                        <div class="sensor-value" id="rain-val">Không Mưa</div>
+                        <div class="sensor-footer" id="rain-details">Mái che mở</div>
+                    </div>
+                    <div class="sensor-card motion-card" id="motion-status-card">
+                        <div class="sensor-header">
+                            <i class="fa-solid fa-person-walking icon"></i>
+                            <h3>Chuyển động Sân</h3>
+                        </div>
+                        <div class="sensor-value" id="motion-val">Yên Tĩnh</div>
+                        <div class="sensor-footer">PIR Motion Sensor</div>
+                    </div>
+                </div>
+
+                <!-- Devices Grid -->
+                <div class="devices-grid">
+                    <!-- Indoor Light -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <i class="fa-solid fa-lightbulb device-icon"></i>
+                                <div>
+                                    <h3>Đèn Trong Nhà</h3>
+                                    <span class="device-location">Phòng khách</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="indoor-light-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-selector-container">
+                            <span class="mode-label">Chế độ hoạt động:</span>
+                            <div class="mode-group">
+                                <button class="mode-btn active" id="in-mode-manual">Thủ công</button>
+                                <button class="mode-btn" id="in-mode-schedule">Theo lịch</button>
+                            </div>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="device-body">
+                            <div class="schedule-section" id="indoor-schedule-section">
+                                <div class="schedule-box-premium">
+                                    <div class="schedule-header-row">
+                                        <div class="schedule-header-left">
+                                            <i class="fa-regular fa-calendar-days schedule-calendar-icon"></i>
+                                            <span class="schedule-title">Kích hoạt lịch trình</span>
+                                        </div>
+                                        <label class="switch-sm">
+                                            <input type="checkbox" id="indoor-sched-enable">
+                                            <span class="slider-sm"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="schedule-picker-grid-premium">
+                                        <!-- Bật Column -->
+                                        <div class="picker-column-premium">
+                                            <span class="picker-label-premium">Bật</span>
+                                            <div class="custom-time-picker" id="indoor-on-time" data-value="18:00">
+                                                <div class="time-display-premium">
+                                                    <span class="time-text-large" id="indoor-on-time-val">18:00</span>
+                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Tắt Column -->
+                                        <div class="picker-column-premium">
+                                            <span class="picker-label-premium">Tắt</span>
+                                            <div class="custom-time-picker" id="indoor-off-time" data-value="06:00">
+                                                <div class="time-display-premium">
+                                                    <span class="time-text-large" id="indoor-off-time-val">06:00</span>
+                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Schedule Footer -->
+                                    <div class="schedule-footer-premium">
+                                        <span class="status-indicator-dot" id="indoor-indicator-dot"></span>
+                                        <span class="next-action-text" id="indoor-next-action-text">Chưa kích hoạt lịch trình</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Info Footer Disclaimer -->
+                                <div class="schedule-info-footer">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outdoor Light -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <i class="fa-solid fa-lightbulb device-icon"></i>
+                                <div>
+                                    <h3>Đèn Ngoài Sân</h3>
+                                    <span class="device-location">Cổng chính</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="outdoor-light-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-selector-container">
+                            <span class="mode-label">Chế độ hoạt động:</span>
+                            <div class="mode-group">
+                                <button class="mode-btn active" id="out-mode-auto">Theo chuyển động</button>
+                                <button class="mode-btn" id="out-mode-manual">Thủ công</button>
+                            </div>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="device-body">
+                            <div class="info-row" id="outdoor-auto-info" style="display:none;">
+                                <i class="fa-solid fa-person-walking"></i> Đèn sẽ tự động bật khi phát hiện chuyển động.
+                            </div>
+                            <div class="schedule-section" id="outdoor-schedule-section">
+                                <div class="schedule-box-premium">
+                                    <div class="schedule-header-row">
+                                        <div class="schedule-header-left">
+                                            <i class="fa-regular fa-calendar-days schedule-calendar-icon"></i>
+                                            <span class="schedule-title">Kích hoạt lịch trình</span>
+                                        </div>
+                                        <label class="switch-sm">
+                                            <input type="checkbox" id="outdoor-sched-enable">
+                                            <span class="slider-sm"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="schedule-picker-grid-premium">
+                                        <!-- Bật Column -->
+                                        <div class="picker-column-premium">
+                                            <span class="picker-label-premium">Bật</span>
+                                            <div class="custom-time-picker" id="outdoor-on-time" data-value="18:00">
+                                                <div class="time-display-premium">
+                                                    <span class="time-text-large" id="outdoor-on-time-val">18:00</span>
+                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Tắt Column -->
+                                        <div class="picker-column-premium">
+                                            <span class="picker-label-premium">Tắt</span>
+                                            <div class="custom-time-picker" id="outdoor-off-time" data-value="06:00">
+                                                <div class="time-display-premium">
+                                                    <span class="time-text-large" id="outdoor-off-time-val">06:00</span>
+                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Schedule Footer -->
+                                    <div class="schedule-footer-premium">
+                                        <span class="status-indicator-dot" id="outdoor-indicator-dot"></span>
+                                        <span class="next-action-text" id="outdoor-next-action-text">Chưa kích hoạt lịch trình</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Info Footer Disclaimer -->
+                                <div class="schedule-info-footer">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Door -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <i class="fa-solid fa-lock device-icon" id="door-icon"></i>
+                                <div>
+                                    <h3>Cửa Thông Minh</h3>
+                                    <span class="device-location">Cửa chính RFID</span>
+                                </div>
+                            </div>
+                            <span class="badge" id="door-status-badge">Đóng</span>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="device-body flex-col">
+                            <div class="control-row">
+                                <button class="action-btn" id="btn-unlock-door">
+                                    <i class="fa-solid fa-lock-open"></i> Mở Cửa (15 giây)
+                                </button>
+                            </div>
+                            <div class="slider-config-row">
+                                <span>Thời gian tự đóng:</span>
+                                <div class="slider-val-box">
+                                    <input type="range" id="door-autoclose-range" min="3" max="15" value="15">
+                                    <span id="door-autoclose-lbl">15s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Roof -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <i class="fa-solid fa-house device-icon" id="roof-icon"></i>
+                                <div>
+                                    <h3>Mái Che Tự Động</h3>
+                                    <span class="device-location">Sân thượng</span>
+                                </div>
+                            </div>
+                            <span class="badge" id="roof-status-badge">Mở</span>
+                        </div>
+                        <div class="mode-selector-container">
+                            <span class="mode-label">Chế độ hoạt động:</span>
+                            <div class="mode-group">
+                                <button class="mode-btn active" id="roof-mode-auto">Tự động (mưa)</button>
+                                <button class="mode-btn" id="roof-mode-manual">Thủ công</button>
+                            </div>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="device-body">
+                            <div class="control-row" id="roof-manual-controls" style="display:none;">
+                                <button class="action-btn" id="btn-open-roof"><i class="fa-solid fa-chevron-up"></i> Mở Mái</button>
+                                <button class="action-btn btn-danger" id="btn-close-roof"><i class="fa-solid fa-chevron-down"></i> Đóng Mái</button>
+                            </div>
+                            <div class="info-row" id="roof-auto-info">
+                                <i class="fa-solid fa-robot"></i> Đang tự động điều khiển theo cảm biến nước.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Fan -->
+                    <div class="device-card" id="fan-card-container">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <i class="fa-solid fa-fan device-icon" id="fan-icon"></i>
+                                <div>
+                                    <h3>Quạt Thông Minh</h3>
+                                    <span class="device-location">Phòng khách</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="fan-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="device-body">
+                            <div class="info-row" id="fan-status-info">
+                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong id="fan-status-text">Đang Tắt</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: RFID Manager -->
+            <section id="tab-rfid" class="tab-content">
+                <div class="two-column-layout">
+                    <!-- Left: Card List -->
+                    <div class="glass-card">
+                        <div class="card-header-actions">
+                            <h3>Danh sách Thẻ RFID</h3>
+                            <button class="icon-btn" id="btn-refresh-cards"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>UID Thẻ</th>
+                                        <th>Tên Chủ Thẻ</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rfid-cards-table">
+                                    <!-- Dynamic Content -->
+                                    <tr>
+                                        <td colspan="4" class="text-center">Đang tải danh sách thẻ...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Add Card & Access Logs -->
+                    <div class="flex-col gap-2">
+                        <!-- Form Add Card -->
+                        <div class="glass-card">
+                            <h3>Đăng ký Thẻ Mới</h3>
+                            <form id="add-card-form" class="config-form">
+                                <div class="form-group">
+                                    <label for="new-card-uid">UID Thẻ (Hex, ví dụ: 4A8B9C2D)</label>
+                                    <input type="text" id="new-card-uid" placeholder="Nhập UID thẻ" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-card-name">Tên Chủ Thẻ</label>
+                                    <input type="text" id="new-card-name" placeholder="Ví dụ: Nguyễn Văn A" required>
+                                </div>
+                                <button type="submit" class="primary-btn">Đăng Ký Thẻ</button>
+                            </form>
+                        </div>
+
+                        <!-- Access Logs -->
+                        <div class="glass-card flex-grow">
+                            <h3>Lịch sử Quẹt Thẻ</h3>
+                            <div class="log-list-container" id="rfid-access-logs">
+                                <!-- Dynamic logs -->
+                                <p class="text-center">Đang tải lịch sử...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Event Logs -->
+            <section id="tab-logs" class="tab-content">
+                <div class="glass-card">
+                    <div class="log-filter-bar">
+                        <h3>Nhật ký Hoạt động</h3>
+                        <div class="filter-group">
+                            <button class="filter-btn active" data-filter="all">Tất cả</button>
+                            <button class="filter-btn" data-filter="system">Hệ thống</button>
+                            <button class="filter-btn" data-filter="sensor">Cảm biến</button>
+                            <button class="filter-btn" data-filter="automation">Tự động</button>
+                            <button class="filter-btn" data-filter="schedule">Hẹn giờ</button>
+                            <button class="filter-btn" data-filter="security">Bảo mật</button>
+                        </div>
+                    </div>
+                    <div class="event-logs-container" id="event-logs-feed">
+                        <!-- Dynamic logs -->
+                        <p class="text-center">Đang tải nhật ký...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Config -->
+            <section id="tab-config" class="tab-content">
+                <div class="two-column-layout">
+                    <!-- Left: Configuration Forms -->
+                    <div class="flex-col gap-2">
+                        <!-- WiFi Config -->
+                        <div class="glass-card">
+                            <h3>Cấu hình Kết nối WiFi</h3>
+                            <form id="wifi-config-form" class="config-form">
+                                <div class="form-group">
+                                    <label for="wifi-ssid">SSID (Tên WiFi)</label>
+                                    <input type="text" id="wifi-ssid" placeholder="Tên WiFi hiện tại..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wifi-pass">Mật khẩu</label>
+                                    <input type="password" id="wifi-pass" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="primary-btn">Cập Nhật WiFi</button>
+                            </form>
+                        </div>
+
+                        <!-- MCP & MQTT Config -->
+                        <div class="glass-card">
+                            <h3>Cấu hình Endpoint AI & MQTT</h3>
+                            <form id="mcp-config-form" class="config-form">
+                                <div class="form-group">
+                                    <label for="mcp-endpoint">Endpoint Xiaozhi MCP</label>
+                                    <input type="url" id="mcp-endpoint" placeholder="http://192.168.1.x:8000/api" required>
+                                </div>
+                                <button type="submit" class="primary-btn">Lưu Cấu Hình AI</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Tool JSON Configuration -->
+                    <div class="glass-card flex-col">
+                        <div class="card-header-actions">
+                            <h3>Cấu hình Tools JSON</h3>
+                            <span class="subtext">Đồng bộ trực tiếp với Firebase</span>
+                        </div>
+                        <div class="json-editor-container">
+                            <textarea id="tools-json-editor" spellcheck="false"></textarea>
+                            <div class="json-error" id="json-error-msg" style="display: none;">JSON không hợp lệ!</div>
+                        </div>
+                        <button class="primary-btn" id="btn-save-tools-json"><i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình Tools</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-nav">
+        <a href="#dashboard" class="mobile-nav-item active" data-tab="dashboard">
+            <i class="fa-solid fa-gauge"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#rfid" class="mobile-nav-item" data-tab="rfid">
+            <i class="fa-solid fa-id-card"></i>
+            <span>RFID</span>
+        </a>
+        <a href="#logs" class="mobile-nav-item" data-tab="logs">
+            <i class="fa-solid fa-list-ul"></i>
+            <span>Logs</span>
+        </a>
+        <a href="#config" class="mobile-nav-item" data-tab="config">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Cấu hình</span>
+        </a>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Firebase SDK & App Logic -->
+    <script type="module" src="app.js?v=1.0.2"></script>
+</body>
+</html>

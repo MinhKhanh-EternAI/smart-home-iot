@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(taskkill /F /PID 2208)",
+      "PowerShell(Get-Process -Id 2208 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "PowerShell(pio run --target upload --upload-port COM7 2>&1)",
+      "PowerShell(Get-Process -Id 2208 | Select-Object Id, ProcessName, Path, CommandLine; \\(Get-WmiObject Win32_Process -Filter \"ProcessId=2208\"\\).CommandLine)",
+      "PowerShell(taskkill /F /T /PID 2208 2>&1)",
+      "PowerShell(Get-Process python -ErrorAction SilentlyContinue | Select-Object Id; [System.IO.Ports.SerialPort]::GetPortNames\\(\\))",
+      "PowerShell($timeout = 15; $found = $false; for \\($i = 0; $i -lt $timeout; $i++\\) { $ports = [System.IO.Ports.SerialPort]::GetPortNames\\(\\); if \\($ports -contains \"COM7\"\\) { Write-Host \"COM7 detected!\"; $found = $true; break }; Start-Sleep -Seconds 1 }; if \\(-not $found\\) { Write-Host \"COM7 not found after $timeout seconds\" })",
+      "PowerShell([System.IO.Ports.SerialPort]::GetPortNames\\(\\))",
+      "PowerShell(& \"C:\\\\Users\\\\khanhnvm\\\\.platformio\\\\penv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\khanhnvm\\\\.platformio\\\\packages\\\\tool-esptoolpy@1.30000.201119\\\\esptool.py\" --before default_reset --after hard_reset --chip esp8266 --port \"COM7\" --baud 460800 write_flash 0x0 \"e:\\\\smart-home-iot\\\\esp8266-core\\\\.pio\\\\build\\\\nodemcuv2\\\\firmware.bin\" 2>&1)",
+      "PowerShell(Invoke-WebRequest -Uri \"https://www.wch-ic.com/downloads/CH341SER_EXE.html\" -OutFile \"$env:TEMP\\\\ch341ser_page.html\" 2>&1; Write-Host \"Done\")",
+      "PowerShell(Invoke-WebRequest -Uri \"https://www.wch-ic.com/downloads/file/65.html\" -OutFile \"$env:TEMP\\\\CH341SER.EXE\" -UserAgent \"Mozilla/5.0\" 2>&1; if \\(Test-Path \"$env:TEMP\\\\CH341SER.EXE\"\\) { Write-Host \"Downloaded: $\\(\\(Get-Item \"$env:TEMP\\\\CH341SER.EXE\"\\).Length\\) bytes\" } else { Write-Host \"Failed\" })"
+    ]
+  }
+}

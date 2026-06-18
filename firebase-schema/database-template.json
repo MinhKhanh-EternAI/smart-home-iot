@@ -1,0 +1,93 @@
+{
+  "config": {
+    "mcp": {
+      "endpoint": "http://your-xiaozhi-mcp-endpoint/api"
+    },
+    "tools": [
+      {
+        "name": "indoor_light",
+        "desc": "Đèn trong nhà",
+        "pin": "PCF8574_P1"
+      },
+      {
+        "name": "outdoor_light",
+        "desc": "Đèn sân vườn",
+        "pin": "PCF8574_P0"
+      },
+      {
+        "name": "smart_door",
+        "desc": "Cửa tự động Servo",
+        "pin": "RX"
+      },
+      {
+        "name": "smart_roof",
+        "desc": "Mái che tự động",
+        "pin": "TX"
+      }
+    ],
+    "wifi": {
+      "ssid": "Your_WiFi_SSID",
+      "password": "Your_WiFi_Password"
+    }
+  },
+  "devices": {
+    "indoor_light": {
+      "status": false,
+      "schedule": {
+        "enabled": false,
+        "on_time": "18:00",
+        "off_time": "06:00"
+      }
+    },
+    "outdoor_light": {
+      "status": false,
+      "mode": "auto",
+      "schedule": {
+        "enabled": false,
+        "on_time": "18:00",
+        "off_time": "06:00"
+      }
+    },
+    "door": {
+      "status": "closed",
+      "auto_close_ms": 5000
+    },
+    "roof": {
+      "status": "open",
+      "mode": "auto"
+    }
+  },
+  "sensors": {
+    "temperature": 25.0,
+    "humidity": 60.0,
+    "rain": false,
+    "motion": false,
+    "last_updated": 0
+  },
+  "rfid": {
+    "cards": {
+      "card_uid_1": {
+        "name": "Chủ nhà",
+        "active": true,
+        "created_at": 1718496000000
+      }
+    },
+    "access_logs": {
+      "log_id_1": {
+        "timestamp": 1718496000000,
+        "card_uid": "card_uid_1",
+        "name": "Chủ nhà",
+        "status": "granted"
+      }
+    }
+  },
+  "logs": {
+    "event_logs": {
+      "event_id_1": {
+        "timestamp": 1718496000000,
+        "type": "system",
+        "message": "Hệ thống khởi động thành công"
+      }
+    }
+  }
+}
