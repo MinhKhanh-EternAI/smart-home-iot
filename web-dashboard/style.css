@@ -2118,11 +2118,7 @@ body.light-mode .toast {
     box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.01);
 }
 
-body.light-mode .schedule-box-premium {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.06);
-    box-shadow: none;
-}
+/* Override is handled in the redesign section */
 
 .schedule-header-row {
     display: flex;
