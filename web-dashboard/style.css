@@ -1511,9 +1511,9 @@ body.light-mode .day-btn {
     border: 1.5px solid #eceffd;
     color: #64748b;
     border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
+    flex: 1;
+    max-width: 38px;
+    aspect-ratio: 1 / 1;
     box-sizing: border-box;
 }
 
@@ -2770,9 +2770,9 @@ body.light-mode .confirm-btn-cancel:hover {
     border: 1.5px solid rgba(255, 255, 255, 0.08);
     color: var(--text-secondary);
     border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
+    flex: 1;
+    max-width: 38px;
+    aspect-ratio: 1 / 1;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -2895,9 +2895,7 @@ body.light-mode .confirm-btn-cancel:hover {
     
     /* Adapt Day Picker buttons to circular fit on mobile */
     .day-btn {
-        width: 32px;
-        height: 32px;
-        flex: 0 0 32px;
+        max-width: 32px;
         font-size: 10px;
     }
     
