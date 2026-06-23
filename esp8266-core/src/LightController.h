@@ -82,7 +82,7 @@ public:
                 Serial.println("Motion detected!");
                 if (outdoorMode == "auto" && !outdoorStatus) {
                     setOutdoorLight(true);
-                    fb->logEvent("automation", "Tự động bật đèn sân vườn do phát hiện chuyển động.");
+                    fb->logEvent("automation", "Tự động bật đèn cửa do phát hiện người.");
                 }
             } else {
                 Serial.println("Motion ended.");
@@ -93,7 +93,7 @@ public:
         if (outdoorMode == "auto" && outdoorStatus && !pirState) {
             if (millis() - lastMotionTime >= motionTimeout) {
                 setOutdoorLight(false);
-                fb->logEvent("automation", "Tự động tắt đèn sân vườn sau 30 giây không phát hiện chuyển động.");
+                fb->logEvent("automation", "Tự động tắt đèn cửa sau 30 giây không phát hiện người.");
             }
         }
 

@@ -1,4 +1,4 @@
-import { db, state, showToast } from "../app.js";
+import { db, state, showToast, showConfirm } from "../app.js";
 import { ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 function getVietnameseDayOfWeek() {
@@ -537,7 +537,12 @@ export function initDashboard() {
     const unlockDoorBtn = document.getElementById("btn-unlock-door");
     if (unlockDoorBtn) {
         unlockDoorBtn.addEventListener("click", () => {
-            set(ref(db, "devices/door/status"), "open");
+            const seconds = document.getElementById("door-autoclose-range")?.value || 5;
+            showConfirm(`Xác nhận mở cửa từ xa? Cửa sẽ tự đóng sau ${seconds} giây.`, () => {
+                set(ref(db, "devices/door/status"), "open")
+                    .then(() => showToast("Đã gửi lệnh mở cửa!", "success"))
+                    .catch(err => showToast("Lỗi mở cửa: " + err.message, "error"));
+            });
         });
     }
 
