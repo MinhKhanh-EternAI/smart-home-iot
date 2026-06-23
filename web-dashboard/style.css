@@ -1483,9 +1483,9 @@ body.light-mode .schedule-section.active {
 
 /* Schedule Box Premium Container */
 body.light-mode .schedule-box-premium {
-    background: #fcfdff;
-    border: 1.5px solid #eceffd;
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.02);
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
     border-radius: 24px;
     padding: 20px;
 }
