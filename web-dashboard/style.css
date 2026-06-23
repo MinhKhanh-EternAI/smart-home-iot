@@ -2163,13 +2163,7 @@ body.light-mode .toast {
     filter: grayscale(20%);
 }
 
-/* Day-of-week picker */
-.day-picker {
-    display: flex;
-    gap: 5px;
-    justify-content: space-between;
-    transition: opacity var(--transition-fast);
-}
+/* Day-of-week picker layout is defined in card redesign section */
 .day-picker.disabled {
     opacity: 0.45;
     pointer-events: none;
@@ -2766,6 +2760,9 @@ body.light-mode .confirm-btn-cancel:hover {
     display: flex;
     gap: 6px;
     justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .day-btn {
@@ -2784,6 +2781,9 @@ body.light-mode .confirm-btn-cancel:hover {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
 }
 
 .day-btn:hover:not(.active) {
