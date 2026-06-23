@@ -2,6 +2,7 @@
 #define CLIMATE_CONTROLLER_H
 
 #include <DHT.h>
+#include <time.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
 
@@ -52,8 +53,7 @@ public:
                 fb->setFloat("/sensors/temperature", t);
                 fb->setFloat("/sensors/humidity", h);
                 
-                // Cập nhật timestamp cập nhật mới nhất
-                fb->setInt("/sensors/last_updated", now);
+                fb->setInt("/sensors/last_updated", (int)time(nullptr));
                 
                 // Cảnh báo nhiệt độ quá cao (chống cháy)
                 if (t >= 50.0) {

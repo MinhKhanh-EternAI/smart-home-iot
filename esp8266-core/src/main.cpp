@@ -18,10 +18,6 @@ ClimateController climateCtrl;
 
 // Callback xử lý dữ liệu điều khiển từ Firebase stream
 void onDeviceControl(const String& device, const String& key, const String& value) {
-    #if USE_OPTIMIZED_PINS
-        Serial.printf("Command Received: Device: %s, Key: %s, Val: %s\n", device.c_str(), key.c_str(), value.c_str());
-    #endif
-
     if (device == "indoor_light") {
         if (key == "status") {
             lightCtrl.setIndoorLight(value == "true");

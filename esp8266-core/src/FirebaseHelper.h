@@ -117,25 +117,32 @@ public:
     // Ghi log sự kiện hệ thống
     void logEvent(const String& type, const String& message) {
         if (!ready()) return;
-        
+
+        time_t now = time(nullptr);
+        // Dùng Unix epoch ms nếu NTP đã sync (now > năm 2001), ngược lại fallback millis()
+        double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
+
         FirebaseJson json;
-        json.add("timestamp", millis()); // Dùng millis() làm timestamp tương đối
+        json.add("timestamp", ts);
         json.add("type", type.c_str());
         json.add("message", message.c_str());
-        
+
         Firebase.RTDB.pushJSON(&fbData, "/logs/event_logs", &json);
     }
 
     // Ghi log quét thẻ RFID
     void logRFIDAccess(const String& cardUID, const String& name, const String& status) {
         if (!ready()) return;
-        
+
+        time_t now = time(nullptr);
+        double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
+
         FirebaseJson json;
-        json.add("timestamp", millis());
+        json.add("timestamp", ts);
         json.add("card_uid", cardUID.c_str());
         json.add("name", name.c_str());
         json.add("status", status.c_str());
-        
+
         Firebase.RTDB.pushJSON(&fbData, "/rfid/access_logs", &json);
     }
 
@@ -225,8 +232,8 @@ private:
         size_t len = json.iteratorBegin();
         String key, value;
         int type = 0;
-        while (json.iteratorGet(len, type, key, value)) {
-            // Đối với các giá trị bool trong JSON, thư viện có thể trả về "true"/"false" dạng chuỗi
+        for (size_t i = 0; i < len; i++) {
+            json.iteratorGet(i, type, key, value);
             controlCallback(device, key, value);
         }
         json.iteratorEnd();
@@ -236,8 +243,8 @@ private:
         size_t len = json.iteratorBegin();
         String key, value;
         int type = 0;
-        while (json.iteratorGet(len, type, key, value)) {
-            // Tất cả các node con của /devices đều là các JSON object mô tả thiết bị
+        for (size_t i = 0; i < len; i++) {
+            json.iteratorGet(i, type, key, value);
             FirebaseJson deviceJson;
             deviceJson.setJsonData(value);
             parseAndNotifyDevice(key, deviceJson);

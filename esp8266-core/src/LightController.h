@@ -40,8 +40,7 @@ public:
     void init(FirebaseHelper* fbHelper) {
         fb = fbHelper;
         
-        // Khởi tạo bộ mở rộng PCF8574
-        Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
+        // I2C bus đã được WifiHelper::init() khởi tạo — không gọi Wire.begin() lại
         pcf.begin();
         
         // Trạng thái ban đầu: Tắt hết thiết bị (Relay ở mức cao - HIGH vì là Active Low)
