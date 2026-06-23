@@ -2617,7 +2617,7 @@ body.light-mode .confirm-btn-cancel:hover {
 /* Time Picker display left and right wrappers */
 .time-display-premium {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     width: 100%;
     border-radius: 18px;
