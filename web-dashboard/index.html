@@ -117,7 +117,9 @@
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-title">
-                                <i class="fa-solid fa-lightbulb device-icon"></i>
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-lightbulb device-icon"></i>
+                                </div>
                                 <div>
                                     <h3>Đèn Trong Nhà</h3>
                                     <span class="device-location">Phòng khách</span>
@@ -128,20 +130,25 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="mode-selector-container">
-                            <span class="mode-label">Chế độ hoạt động:</span>
-                            <div class="mode-group">
-                                <button class="mode-btn active" id="in-mode-manual">Thủ công</button>
-                                <button class="mode-btn" id="in-mode-schedule">Theo lịch</button>
+                        <div class="mode-selector-container-v2">
+                            <span class="mode-label-v2">CHẾ ĐỘ HOẠT ĐỘNG</span>
+                            <div class="mode-group-v2">
+                                <button class="mode-btn-v2" id="in-mode-manual">
+                                    <i class="fa-solid fa-hand-pointer"></i> Thủ công
+                                </button>
+                                <button class="mode-btn-v2" id="in-mode-schedule">
+                                    <i class="fa-solid fa-calendar-days"></i> Theo lịch
+                                </button>
                             </div>
                         </div>
-                        <hr class="card-divider">
                         <div class="device-body">
                             <div class="schedule-section" id="indoor-schedule-section">
                                 <div class="schedule-box-premium">
                                     <div class="schedule-header-row">
                                         <div class="schedule-header-left">
-                                            <i class="fa-regular fa-calendar-days schedule-calendar-icon"></i>
+                                            <div class="sched-icon-wrapper">
+                                                <i class="fa-solid fa-calendar-days schedule-calendar-icon"></i>
+                                            </div>
                                             <span class="schedule-title">Kích hoạt lịch trình</span>
                                         </div>
                                         <label class="switch-sm">
@@ -163,11 +170,15 @@
                                     <div class="schedule-picker-grid-premium">
                                         <!-- Bật Column -->
                                         <div class="picker-column-premium">
-                                            <span class="picker-label-premium">Bật</span>
                                             <div class="custom-time-picker" id="indoor-on-time" data-value="18:00">
                                                 <div class="time-display-premium">
-                                                    <span class="time-text-large" id="indoor-on-time-val">18:00</span>
-                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Bật lúc</span>
+                                                        <span class="time-text-large" id="indoor-on-time-val">18:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-green">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
                                                 </div>
                                                 <div class="time-dropdown-premium">
                                                     <div class="time-columns-premium">
@@ -181,11 +192,15 @@
 
                                         <!-- Tắt Column -->
                                         <div class="picker-column-premium">
-                                            <span class="picker-label-premium">Tắt</span>
                                             <div class="custom-time-picker" id="indoor-off-time" data-value="06:00">
                                                 <div class="time-display-premium">
-                                                    <span class="time-text-large" id="indoor-off-time-val">06:00</span>
-                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Tắt lúc</span>
+                                                        <span class="time-text-large" id="indoor-off-time-val">06:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-blue">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
                                                 </div>
                                                 <div class="time-dropdown-premium">
                                                     <div class="time-columns-premium">
@@ -199,18 +214,18 @@
                                     </div>
 
                                     <!-- Schedule Footer -->
-                                    <div class="schedule-footer-premium">
+                                    <div class="schedule-footer-premium-pill">
                                         <span class="status-indicator-dot" id="indoor-indicator-dot"></span>
-                                        <span class="next-action-text" id="indoor-next-action-text">Chưa kích hoạt lịch
-                                            trình</span>
+                                        <span class="next-action-text" id="indoor-next-action-text">Chưa kích hoạt lịch trình</span>
                                     </div>
                                 </div>
 
                                 <!-- Info Footer Disclaimer -->
-                                <div class="schedule-info-footer">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch
-                                        trình vẫn hoạt động như đã cài.</span>
+                                <div class="schedule-info-footer-v2">
+                                    <div class="info-icon-wrapper">
+                                        <i class="fa-solid fa-info"></i>
+                                    </div>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là <span class="blue-text-highlight">Bật/Tắt</span> tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +235,9 @@
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-title">
-                                <i class="fa-solid fa-lightbulb device-icon"></i>
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-lightbulb device-icon"></i>
+                                </div>
                                 <div>
                                     <h3>Đèn Ở Cửa</h3>
                                     <span class="device-location">Khu vực cửa ra vào</span>
@@ -231,14 +248,17 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="mode-selector-container">
-                            <span class="mode-label">Chế độ hoạt động:</span>
-                            <div class="mode-group">
-                                <button class="mode-btn active" id="out-mode-auto">Theo chuyển động</button>
-                                <button class="mode-btn" id="out-mode-manual">Thủ công</button>
+                        <div class="mode-selector-container-v2">
+                            <span class="mode-label-v2">CHẾ ĐỘ HOẠT ĐỘNG</span>
+                            <div class="mode-group-v2">
+                                <button class="mode-btn-v2" id="out-mode-auto">
+                                    <i class="fa-solid fa-person-walking"></i> Tự động
+                                </button>
+                                <button class="mode-btn-v2" id="out-mode-manual">
+                                    <i class="fa-solid fa-hand-pointer"></i> Thủ công
+                                </button>
                             </div>
                         </div>
-                        <hr class="card-divider">
                         <div class="device-body">
                             <div class="info-row" id="outdoor-auto-info" style="display:none;">
                                 <i class="fa-solid fa-person-walking"></i> Đèn tự động bật khi có người đứng trước cửa, tắt sau 30 giây.
@@ -247,7 +267,9 @@
                                 <div class="schedule-box-premium">
                                     <div class="schedule-header-row">
                                         <div class="schedule-header-left">
-                                            <i class="fa-regular fa-calendar-days schedule-calendar-icon"></i>
+                                            <div class="sched-icon-wrapper">
+                                                <i class="fa-solid fa-calendar-days schedule-calendar-icon"></i>
+                                            </div>
                                             <span class="schedule-title">Kích hoạt lịch trình</span>
                                         </div>
                                         <label class="switch-sm">
@@ -269,11 +291,15 @@
                                     <div class="schedule-picker-grid-premium">
                                         <!-- Bật Column -->
                                         <div class="picker-column-premium">
-                                            <span class="picker-label-premium">Bật</span>
                                             <div class="custom-time-picker" id="outdoor-on-time" data-value="18:00">
                                                 <div class="time-display-premium">
-                                                    <span class="time-text-large" id="outdoor-on-time-val">18:00</span>
-                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Bật lúc</span>
+                                                        <span class="time-text-large" id="outdoor-on-time-val">18:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-green">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
                                                 </div>
                                                 <div class="time-dropdown-premium">
                                                     <div class="time-columns-premium">
@@ -287,11 +313,15 @@
 
                                         <!-- Tắt Column -->
                                         <div class="picker-column-premium">
-                                            <span class="picker-label-premium">Tắt</span>
                                             <div class="custom-time-picker" id="outdoor-off-time" data-value="06:00">
                                                 <div class="time-display-premium">
-                                                    <span class="time-text-large" id="outdoor-off-time-val">06:00</span>
-                                                    <i class="fa-regular fa-clock clock-icon"></i>
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Tắt lúc</span>
+                                                        <span class="time-text-large" id="outdoor-off-time-val">06:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-blue">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
                                                 </div>
                                                 <div class="time-dropdown-premium">
                                                     <div class="time-columns-premium">
@@ -305,18 +335,18 @@
                                     </div>
 
                                     <!-- Schedule Footer -->
-                                    <div class="schedule-footer-premium">
+                                    <div class="schedule-footer-premium-pill">
                                         <span class="status-indicator-dot" id="outdoor-indicator-dot"></span>
-                                        <span class="next-action-text" id="outdoor-next-action-text">Chưa kích hoạt lịch
-                                            trình</span>
+                                        <span class="next-action-text" id="outdoor-next-action-text">Chưa kích hoạt lịch trình</span>
                                     </div>
                                 </div>
 
                                 <!-- Info Footer Disclaimer -->
-                                <div class="schedule-info-footer">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch
-                                        trình vẫn hoạt động như đã cài.</span>
+                                <div class="schedule-info-footer-v2">
+                                    <div class="info-icon-wrapper">
+                                        <i class="fa-solid fa-info"></i>
+                                    </div>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là <span class="blue-text-highlight">Bật/Tắt</span> tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
                                 </div>
                             </div>
                         </div>
@@ -326,7 +356,9 @@
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-title">
-                                <i class="fa-solid fa-lock device-icon" id="door-icon"></i>
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-lock device-icon" id="door-icon"></i>
+                                </div>
                                 <div>
                                     <h3>Cửa Thông Minh</h3>
                                     <span class="device-location">Cửa chính RFID</span>
@@ -334,7 +366,6 @@
                             </div>
                             <span class="badge" id="door-status-badge">Đóng</span>
                         </div>
-                        <hr class="card-divider">
                         <div class="device-body flex-col">
                             <div class="control-row">
                                 <button class="action-btn" id="btn-unlock-door">
@@ -355,7 +386,9 @@
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-title">
-                                <i class="fa-solid fa-house device-icon" id="roof-icon"></i>
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-house device-icon" id="roof-icon"></i>
+                                </div>
                                 <div>
                                     <h3>Mái Che Tự Động</h3>
                                     <span class="device-location">Sân thượng</span>
@@ -363,20 +396,21 @@
                             </div>
                             <span class="badge" id="roof-status-badge">Mở</span>
                         </div>
-                        <div class="mode-selector-container">
-                            <span class="mode-label">Chế độ hoạt động:</span>
-                            <div class="mode-group">
-                                <button class="mode-btn active" id="roof-mode-auto">Tự động (mưa)</button>
-                                <button class="mode-btn" id="roof-mode-manual">Thủ công</button>
+                        <div class="mode-selector-container-v2">
+                            <span class="mode-label-v2">CHẾ ĐỘ HOẠT ĐỘNG</span>
+                            <div class="mode-group-v2">
+                                <button class="mode-btn-v2" id="roof-mode-auto">
+                                    <i class="fa-solid fa-cloud-showers-heavy"></i> Tự động
+                                </button>
+                                <button class="mode-btn-v2" id="roof-mode-manual">
+                                    <i class="fa-solid fa-hand-pointer"></i> Thủ công
+                                </button>
                             </div>
                         </div>
-                        <hr class="card-divider">
                         <div class="device-body">
                             <div class="control-row" id="roof-manual-controls" style="display:none;">
-                                <button class="action-btn" id="btn-open-roof"><i class="fa-solid fa-chevron-up"></i> Mở
-                                    Mái</button>
-                                <button class="action-btn btn-danger" id="btn-close-roof"><i
-                                        class="fa-solid fa-chevron-down"></i> Đóng Mái</button>
+                                <button class="action-btn" id="btn-open-roof"><i class="fa-solid fa-chevron-up"></i> Mở Mái</button>
+                                <button class="action-btn btn-danger" id="btn-close-roof"><i class="fa-solid fa-chevron-down"></i> Đóng Mái</button>
                             </div>
                             <div class="info-row" id="roof-auto-info">
                                 <i class="fa-solid fa-robot"></i> Đang tự động điều khiển theo cảm biến nước.
@@ -388,7 +422,9 @@
                     <div class="device-card" id="fan-card-container">
                         <div class="device-header">
                             <div class="device-title">
-                                <i class="fa-solid fa-fan device-icon" id="fan-icon"></i>
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-fan device-icon" id="fan-icon"></i>
+                                </div>
                                 <div>
                                     <h3>Quạt Thông Minh</h3>
                                     <span class="device-location">Phòng khách</span>
@@ -399,11 +435,9 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <hr class="card-divider">
                         <div class="device-body">
                             <div class="info-row" id="fan-status-info">
-                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong
-                                    id="fan-status-text">Đang Tắt</strong>
+                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong id="fan-status-text">Đang Tắt</strong>
                             </div>
                         </div>
                     </div>

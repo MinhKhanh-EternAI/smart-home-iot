@@ -1346,132 +1346,134 @@ body.light-mode .switch-sm input:checked + .slider-sm {
 }
 
 /* ============================================================
-   LIGHT MODE REDESIGN — Clean Card Style (v2)
+   LIGHT MODE REDESIGN — Clean Card Style (v3)
    Matches the app mockup: white cards, pill buttons,
-   large time numbers, outlined day picker
+   large time numbers, outlined day picker, double circle icons
    ============================================================ */
 
-/* --- Background --- */
+/* --- Background & Core Light Mode --- */
+body.light-mode {
+    --bg-gradient: linear-gradient(135deg, #f3f5f9 0%, #edf1f7 50%, #e2e8f0 100%);
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --panel-border: rgba(99, 102, 241, 0.08);
+    --panel-shadow: 0 10px 40px rgba(99, 102, 241, 0.05);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #8c93ad;
+    
+    --accent-glow: rgba(99, 102, 241, 0.12);
+    --success-glow: rgba(34, 197, 94, 0.12);
+    --danger-glow: rgba(239, 68, 68, 0.12);
+    --info-glow: rgba(14, 165, 233, 0.12);
+}
+
+body.light-mode {
+    background-color: #f6f8fc;
+}
+
 body.light-mode .glass-bg {
-    background: #eef2f7;
+    background: #f6f8fc;
 }
 body.light-mode .glass-bg::after,
 body.light-mode .glass-bg::before {
     display: none;
 }
 
-/* --- Sidebar --- */
 body.light-mode .sidebar {
     background: #ffffff;
-    border-right: 1px solid #eaecf0;
+    border-right: 1px solid #e9eff6;
     box-shadow: none;
 }
 
-/* --- Top Header --- */
 body.light-mode .top-header {
-    background: rgba(255,255,255,0.85);
-    border-bottom: 1px solid #eaecf0;
+    background: rgba(255,255,255,0.8);
+    border-bottom: 1px solid #e9eff6;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
 
-/* --- Glass Cards (Config, RFID, Logs panels) --- */
-body.light-mode .glass-card {
-    background: #ffffff;
-    border-color: #eaecf0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(100,116,139,0.07);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
-
-/* --- Device Cards --- */
+/* Glass Card & Device Card */
+body.light-mode .glass-card,
 body.light-mode .device-card {
     background: #ffffff;
-    border-color: #eaecf0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(100,116,139,0.09);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    border: 1px solid #eef2f6;
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.04), 0 2px 8px rgba(0, 0, 0, 0.01);
 }
 
-/* --- Device Icon --- */
+body.light-mode .device-card {
+    border-radius: 28px;
+    padding: 24px;
+}
+
+/* Device Icon (Double Circle Design) */
+body.light-mode .device-icon-wrapper {
+    background: #f5f6ff;
+    border: 1.5px solid #eceffd;
+}
+
 body.light-mode .device-icon {
-    background: #f1f5f9;
-    color: #64748b;
-    border-radius: 12px;
+    background: #e8ebff;
+    color: #4f46e5;
 }
+
+body.light-mode .device-card.active .device-icon-wrapper {
+    border-color: #dbe0ff;
+}
+
 body.light-mode .device-card.active .device-icon {
-    background: #6366f1;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     color: #ffffff;
-    box-shadow: 0 2px 12px rgba(99,102,241,0.28);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
-/* --- Device Title --- */
-body.light-mode .device-title h3 {
-    font-size: 17px;
-    font-weight: 700;
-    color: #0f172a;
+/* Switches (Header Toggle Switch) */
+body.light-mode .slider {
+    background-color: #e2e8f0;
+    border: 1px solid #e2e8f0;
 }
-body.light-mode .device-location {
-    font-size: 12.5px;
-    color: #94a3b8;
+body.light-mode .slider:before {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
-
-/* --- Divider --- */
-body.light-mode .card-divider {
-    background: #f1f5f9;
+body.light-mode .switch input:checked + .slider {
+    background-color: #22c55e !important;
+    border-color: #22c55e;
 }
 
-/* --- Mode Selector — pill buttons, no container background --- */
-body.light-mode .mode-selector-container {
-    margin-top: 14px;
-    margin-bottom: 4px;
-    align-items: center;
+/* Mode Selector */
+body.light-mode .mode-label-v2 {
+    color: #8c93ad;
 }
-body.light-mode .mode-label {
-    font-size: 12.5px;
-    font-weight: 500;
-    color: #94a3b8;
-}
-body.light-mode .mode-group {
-    background: transparent;
-    border: none;
-    padding: 0;
-    gap: 8px;
-    display: flex;
-}
-body.light-mode .mode-btn {
-    border: 1.5px solid #e2e8f0;
-    border-radius: 999px;
-    padding: 7px 18px;
-    font-size: 12.5px;
-    font-weight: 600;
+
+body.light-mode .mode-group-v2 {
     background: #ffffff;
-    color: #64748b;
-    transition: all 0.18s;
-}
-body.light-mode .mode-btn:hover:not(.active):not(:disabled) {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    color: #475569;
-}
-body.light-mode .mode-btn.active {
-    background: #6366f1;
-    color: #ffffff;
-    border-color: #6366f1;
-    box-shadow: 0 2px 10px rgba(99,102,241,0.3);
-}
-body.light-mode .mode-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+    border: 1.5px solid #eceffd;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.03);
 }
 
-/* --- Schedule Section --- */
+body.light-mode .mode-btn-v2 {
+    color: #5c6484;
+}
+
+body.light-mode .mode-btn-v2:hover:not(.active) {
+    color: #1e293b;
+}
+
+body.light-mode .mode-btn-v2.active {
+    background: #6366f1;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+}
+
+/* Schedule Section */
 body.light-mode .schedule-section {
     background: transparent;
     border: none;
     padding: 0;
     margin-top: 4px;
 }
+
 body.light-mode .schedule-section.active {
     background: transparent;
     border: none;
@@ -1479,107 +1481,143 @@ body.light-mode .schedule-section.active {
     transform: none;
 }
 
-/* --- Schedule Box --- */
+/* Schedule Box Premium Container */
 body.light-mode .schedule-box-premium {
-    background: #f8fafc;
-    border: 1px solid #e8ecf0;
-    box-shadow: none;
-    gap: 14px;
+    background: #fcfdff;
+    border: 1.5px solid #eceffd;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.02);
+    border-radius: 24px;
+    padding: 20px;
 }
 
-/* --- Picker Label ("Bật lúc" / "Tắt lúc") --- */
-body.light-mode .picker-label-premium {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    color: #94a3b8;
+body.light-mode .sched-icon-wrapper {
+    background: #eff1fe;
+    border: 1px solid #e0e4fc;
+    color: #6366f1;
 }
 
-/* --- Time Display — large numbers --- */
-body.light-mode .time-display-premium {
-    background: #ffffff;
-    border: 1.5px solid #e8ecf0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-body.light-mode .time-display-premium:hover {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
-}
-body.light-mode .time-display-premium .time-text-large {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
+body.light-mode .schedule-title {
     color: #0f172a;
 }
-body.light-mode .time-display-premium .clock-icon {
-    font-size: 18px;
-    opacity: 0.85;
-}
-body.light-mode .picker-column-premium:first-child .time-display-premium .clock-icon {
-    color: #10b981;
-}
-body.light-mode .picker-column-premium:last-child .time-display-premium .clock-icon {
-    color: #6366f1;
+
+/* Switch styling when checked (Green active switch) */
+body.light-mode .switch-sm input:checked + .slider-sm {
+    background-color: #22c55e !important;
 }
 
-/* --- Day Picker — outlined pill for active (not solid fill) --- */
+/* Day Picker */
 body.light-mode .day-btn {
     background: #ffffff;
-    border: 1.5px solid #e2e8f0;
-    color: #94a3b8;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 11px;
-    height: 32px;
+    border: 1.5px solid #eceffd;
+    color: #64748b;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    box-sizing: border-box;
 }
-body.light-mode .day-btn.active {
-    background: rgba(99,102,241,0.08);
-    border-color: #6366f1;
-    color: #6366f1;
-    box-shadow: none;
-}
+
 body.light-mode .day-btn:hover:not(.active) {
     border-color: #cbd5e1;
-    color: #64748b;
+    color: #334155;
     background: #f8fafc;
 }
 
-/* --- Schedule Footer --- */
-body.light-mode .schedule-footer-premium {
-    border-top: 1px solid #eaecf0;
-    padding-top: 12px;
-    color: #64748b;
-    font-size: 13px;
-    font-weight: 500;
+body.light-mode .day-btn.active {
+    background: #ffffff;
+    border-color: #6366f1;
+    color: #6366f1;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
 }
-body.light-mode .next-action-text strong {
+
+body.light-mode .day-picker.disabled {
+    opacity: 0.45;
+}
+
+/* Time Picker display card styling */
+body.light-mode .time-display-premium {
+    background: #ffffff;
+    border: 1.5px solid #eceffd;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.02);
+}
+
+body.light-mode .time-display-premium:hover {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.05);
+}
+
+body.light-mode .time-display-left .picker-label-premium {
+    color: #8c93ad;
+}
+
+body.light-mode .time-display-left .time-text-large {
+    color: #0f172a;
+}
+
+body.light-mode .clock-icon-wrapper-green {
+    background: #edfbf3;
+    color: #22c55e;
+}
+
+body.light-mode .clock-icon-wrapper-blue {
+    background: #eff2ff;
     color: #6366f1;
 }
 
-/* --- Schedule Info Disclaimer --- */
-body.light-mode .schedule-info-footer {
-    background: rgba(99,102,241,0.06);
-    border: 1px solid rgba(99,102,241,0.14);
-    border-radius: 10px;
-    padding: 10px 12px;
-    color: #64748b;
-    margin-top: 4px;
-}
-body.light-mode .schedule-info-footer i {
-    color: #6366f1;
+/* Dropdown styling */
+body.light-mode .time-dropdown-premium {
+    background: #ffffff;
+    border-color: #eceffd;
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
 }
 
-/* --- Auto-info row (đèn tự động) --- */
+/* Schedule Status Footer - Active State (Green) */
+body.light-mode .schedule-section.active .schedule-footer-premium-pill {
+    background: #edfbf3;
+    border: 1px solid #d1f2e0;
+    color: #166534;
+}
+
+/* Schedule Status Footer - Inactive State (Grey) */
+body.light-mode .schedule-section:not(.active) .schedule-footer-premium-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+
+body.light-mode .schedule-footer-premium-pill .status-indicator-dot {
+    background-color: #cbd5e1;
+}
+
+body.light-mode .schedule-footer-premium-pill .status-indicator-dot.active {
+    background-color: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+/* Disclaimer Info Row */
+body.light-mode .schedule-info-footer-v2 {
+    background: #f5f7ff;
+    border: 1px solid #e1e7ff;
+    color: #475569;
+}
+
+body.light-mode .schedule-info-footer-v2 .info-icon-wrapper {
+    background: #4f46e5;
+    color: #ffffff;
+}
+
+body.light-mode .blue-text-highlight {
+    color: #4f46e5;
+    font-weight: 700;
+}
+
+/* Auto-info row (Đèn tự động/mái che tự động info row) */
 body.light-mode .info-row {
-    background: rgba(16,185,129,0.07);
-    border: 1px solid rgba(16,185,129,0.18);
-    border-radius: 10px;
-    padding: 10px 14px;
-    color: #0f766e;
-    font-size: 13px;
+    background: #edfbf3;
+    border: 1px solid #d1f2e0;
+    color: #166534;
+    border-radius: 16px;
+    padding: 12px 16px;
     font-weight: 500;
 }
 
@@ -2540,6 +2578,356 @@ body.light-mode .confirm-btn-cancel:hover {
     background: #4f46e5;
     box-shadow: 0 0 12px var(--accent-glow);
 }
+
+/* ============================================================
+   CARD REDESIGN BASE AND DARK MODE STYLES (v3)
+   ============================================================ */
+
+/* --- Base Styles --- */
+.device-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    padding: 4px;
+    transition: all 0.3s ease;
+}
+
+.device-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Mode Selector */
+.mode-selector-container-v2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.mode-label-v2 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.mode-group-v2 {
+    display: flex;
+    border-radius: 100px;
+    padding: 4px;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+}
+
+.mode-btn-v2 {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Schedule Header Wrapper */
+.sched-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Time Picker display left and right wrappers */
+.time-display-premium {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 18px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.time-display-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+}
+
+.time-display-left .picker-label-premium {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.time-display-left .time-text-large {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    font-family: 'Outfit', sans-serif;
+    line-height: 1.2;
+}
+
+.clock-icon-wrapper-green, .clock-icon-wrapper-blue {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clock-icon-wrapper-green i, .clock-icon-wrapper-blue i {
+    font-size: 16px;
+}
+
+/* Schedule Footer Pill */
+.schedule-footer-premium-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 14px;
+    padding: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Schedule Info Disclaimer */
+.schedule-info-footer-v2 {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.info-icon-wrapper {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+/* --- Dark Mode Default Styles (for Base components) --- */
+/* Device Icon (Double Circle Design) */
+.device-icon-wrapper {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.device-icon {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+}
+
+.device-card.active .device-icon-wrapper {
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.device-card.active .device-icon {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* Mode Selector */
+.mode-label-v2 {
+    color: var(--text-muted);
+}
+
+.mode-group-v2 {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--panel-border);
+}
+
+.mode-btn-v2 {
+    color: var(--text-secondary);
+}
+
+.mode-btn-v2:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+.mode-btn-v2.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+/* Schedule Box Premium Container */
+.schedule-box-premium {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.01);
+}
+
+.sched-icon-wrapper {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+}
+
+.schedule-title {
+    color: var(--text-primary);
+}
+
+/* Day Picker */
+.day-picker {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+.day-btn {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.day-btn:hover:not(.active) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.day-btn.active {
+    background: transparent;
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Time Picker display card styling */
+.time-display-premium {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.time-display-premium:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+}
+
+.time-display-left .picker-label-premium {
+    color: var(--text-muted);
+}
+
+.time-display-left .time-text-large {
+    color: var(--text-primary);
+}
+
+.clock-icon-wrapper-green {
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--success);
+}
+
+.clock-icon-wrapper-blue {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--accent);
+}
+
+/* Schedule Status Footer - Active State (Green) */
+.schedule-section.active .schedule-footer-premium-pill {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    color: #a7f3d0;
+}
+
+/* Schedule Status Footer - Inactive State (Grey) */
+.schedule-section:not(.active) .schedule-footer-premium-pill {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--panel-border);
+    color: var(--text-secondary);
+}
+
+.schedule-footer-premium-pill .status-indicator-dot {
+    background-color: var(--text-muted);
+}
+
+.schedule-footer-premium-pill .status-indicator-dot.active {
+    background-color: var(--success);
+    box-shadow: 0 0 8px var(--success-glow);
+}
+
+/* Disclaimer Info Row */
+.schedule-info-footer-v2 {
+    background: rgba(99, 102, 241, 0.03);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    color: var(--text-secondary);
+}
+
+.schedule-info-footer-v2 .info-icon-wrapper {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.blue-text-highlight {
+    color: #818cf8;
+    font-weight: 700;
+}
+
+/* Animations */
+@keyframes indicator-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px var(--success-glow);
+    }
+    50% {
+        transform: scale(1.2);
+        box-shadow: 0 0 12px var(--success-glow);
+    }
+}
+
+.status-indicator-dot.active {
+    animation: indicator-pulse 2s infinite ease-in-out;
+}
+
 
 
 
