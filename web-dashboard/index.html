@@ -478,14 +478,18 @@
                         <!-- WiFi Config -->
                         <div class="glass-card">
                             <h3>Cấu hình Kết nối WiFi</h3>
+                            <div class="info-note" id="wifi-ap-note" style="display:none;">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>ESP đang ở chế độ AP? Truy cập <strong>192.168.4.1</strong> để cài đặt WiFi lần đầu. Form này dùng để thay đổi WiFi từ xa qua Firebase.</span>
+                            </div>
                             <form id="wifi-config-form" class="config-form">
                                 <div class="form-group">
                                     <label for="wifi-ssid">SSID (Tên WiFi)</label>
-                                    <input type="text" id="wifi-ssid" placeholder="Tên WiFi hiện tại..." required>
+                                    <input type="text" id="wifi-ssid" placeholder="Nhập tên WiFi..." required>
                                 </div>
                                 <div class="form-group">
                                     <label for="wifi-pass">Mật khẩu</label>
-                                    <input type="password" id="wifi-pass" placeholder="••••••••" required>
+                                    <input type="password" id="wifi-pass" placeholder="Nhập mật khẩu WiFi..." required>
                                 </div>
                                 <button type="submit" class="primary-btn">Cập Nhật WiFi</button>
                             </form>

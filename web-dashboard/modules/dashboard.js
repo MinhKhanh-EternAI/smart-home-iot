@@ -469,10 +469,6 @@ export function initDashboard() {
         if (statusText) {
             statusText.innerText = fanOn ? "Đang Bật" : "Đang Tắt";
         }
-        if (icon) {
-            if (fanOn) icon.classList.add("fa-spin");
-            else icon.classList.remove("fa-spin");
-        }
     });
 
     // ==========================================

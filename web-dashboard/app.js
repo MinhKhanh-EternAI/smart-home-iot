@@ -158,29 +158,37 @@ const tabTitles = {
     config: "Cấu hình Hệ thống"
 };
 
-// Hàm chuyển đổi tab đồng bộ
-function switchTab(tabName) {
-    // Cập nhật Active trên Sidebar Menu
+// Hàm cập nhật UI tab (không thay đổi URL)
+function applyTab(tabName) {
     menuItems.forEach(i => {
         if (i.getAttribute("data-tab") === tabName) i.classList.add("active");
         else i.classList.remove("active");
     });
-
-    // Cập nhật Active trên Mobile Nav
     mobileNavItems.forEach(i => {
         if (i.getAttribute("data-tab") === tabName) i.classList.add("active");
         else i.classList.remove("active");
     });
-
-    // Cập nhật hiển thị Tab Content
     tabContents.forEach(tab => {
         if (tab.id === `tab-${tabName}`) tab.classList.add("active");
         else tab.classList.remove("active");
     });
-
-    // Cập nhật tiêu đề trang
-    if (pageTitle) pageTitle.innerText = tabTitles[tabName];
+    if (pageTitle) pageTitle.innerText = tabTitles[tabName] || tabTitles.dashboard;
 }
+
+// Hàm chuyển đổi tab: cập nhật UI + URL hash
+function switchTab(tabName) {
+    if (!tabTitles[tabName]) tabName = "dashboard";
+    applyTab(tabName);
+    if (location.hash !== "#" + tabName) {
+        history.pushState({ tab: tabName }, "", "#" + tabName);
+    }
+}
+
+// Xử lý nút Back/Forward của trình duyệt
+window.addEventListener("popstate", (e) => {
+    const tab = e.state?.tab || location.hash.slice(1) || "dashboard";
+    applyTab(tabTitles[tab] ? tab : "dashboard");
+});
 
 // Gắn sự kiện cho Sidebar
 menuItems.forEach(item => {
@@ -242,3 +250,7 @@ initDashboard();
 initRFID();
 initLogs();
 initConfig();
+
+// Khởi tạo tab từ URL hash khi tải trang (giữ nguyên tab khi reload)
+const initHash = location.hash.slice(1);
+switchTab(tabTitles[initHash] ? initHash : "dashboard");
