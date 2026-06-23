@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity Smart Home Portal</title>
+    <title>Smart Home IoT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=1.0.2">
 </head>
+
 <body>
     <script>
         // Áp dụng theme tức thì trước khi render DOM để tránh chớp màn hình (flash of dark mode)
@@ -147,7 +149,7 @@
                                             <span class="slider-sm"></span>
                                         </label>
                                     </div>
-                                    
+
                                     <div class="schedule-picker-grid-premium">
                                         <!-- Bật Column -->
                                         <div class="picker-column-premium">
@@ -166,7 +168,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Tắt Column -->
                                         <div class="picker-column-premium">
                                             <span class="picker-label-premium">Tắt</span>
@@ -185,18 +187,20 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Schedule Footer -->
                                     <div class="schedule-footer-premium">
                                         <span class="status-indicator-dot" id="indoor-indicator-dot"></span>
-                                        <span class="next-action-text" id="indoor-next-action-text">Chưa kích hoạt lịch trình</span>
+                                        <span class="next-action-text" id="indoor-next-action-text">Chưa kích hoạt lịch
+                                            trình</span>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Info Footer Disclaimer -->
                                 <div class="schedule-info-footer">
                                     <i class="fa-solid fa-circle-info"></i>
-                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch
+                                        trình vẫn hoạt động như đã cài.</span>
                                 </div>
                             </div>
                         </div>
@@ -241,7 +245,7 @@
                                             <span class="slider-sm"></span>
                                         </label>
                                     </div>
-                                    
+
                                     <div class="schedule-picker-grid-premium">
                                         <!-- Bật Column -->
                                         <div class="picker-column-premium">
@@ -260,7 +264,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Tắt Column -->
                                         <div class="picker-column-premium">
                                             <span class="picker-label-premium">Tắt</span>
@@ -279,18 +283,20 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Schedule Footer -->
                                     <div class="schedule-footer-premium">
                                         <span class="status-indicator-dot" id="outdoor-indicator-dot"></span>
-                                        <span class="next-action-text" id="outdoor-next-action-text">Chưa kích hoạt lịch trình</span>
+                                        <span class="next-action-text" id="outdoor-next-action-text">Chưa kích hoạt lịch
+                                            trình</span>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Info Footer Disclaimer -->
                                 <div class="schedule-info-footer">
                                     <i class="fa-solid fa-circle-info"></i>
-                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch trình vẫn hoạt động như đã cài.</span>
+                                    <span>Khi ở chế độ Theo lịch, công tắc trên cùng sẽ là Bật/Tắt tạm thời và lịch
+                                        trình vẫn hoạt động như đã cài.</span>
                                 </div>
                             </div>
                         </div>
@@ -347,8 +353,10 @@
                         <hr class="card-divider">
                         <div class="device-body">
                             <div class="control-row" id="roof-manual-controls" style="display:none;">
-                                <button class="action-btn" id="btn-open-roof"><i class="fa-solid fa-chevron-up"></i> Mở Mái</button>
-                                <button class="action-btn btn-danger" id="btn-close-roof"><i class="fa-solid fa-chevron-down"></i> Đóng Mái</button>
+                                <button class="action-btn" id="btn-open-roof"><i class="fa-solid fa-chevron-up"></i> Mở
+                                    Mái</button>
+                                <button class="action-btn btn-danger" id="btn-close-roof"><i
+                                        class="fa-solid fa-chevron-down"></i> Đóng Mái</button>
                             </div>
                             <div class="info-row" id="roof-auto-info">
                                 <i class="fa-solid fa-robot"></i> Đang tự động điều khiển theo cảm biến nước.
@@ -374,7 +382,8 @@
                         <hr class="card-divider">
                         <div class="device-body">
                             <div class="info-row" id="fan-status-info">
-                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong id="fan-status-text">Đang Tắt</strong>
+                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong
+                                    id="fan-status-text">Đang Tắt</strong>
                             </div>
                         </div>
                     </div>
@@ -488,7 +497,8 @@
                             <form id="mcp-config-form" class="config-form">
                                 <div class="form-group">
                                     <label for="mcp-endpoint">Endpoint Xiaozhi MCP</label>
-                                    <input type="url" id="mcp-endpoint" placeholder="http://192.168.1.x:8000/api" required>
+                                    <input type="url" id="mcp-endpoint" placeholder="http://192.168.1.x:8000/api"
+                                        required>
                                 </div>
                                 <button type="submit" class="primary-btn">Lưu Cấu Hình AI</button>
                             </form>
@@ -505,13 +515,14 @@
                             <textarea id="tools-json-editor" spellcheck="false"></textarea>
                             <div class="json-error" id="json-error-msg" style="display: none;">JSON không hợp lệ!</div>
                         </div>
-                        <button class="primary-btn" id="btn-save-tools-json"><i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình Tools</button>
+                        <button class="primary-btn" id="btn-save-tools-json"><i class="fa-solid fa-floppy-disk"></i> Lưu
+                            Cấu Hình Tools</button>
                     </div>
                 </div>
             </section>
         </main>
     </div>
-    
+
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="mobile-nav">
         <a href="#dashboard" class="mobile-nav-item active" data-tab="dashboard">
@@ -538,4 +549,5 @@
     <!-- Firebase SDK & App Logic -->
     <script type="module" src="app.js?v=1.0.2"></script>
 </body>
+
 </html>
