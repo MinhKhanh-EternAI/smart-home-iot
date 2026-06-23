@@ -32,6 +32,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Inject Firebase config from GitHub Secrets
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+        run: |
+          printf 'export const firebaseConfig = {\n  apiKey: "%s",\n  databaseURL: "%s"\n};\n' \
+            "$FIREBASE_API_KEY" "$FIREBASE_DATABASE_URL" > web-dashboard/firebase-config.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Import modular pages
 import { initDashboard } from "./modules/dashboard.js?v=1.0.2";
@@ -8,16 +9,16 @@ import { initRFID } from "./modules/rfid.js?v=1.0.2";
 import { initLogs } from "./modules/logs.js?v=1.0.2";
 import { initConfig } from "./modules/config.js?v=1.0.2";
 
-
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCnupBCvmT1P7ItpOTOCe0HGA1vovytwbQ",
-    databaseURL: "https://esp32-smart-home-c7e8a-default-rtdb.asia-southeast1.firebasedatabase.app/"
-};
+// Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
+import { firebaseConfig } from "./firebase-config.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
+
+// Đăng nhập ẩn danh để đáp ứng Firebase Security Rules (auth != null)
+const auth = getAuth(app);
+signInAnonymously(auth).catch((err) => console.error("Firebase auth error:", err));
 
 // Trạng thái toàn cục để đồng bộ logic hiển thị cảnh báo
 export const state = {

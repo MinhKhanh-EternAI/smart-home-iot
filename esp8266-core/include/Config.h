@@ -6,13 +6,14 @@
 // ==========================================
 // 1. Cấu hình WiFi & Firebase
 // ==========================================
+// FIREBASE_HOST và FIREBASE_API_KEY được khai báo trong Secrets.h
+// Tạo file đó từ Secrets.h.example và KHÔNG bao giờ commit lên git.
+#include "Secrets.h"
+
 #define DEFAULT_WIFI_SSID     "Your_WiFi_SSID"
 #define DEFAULT_WIFI_PASSWORD "Your_WiFi_Password"
 #define EEPROM_SIZE           96
 #define AP_SSID               "SmartHome-Config"
-
-#define FIREBASE_HOST         "esp32-smart-home-c7e8a-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_API_KEY      "AIzaSyCnupBCvmT1P7ItpOTOCe0HGA1vovytwbQ"
 
 // ==========================================
 // 2. Tùy chọn Tối ưu hóa Chân điều khiển
@@ -42,11 +43,11 @@
 
 #if USE_OPTIMIZED_PINS
   // Cấu hình chân Tối ưu (Khuyên dùng)
-  #define SERVO_DOOR_PIN      D4   // GPIO2 (An toàn cho Servo)
-  #define SERVO_ROOF_PIN      D4   // Có thể thay đổi thành chân khác như RX/TX nếu cần 2 servo, nhưng an toàn hơn.
-                                   // Hoặc sử dụng RX (GPIO3) cho Servo Roof nhưng tắt Serial để giảm nhiễu.
-  #define SERVO_ROOF_ALT_PIN  D3   // Hoặc chia sẻ hoặc dùng RX/TX
-  #define PIR_PIN_ESP         -1   // Không dùng chân ESP, PIR kết nối vào PCF8574 P3
+  // setup() gọi Serial.end() trước khi RoofController.init() để giải phóng
+  // RX (GPIO3) cho Servo Roof. Mất debug Serial trong runtime là tradeoff chấp nhận được.
+  #define SERVO_DOOR_PIN      D4   // GPIO2 — an toàn, không dùng cho UART
+  #define SERVO_ROOF_PIN      3    // RX (GPIO3) — dùng sau khi Serial.end() trong setup()
+  #define PIR_PIN_ESP         -1   // PIR kết nối vào PCF8574 P3
 #else
   // Cấu hình chân Gốc theo yêu cầu
   #define SERVO_DOOR_PIN      3    // RX (GPIO3)

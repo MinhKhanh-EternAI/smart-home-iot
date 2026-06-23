@@ -18,7 +18,11 @@ private:
     
     bool isOpen = false;
     unsigned long openTime = 0;
-    const unsigned long autoCloseDelay = 5000; // Tự động đóng cửa sau 5 giây
+    unsigned long autoCloseDelay = 5000;
+
+    bool isDenying = false;
+    unsigned long denyStartTime = 0;
+    static const unsigned long DENY_DISPLAY_MS = 2500;
 
 public:
     DoorController() : 
@@ -60,17 +64,24 @@ public:
     }
 
     void update() {
-        // Xử lý tự động đóng cửa sau khi mở
+        // Bộ đếm hiển thị từ chối (non-blocking — thay thế delay(2500) cũ)
+        if (isDenying) {
+            if (millis() - denyStartTime >= DENY_DISPLAY_MS) {
+                isDenying = false;
+                showStandbyMessage();
+            }
+            return;
+        }
+
+        // Tự động đóng cửa sau thời gian cấu hình
         if (isOpen && (millis() - openTime >= autoCloseDelay)) {
             closeDoor();
         }
 
-        // Kiểm tra xem có thẻ mới đưa vào không
         if (!mfrc522.PICC_IsNewCardPresent()) {
             return;
         }
 
-        // Đọc thông tin thẻ
         if (!mfrc522.PICC_ReadCardSerial()) {
             return;
         }
@@ -128,8 +139,9 @@ public:
                 fb->logEvent("security", "Quét thẻ bị khóa: " + holderName);
             }
             
-            delay(2500); // Giữ thông báo lỗi trong 2.5s
-            showStandbyMessage();
+            // Bắt đầu bộ đếm — update() tiếp theo sẽ gọi showStandbyMessage() sau 2.5s
+            isDenying = true;
+            denyStartTime = millis();
         }
 
         // Dừng đọc thẻ hiện tại
@@ -166,6 +178,10 @@ public:
         lcd.print("   SMART HOME   ");
         lcd.setCursor(0, 1);
         lcd.print("Scan RFID Card..");
+    }
+
+    void setAutoCloseDelay(unsigned long ms) {
+        autoCloseDelay = ms;
     }
 
     void setStatusFromFirebase(const String& status) {

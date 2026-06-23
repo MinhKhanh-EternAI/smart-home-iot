@@ -51,8 +51,10 @@ void onDeviceControl(const String& device, const String& key, const String& valu
     else if (device == "door") {
         if (key == "status") {
             doorCtrl.setStatusFromFirebase(value);
+        } else if (key == "auto_close_ms") {
+            doorCtrl.setAutoCloseDelay((unsigned long)value.toInt());
         }
-    } 
+    }
     else if (device == "roof") {
         if (key == "status") {
             roofCtrl.setStatusFromFirebase(value);
@@ -84,15 +86,19 @@ void setup() {
     // 3. Khởi tạo các Mô-đun phần cứng
     lightCtrl.init(&fbHelper);
     doorCtrl.init(&fbHelper);
-    roofCtrl.init(&fbHelper);
     climateCtrl.init(&fbHelper);
 
-    // Ghi log hệ thống khởi động thành công
-    fbHelper.logEvent("system", "Hệ thống khởi động thành công và đã đồng bộ với Firebase.");
-
+    // Đóng Serial để giải phóng RX (GPIO3) cho Servo Roof.
+    // Sau bước này không có debug Serial trong chế độ USE_OPTIMIZED_PINS.
     #if USE_OPTIMIZED_PINS
-        Serial.println("System Ready!");
+        Serial.println("Serial closing — RX (GPIO3) freed for Servo Roof.");
+        Serial.flush();
+        Serial.end();
     #endif
+
+    roofCtrl.init(&fbHelper);
+
+    fbHelper.logEvent("system", "Hệ thống khởi động thành công và đã đồng bộ với Firebase.");
 }
 
 void loop() {
