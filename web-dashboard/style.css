@@ -2887,6 +2887,48 @@ body.light-mode .confirm-btn-cancel:hover {
     animation: indicator-pulse 2s infinite ease-in-out;
 }
 
+/* ============================================================
+   RESPONSIVE DESIGN MEDIA QUERIES FOR REDESIGNED CARDS
+   ============================================================ */
+@media (max-width: 576px) {
+    /* Stack time pickers vertically on mobile */
+    .schedule-picker-grid-premium {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    /* Adapt Day Picker buttons to circular fit on mobile */
+    .day-btn {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        font-size: 10px;
+    }
+    
+    .day-picker {
+        gap: 4px;
+        justify-content: space-around;
+    }
+    
+    /* Slightly reduce time text size on very small screens */
+    .time-display-left .time-text-large {
+        font-size: 24px;
+    }
+    
+    /* Adjust padding of device card for small screens */
+    body.light-mode .device-card,
+    .device-card {
+        padding: 16px;
+        border-radius: 20px;
+    }
+    
+    body.light-mode .schedule-box-premium,
+    .schedule-box-premium {
+        padding: 14px;
+        border-radius: 18px;
+    }
+}
+
 
 
 
