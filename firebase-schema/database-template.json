@@ -36,7 +36,8 @@
       "schedule": {
         "enabled": false,
         "on_time": "18:00",
-        "off_time": "06:00"
+        "off_time": "06:00",
+        "days": 127
       }
     },
     "outdoor_light": {
@@ -45,7 +46,8 @@
       "schedule": {
         "enabled": false,
         "on_time": "18:00",
-        "off_time": "06:00"
+        "off_time": "06:00",
+        "days": 127
       }
     },
     "door": {

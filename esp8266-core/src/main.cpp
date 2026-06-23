@@ -31,6 +31,22 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOffTime(device, value);
         } else if (key == "schedule/days") {
             lightCtrl.setScheduleDays(device, value.toInt());
+        } else if (key == "schedule") {
+            FirebaseJson json;
+            json.setJsonData(value);
+            FirebaseJsonData result;
+            
+            json.get(result, "enabled");
+            if (result.success) lightCtrl.setScheduleEnabled(device, result.to<bool>());
+            
+            json.get(result, "on_time");
+            if (result.success) lightCtrl.setScheduleOnTime(device, result.to<String>());
+            
+            json.get(result, "off_time");
+            if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
+            
+            json.get(result, "days");
+            if (result.success) lightCtrl.setScheduleDays(device, result.to<int>());
         }
     }
     else if (device == "outdoor_light") {
@@ -46,6 +62,22 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOffTime(device, value);
         } else if (key == "schedule/days") {
             lightCtrl.setScheduleDays(device, value.toInt());
+        } else if (key == "schedule") {
+            FirebaseJson json;
+            json.setJsonData(value);
+            FirebaseJsonData result;
+            
+            json.get(result, "enabled");
+            if (result.success) lightCtrl.setScheduleEnabled(device, result.to<bool>());
+            
+            json.get(result, "on_time");
+            if (result.success) lightCtrl.setScheduleOnTime(device, result.to<String>());
+            
+            json.get(result, "off_time");
+            if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
+            
+            json.get(result, "days");
+            if (result.success) lightCtrl.setScheduleDays(device, result.to<int>());
         }
     } 
     else if (device == "door") {
