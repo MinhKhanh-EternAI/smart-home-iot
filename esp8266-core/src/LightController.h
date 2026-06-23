@@ -26,11 +26,13 @@ private:
     int indoorOnHour = -1, indoorOnMin = -1;
     int indoorOffHour = -1, indoorOffMin = -1;
     int lastIndoorTriggerHour = -1, lastIndoorTriggerMin = -1;
+    int indoorScheduleDays = 127; // Bitmask: bit0=CN, bit1=T2,...,bit6=T7, 127=mọi ngày
 
     bool outdoorScheduleEnabled = false;
     int outdoorOnHour = -1, outdoorOnMin = -1;
     int outdoorOffHour = -1, outdoorOffMin = -1;
     int lastOutdoorTriggerHour = -1, lastOutdoorTriggerMin = -1;
+    int outdoorScheduleDays = 127;
     
     unsigned long lastScheduleCheck = 0;
 
@@ -166,6 +168,12 @@ public:
         }
     }
 
+    void setScheduleDays(const String& device, int days) {
+        if (device == "indoor_light") indoorScheduleDays = days;
+        else if (device == "outdoor_light") outdoorScheduleDays = days;
+        Serial.printf("Schedule days for %s: %d\n", device.c_str(), days);
+    }
+
     void setScheduleOffTime(const String& device, const String& offTime) {
         int hour = -1, min = -1;
         if (sscanf(offTime.c_str(), "%d:%d", &hour, &min) == 2) {
@@ -201,9 +209,11 @@ private:
 
         int currentHour = timeinfo->tm_hour;
         int currentMin = timeinfo->tm_min;
+        int currentDow = timeinfo->tm_wday; // 0=CN, 1=T2, ..., 6=T7
 
-        // Kiểm tra đèn trong nhà (chỉ chạy khi ở chế độ Theo lịch)
-        if (indoorMode == "schedule" && indoorScheduleEnabled && indoorOnHour != -1 && indoorOffHour != -1) {
+        // Kiểm tra đèn trong nhà (chỉ chạy khi ở chế độ Theo lịch và đúng ngày)
+        if (indoorMode == "schedule" && indoorScheduleEnabled && indoorOnHour != -1 && indoorOffHour != -1
+            && (indoorScheduleDays & (1 << currentDow))) {
             if (currentHour == indoorOnHour && currentMin == indoorOnMin) {
                 if (currentHour != lastIndoorTriggerHour || currentMin != lastIndoorTriggerMin) {
                     lastIndoorTriggerHour = currentHour;
@@ -225,8 +235,9 @@ private:
             }
         }
 
-        // Kiểm tra đèn ngoài trời (chỉ chạy khi ở chế độ Thủ công)
-        if (outdoorMode == "manual" && outdoorScheduleEnabled && outdoorOnHour != -1 && outdoorOffHour != -1) {
+        // Kiểm tra đèn ngoài trời (chỉ chạy khi ở chế độ Thủ công và đúng ngày)
+        if (outdoorMode == "manual" && outdoorScheduleEnabled && outdoorOnHour != -1 && outdoorOffHour != -1
+            && (outdoorScheduleDays & (1 << currentDow))) {
             if (currentHour == outdoorOnHour && currentMin == outdoorOnMin) {
                 if (currentHour != lastOutdoorTriggerHour || currentMin != lastOutdoorTriggerMin) {
                     lastOutdoorTriggerHour = currentHour;

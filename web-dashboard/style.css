@@ -1891,6 +1891,48 @@ body.light-mode .schedule-box-premium {
     filter: grayscale(20%);
 }
 
+/* Day-of-week picker */
+.day-picker {
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+    transition: opacity var(--transition-fast);
+}
+.day-picker.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    filter: grayscale(20%);
+}
+.day-btn {
+    flex: 1;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+}
+.day-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+.day-btn:hover:not(.active) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+body.light-mode .day-btn {
+    border-color: rgba(0, 0, 0, 0.12);
+}
+body.light-mode .day-btn.active {
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
 .picker-column-premium {
     display: flex;
     flex-direction: column;

@@ -29,8 +29,10 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOnTime(device, value);
         } else if (key == "schedule/off_time") {
             lightCtrl.setScheduleOffTime(device, value);
+        } else if (key == "schedule/days") {
+            lightCtrl.setScheduleDays(device, value.toInt());
         }
-    } 
+    }
     else if (device == "outdoor_light") {
         if (key == "status") {
             lightCtrl.setOutdoorLight(value == "true");
@@ -42,6 +44,8 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOnTime(device, value);
         } else if (key == "schedule/off_time") {
             lightCtrl.setScheduleOffTime(device, value);
+        } else if (key == "schedule/days") {
+            lightCtrl.setScheduleDays(device, value.toInt());
         }
     } 
     else if (device == "door") {

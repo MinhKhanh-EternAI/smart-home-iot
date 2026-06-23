@@ -176,6 +176,33 @@ function initPremiumTimePickers(onTimeChange) {
     });
 }
 
+function updateDayPicker(pickerId, bitmask, disabled) {
+    const picker = document.getElementById(pickerId);
+    if (!picker) return;
+    picker.querySelectorAll(".day-btn").forEach(btn => {
+        const bit = 1 << parseInt(btn.dataset.day);
+        btn.classList.toggle("active", !!(bitmask & bit));
+    });
+    picker.classList.toggle("disabled", !!disabled);
+}
+
+function initDayPicker(pickerId, fbPath) {
+    const picker = document.getElementById(pickerId);
+    if (!picker) return;
+    picker.addEventListener("click", (e) => {
+        const btn = e.target.closest(".day-btn");
+        if (!btn) return;
+        let bitmask = 0;
+        picker.querySelectorAll(".day-btn").forEach(b => {
+            if (b.classList.contains("active")) bitmask |= (1 << parseInt(b.dataset.day));
+        });
+        const bit = 1 << parseInt(btn.dataset.day);
+        const next = bitmask ^ bit;
+        if (next === 0) return; // ít nhất 1 ngày phải được chọn
+        set(ref(db, fbPath), next);
+    });
+}
+
 export function initDashboard() {
     // Đọc giá trị Cảm biến
     const updateSensorsUI = (data) => {
@@ -277,13 +304,15 @@ export function initDashboard() {
             if (window.updatePicker_indoor_on_time) window.updatePicker_indoor_on_time(inLight.schedule.on_time || "18:00");
             if (window.updatePicker_indoor_off_time) window.updatePicker_indoor_off_time(inLight.schedule.off_time || "06:00");
 
-            // UX: Vô hiệu hóa ô chọn giờ nếu không bật hẹn giờ
+            // UX: Vô hiệu hóa ô chọn giờ và day picker nếu không bật hẹn giờ
             if (inScheduleSection) {
                 const indoorSchedPickers = inScheduleSection.querySelector(".schedule-picker-grid-premium");
                 if (indoorSchedPickers) {
                     indoorSchedPickers.classList.toggle("disabled", !inLight.schedule.enabled);
                 }
             }
+            const inDays = inLight.schedule.days !== undefined ? inLight.schedule.days : 127;
+            updateDayPicker("indoor-day-picker", inDays, !inLight.schedule.enabled);
 
             // Hiển thị trạng thái lịch trình tiếp theo
             const indoorNextActionText = document.getElementById("indoor-next-action-text");
@@ -352,13 +381,15 @@ export function initDashboard() {
             if (window.updatePicker_outdoor_on_time) window.updatePicker_outdoor_on_time(outLight.schedule.on_time || "18:00");
             if (window.updatePicker_outdoor_off_time) window.updatePicker_outdoor_off_time(outLight.schedule.off_time || "06:00");
 
-            // UX: Vô hiệu hóa ô chọn giờ nếu không bật hẹn giờ
+            // UX: Vô hiệu hóa ô chọn giờ và day picker nếu không bật hẹn giờ
             if (outScheduleSection) {
                 const outdoorSchedPickers = outScheduleSection.querySelector(".schedule-picker-grid-premium");
                 if (outdoorSchedPickers) {
                     outdoorSchedPickers.classList.toggle("disabled", !outLight.schedule.enabled);
                 }
             }
+            const outDays = outLight.schedule.days !== undefined ? outLight.schedule.days : 127;
+            updateDayPicker("outdoor-day-picker", outDays, !outLight.schedule.enabled);
 
             // Hiển thị trạng thái lịch trình tiếp theo
             const outdoorNextActionText = document.getElementById("outdoor-next-action-text");
@@ -592,6 +623,10 @@ export function initDashboard() {
             set(ref(db, "devices/fan"), e.target.checked);
         });
     }
+
+    // Khởi tạo day pickers
+    initDayPicker("indoor-day-picker", "devices/indoor_light/schedule/days");
+    initDayPicker("outdoor-day-picker", "devices/outdoor_light/schedule/days");
 
     // Khởi tạo custom time pickers
     initPremiumTimePickers((pickerId, newVal) => {
