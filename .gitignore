@@ -1,3 +1,4 @@
 # Firebase web config — được GitHub Actions tạo tự động từ Secrets
 # KHÔNG commit file này lên git
 web-dashboard/firebase-config.js
+ld/
