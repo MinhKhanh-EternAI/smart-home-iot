@@ -32,6 +32,7 @@ void onDeviceControl(const String& device, const String& key, const String& valu
         } else if (key.startsWith("schedule/days/")) {
             String dayName = key.substring(14);
             lightCtrl.setScheduleDay(device, dayName, value == "true");
+
         } else if (key == "schedule") {
             FirebaseJson json;
             json.setJsonData(value);
@@ -58,6 +59,7 @@ void onDeviceControl(const String& device, const String& key, const String& valu
                 }
                 result.jsonObject.iteratorEnd();
             }
+
         }
     }
     else if (device == "outdoor_light") {
@@ -74,6 +76,7 @@ void onDeviceControl(const String& device, const String& key, const String& valu
         } else if (key.startsWith("schedule/days/")) {
             String dayName = key.substring(14);
             lightCtrl.setScheduleDay(device, dayName, value == "true");
+
         } else if (key == "schedule") {
             FirebaseJson json;
             json.setJsonData(value);
@@ -100,6 +103,7 @@ void onDeviceControl(const String& device, const String& key, const String& valu
                 }
                 result.jsonObject.iteratorEnd();
             }
+
         }
     } 
     else if (device == "door") {

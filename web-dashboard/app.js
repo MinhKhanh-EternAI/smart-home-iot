@@ -4,10 +4,10 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Import modular pages
-import { initDashboard } from "./modules/dashboard.js?v=1.0.2";
-import { initRFID } from "./modules/rfid.js?v=1.0.2";
-import { initLogs } from "./modules/logs.js?v=1.0.2";
-import { initConfig } from "./modules/config.js?v=1.0.2";
+import { initDashboard } from "./modules/dashboard.js";
+import { initRFID } from "./modules/rfid.js";
+import { initLogs } from "./modules/logs.js";
+import { initConfig } from "./modules/config.js";
 
 // Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
 import { firebaseConfig } from "./firebase-config.js";

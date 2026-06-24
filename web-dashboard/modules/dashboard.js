@@ -1,5 +1,5 @@
 import { db, state } from "../app.js";
-import { ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 function getVietnameseDayOfWeek() {
     const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
@@ -177,33 +177,35 @@ function initPremiumTimePickers(onTimeChange) {
     });
 }
 
-const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-
-function updateDayPicker(pickerId, daysObj, disabled) {
-    const picker = document.getElementById(pickerId);
-    if (!picker) return;
-    picker.querySelectorAll(".day-btn").forEach(btn => {
-        const dayKey = DAY_NAMES[parseInt(btn.dataset.day)];
-        btn.classList.toggle("active", daysObj && daysObj[dayKey] === true);
-    });
-    picker.classList.toggle("disabled", !!disabled);
-}
-
-function initDayPicker(pickerId, fbPath) {
-    const picker = document.getElementById(pickerId);
-    if (!picker) return;
-    picker.addEventListener("click", (e) => {
-        const btn = e.target.closest(".day-btn");
-        if (!btn) return;
-        const dayKey = DAY_NAMES[parseInt(btn.dataset.day)];
-        btn.classList.toggle("active");
-        set(ref(db, `${fbPath}/${dayKey}`), btn.classList.contains("active")).catch(() => {
-            btn.classList.toggle("active");
-        });
-    });
-}
-
 export function initDashboard() {
+    const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const VIET_DAY_NAMES = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+
+    function updateDayPicker(pickerId, daysObj, disabled, dayNames = DAY_NAMES) {
+        const picker = document.getElementById(pickerId);
+        if (!picker) return;
+        picker.querySelectorAll(".day-btn").forEach(btn => {
+            const dayKey = dayNames[parseInt(btn.dataset.day)];
+            btn.classList.toggle("active", daysObj && daysObj[dayKey] === true);
+        });
+        picker.classList.toggle("disabled", !!disabled);
+    }
+
+    function initDayPicker(pickerId, fbPath, dayNames = DAY_NAMES) {
+        const picker = document.getElementById(pickerId);
+        if (!picker) return;
+        picker.addEventListener("click", (e) => {
+            const btn = e.target.closest(".day-btn");
+            if (!btn) return;
+            const dayKey = dayNames[parseInt(btn.dataset.day)];
+            btn.classList.toggle("active");
+            runTransaction(ref(db, `${fbPath}/${dayKey}`), (currentVal) => {
+                return currentVal === true ? false : true;
+            }).catch(() => {
+                btn.classList.toggle("active");
+            });
+        });
+    }
     // Đọc giá trị Cảm biến
     const updateSensorsUI = (data) => {
         if (!data) return;
@@ -308,7 +310,7 @@ export function initDashboard() {
                 }
             }
             const inDays = inLight.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
-            updateDayPicker("indoor-day-picker", inDays, !inLight.schedule.enabled);
+            updateDayPicker("indoor-day-picker", inDays, !inLight.schedule.enabled, DAY_NAMES);
 
             // Hiển thị trạng thái lịch trình tiếp theo
             const indoorNextActionText = document.getElementById("indoor-next-action-text");
@@ -385,7 +387,7 @@ export function initDashboard() {
                 }
             }
             const outDays = outLight.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
-            updateDayPicker("outdoor-day-picker", outDays, !outLight.schedule.enabled);
+            updateDayPicker("outdoor-day-picker", outDays, !outLight.schedule.enabled, DAY_NAMES);
 
             // Hiển thị trạng thái lịch trình tiếp theo
             const outdoorNextActionText = document.getElementById("outdoor-next-action-text");
@@ -605,8 +607,8 @@ export function initDashboard() {
     }
 
     // Khởi tạo day pickers
-    initDayPicker("indoor-day-picker", "devices/indoor_light/schedule/days");
-    initDayPicker("outdoor-day-picker", "devices/outdoor_light/schedule/days");
+    initDayPicker("indoor-day-picker", "devices/indoor_light/schedule/days", DAY_NAMES);
+    initDayPicker("outdoor-day-picker", "devices/outdoor_light/schedule/days", DAY_NAMES);
 
     // Khởi tạo custom time pickers
     initPremiumTimePickers((pickerId, newVal) => {
