@@ -29,8 +29,9 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOnTime(device, value);
         } else if (key == "schedule/off_time") {
             lightCtrl.setScheduleOffTime(device, value);
-        } else if (key == "schedule/days") {
-            lightCtrl.setScheduleDays(device, value.toInt());
+        } else if (key.startsWith("schedule/days/")) {
+            String dayName = key.substring(14);
+            lightCtrl.setScheduleDay(device, dayName, value == "true");
         } else if (key == "schedule") {
             FirebaseJson json;
             json.setJsonData(value);
@@ -46,7 +47,17 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
             
             json.get(result, "days");
-            if (result.success) lightCtrl.setScheduleDays(device, result.to<int>());
+            if (result.success && result.jsonObject.iteratorBegin() > 0) {
+                FirebaseJsonData dayResult;
+                const char* dayNames[7] = {"sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
+                for (int i = 0; i < 7; i++) {
+                    result.jsonObject.get(dayResult, dayNames[i]);
+                    if (dayResult.success) {
+                        lightCtrl.setScheduleDay(device, dayNames[i], dayResult.to<bool>());
+                    }
+                }
+                result.jsonObject.iteratorEnd();
+            }
         }
     }
     else if (device == "outdoor_light") {
@@ -60,8 +71,9 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setScheduleOnTime(device, value);
         } else if (key == "schedule/off_time") {
             lightCtrl.setScheduleOffTime(device, value);
-        } else if (key == "schedule/days") {
-            lightCtrl.setScheduleDays(device, value.toInt());
+        } else if (key.startsWith("schedule/days/")) {
+            String dayName = key.substring(14);
+            lightCtrl.setScheduleDay(device, dayName, value == "true");
         } else if (key == "schedule") {
             FirebaseJson json;
             json.setJsonData(value);
@@ -77,7 +89,17 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
             
             json.get(result, "days");
-            if (result.success) lightCtrl.setScheduleDays(device, result.to<int>());
+            if (result.success && result.jsonObject.iteratorBegin() > 0) {
+                FirebaseJsonData dayResult;
+                const char* dayNames[7] = {"sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
+                for (int i = 0; i < 7; i++) {
+                    result.jsonObject.get(dayResult, dayNames[i]);
+                    if (dayResult.success) {
+                        lightCtrl.setScheduleDay(device, dayNames[i], dayResult.to<bool>());
+                    }
+                }
+                result.jsonObject.iteratorEnd();
+            }
         }
     } 
     else if (device == "door") {

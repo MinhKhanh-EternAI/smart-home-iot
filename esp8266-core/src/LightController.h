@@ -36,6 +36,17 @@ private:
     
     unsigned long lastScheduleCheck = 0;
 
+    static int dayNameToBit(const String& name) {
+        if (name == "monday") return 1;
+        if (name == "tuesday") return 2;
+        if (name == "wednesday") return 3;
+        if (name == "thursday") return 4;
+        if (name == "friday") return 5;
+        if (name == "saturday") return 6;
+        if (name == "sunday") return 0;
+        return -1;
+    }
+
 public:
     LightController() : pcf(PCF_I2C_ADDRESS) {}
 
@@ -162,6 +173,15 @@ public:
         if (device == "indoor_light") indoorScheduleDays = days;
         else if (device == "outdoor_light") outdoorScheduleDays = days;
         Serial.printf("Schedule days for %s: %d\n", device.c_str(), days);
+    }
+
+    void setScheduleDay(const String& device, const String& dayName, bool enabled) {
+        int bit = dayNameToBit(dayName);
+        if (bit < 0) return;
+        int& days = (device == "indoor_light") ? indoorScheduleDays : outdoorScheduleDays;
+        if (enabled) days |= (1 << bit);
+        else days &= ~(1 << bit);
+        Serial.printf("Schedule day %s for %s: %s (bitmask: %d)\n", dayName.c_str(), device.c_str(), enabled ? "ON" : "OFF", days);
     }
 
     void setScheduleOffTime(const String& device, const String& offTime) {

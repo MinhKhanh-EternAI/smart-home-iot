@@ -177,12 +177,14 @@ function initPremiumTimePickers(onTimeChange) {
     });
 }
 
-function updateDayPicker(pickerId, bitmask, disabled) {
+const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+function updateDayPicker(pickerId, daysObj, disabled) {
     const picker = document.getElementById(pickerId);
     if (!picker) return;
     picker.querySelectorAll(".day-btn").forEach(btn => {
-        const bit = 1 << parseInt(btn.dataset.day);
-        btn.classList.toggle("active", !!(bitmask & bit));
+        const dayKey = DAY_NAMES[parseInt(btn.dataset.day)];
+        btn.classList.toggle("active", daysObj && daysObj[dayKey] === true);
     });
     picker.classList.toggle("disabled", !!disabled);
 }
@@ -193,17 +195,9 @@ function initDayPicker(pickerId, fbPath) {
     picker.addEventListener("click", (e) => {
         const btn = e.target.closest(".day-btn");
         if (!btn) return;
-        const bit = 1 << parseInt(btn.dataset.day);
-        let bitmask = 0;
-        picker.querySelectorAll(".day-btn").forEach(b => {
-            if (b.classList.contains("active")) bitmask |= (1 << parseInt(b.dataset.day));
-        });
-        const next = bitmask ^ bit;
-        if (next === 0) return;
-        // Cập nhật UI ngay lập tức trước khi ghi Firebase
+        const dayKey = DAY_NAMES[parseInt(btn.dataset.day)];
         btn.classList.toggle("active");
-        set(ref(db, fbPath), next).catch(err => {
-            // Revert nếu ghi Firebase thất bại
+        set(ref(db, `${fbPath}/${dayKey}`), btn.classList.contains("active")).catch(() => {
             btn.classList.toggle("active");
         });
     });
@@ -313,7 +307,7 @@ export function initDashboard() {
                     indoorSchedPickers.classList.toggle("disabled", !inLight.schedule.enabled);
                 }
             }
-            const inDays = inLight.schedule.days !== undefined ? inLight.schedule.days : 127;
+            const inDays = inLight.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
             updateDayPicker("indoor-day-picker", inDays, !inLight.schedule.enabled);
 
             // Hiển thị trạng thái lịch trình tiếp theo
@@ -390,7 +384,7 @@ export function initDashboard() {
                     outdoorSchedPickers.classList.toggle("disabled", !outLight.schedule.enabled);
                 }
             }
-            const outDays = outLight.schedule.days !== undefined ? outLight.schedule.days : 127;
+            const outDays = outLight.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
             updateDayPicker("outdoor-day-picker", outDays, !outLight.schedule.enabled);
 
             // Hiển thị trạng thái lịch trình tiếp theo
