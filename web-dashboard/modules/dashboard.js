@@ -193,14 +193,19 @@ function initDayPicker(pickerId, fbPath) {
     picker.addEventListener("click", (e) => {
         const btn = e.target.closest(".day-btn");
         if (!btn) return;
+        const bit = 1 << parseInt(btn.dataset.day);
         let bitmask = 0;
         picker.querySelectorAll(".day-btn").forEach(b => {
             if (b.classList.contains("active")) bitmask |= (1 << parseInt(b.dataset.day));
         });
-        const bit = 1 << parseInt(btn.dataset.day);
         const next = bitmask ^ bit;
-        if (next === 0) return; // ít nhất 1 ngày phải được chọn
-        set(ref(db, fbPath), next);
+        if (next === 0) return;
+        // Cập nhật UI ngay lập tức trước khi ghi Firebase
+        btn.classList.toggle("active");
+        set(ref(db, fbPath), next).catch(err => {
+            // Revert nếu ghi Firebase thất bại
+            btn.classList.toggle("active");
+        });
     });
 }
 
@@ -294,10 +299,6 @@ export function initDashboard() {
         
         // Hẹn giờ Đèn trong nhà
         if (inLight.schedule) {
-            if (inLight.schedule.days === undefined) {
-                set(ref(db, "devices/indoor_light/schedule/days"), 127);
-                inLight.schedule.days = 127;
-            }
             const enableCheck = document.getElementById("indoor-sched-enable");
             if (enableCheck) enableCheck.checked = inLight.schedule.enabled;
             
@@ -375,10 +376,6 @@ export function initDashboard() {
         
         // Hẹn giờ Đèn ngoài sân
         if (outLight.schedule) {
-            if (outLight.schedule.days === undefined) {
-                set(ref(db, "devices/outdoor_light/schedule/days"), 127);
-                outLight.schedule.days = 127;
-            }
             const enableCheck = document.getElementById("outdoor-sched-enable");
             if (enableCheck) enableCheck.checked = outLight.schedule.enabled;
             
