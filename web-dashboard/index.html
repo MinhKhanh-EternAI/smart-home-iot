@@ -113,6 +113,11 @@
                 </div>
 
                 <!-- Devices Grid -->
+                <!-- Section: Trong Nhà -->
+                <div class="device-section-title">
+                    <i class="fa-solid fa-house-user"></i>
+                    <h2>Thiết bị Trong Nhà</h2>
+                </div>
                 <div class="devices-grid">
                     <!-- Indoor Light -->
                     <div class="device-card">
@@ -221,6 +226,115 @@
                         </div>
                     </div>
 
+                    <!-- Smart Fan -->
+                    <div class="device-card" id="fan-card-container">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-fan device-icon" id="fan-icon"></i>
+                                </div>
+                                <div>
+                                    <h3>Quạt Thông Minh</h3>
+                                    <span class="device-location">Phòng khách</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="fan-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="device-body">
+                            <div class="info-row" id="fan-status-info">
+                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong id="fan-status-text">Đang Tắt</strong>
+                            </div>
+                            <div class="schedule-section" id="fan-schedule-section" style="display: block;">
+                                <div class="schedule-box-premium">
+                                    <div class="schedule-header-row">
+                                        <div class="schedule-header-left">
+                                            <div class="sched-icon-wrapper">
+                                                <i class="fa-solid fa-calendar-days schedule-calendar-icon"></i>
+                                            </div>
+                                            <span class="schedule-title">Kích hoạt lịch trình</span>
+                                        </div>
+                                        <label class="switch-sm">
+                                            <input type="checkbox" id="fan-sched-enable">
+                                            <span class="slider-sm"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="day-picker" id="fan-day-picker">
+                                        <button class="day-btn active" data-day="1">T2</button>
+                                        <button class="day-btn active" data-day="2">T3</button>
+                                        <button class="day-btn active" data-day="3">T4</button>
+                                        <button class="day-btn active" data-day="4">T5</button>
+                                        <button class="day-btn active" data-day="5">T6</button>
+                                        <button class="day-btn active" data-day="6">T7</button>
+                                        <button class="day-btn active" data-day="0">CN</button>
+                                    </div>
+
+                                    <div class="schedule-picker-grid-premium">
+                                        <!-- Bật Column -->
+                                        <div class="picker-column-premium">
+                                            <div class="custom-time-picker" id="fan-on-time" data-value="12:00">
+                                                <div class="time-display-premium">
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Bật lúc</span>
+                                                        <span class="time-text-large" id="fan-on-time-val">12:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-green">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tắt Column -->
+                                        <div class="picker-column-premium">
+                                            <div class="custom-time-picker" id="fan-off-time" data-value="14:00">
+                                                <div class="time-display-premium">
+                                                    <div class="time-display-left">
+                                                        <span class="picker-label-premium">Tắt lúc</span>
+                                                        <span class="time-text-large" id="fan-off-time-val">14:00</span>
+                                                    </div>
+                                                    <div class="clock-icon-wrapper-blue">
+                                                        <i class="fa-regular fa-clock clock-icon"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="time-dropdown-premium">
+                                                    <div class="time-columns-premium">
+                                                        <div class="time-column-premium hours-col"></div>
+                                                        <div class="time-column-premium minutes-col"></div>
+                                                    </div>
+                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Schedule Footer -->
+                                    <div class="schedule-footer-premium-pill">
+                                        <span class="status-indicator-dot" id="fan-indicator-dot"></span>
+                                        <span class="next-action-text" id="fan-next-action-text">Chưa kích hoạt lịch trình</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Ngoài Trời -->
+                <div class="device-section-title">
+                    <i class="fa-solid fa-tree-city"></i>
+                    <h2>Thiết bị Ngoài Trời</h2>
+                </div>
+                <div class="devices-grid">
                     <!-- Outdoor Light (Đèn Ở Cửa) -->
                     <div class="device-card">
                         <div class="device-header">
@@ -405,109 +519,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Smart Fan -->
-                    <div class="device-card" id="fan-card-container">
-                        <div class="device-header">
-                            <div class="device-title">
-                                <div class="device-icon-wrapper">
-                                    <i class="fa-solid fa-fan device-icon" id="fan-icon"></i>
-                                </div>
-                                <div>
-                                    <h3>Quạt Thông Minh</h3>
-                                    <span class="device-location">Phòng khách</span>
-                                </div>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="fan-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="device-body">
-                            <div class="info-row" id="fan-status-info">
-                                <i class="fa-solid fa-circle-info"></i> Trạng thái: &nbsp;<strong id="fan-status-text">Đang Tắt</strong>
-                            </div>
-                            <div class="schedule-section" id="fan-schedule-section" style="display: block;">
-                                <div class="schedule-box-premium">
-                                    <div class="schedule-header-row">
-                                        <div class="schedule-header-left">
-                                            <div class="sched-icon-wrapper">
-                                                <i class="fa-solid fa-calendar-days schedule-calendar-icon"></i>
-                                            </div>
-                                            <span class="schedule-title">Kích hoạt lịch trình</span>
-                                        </div>
-                                        <label class="switch-sm">
-                                            <input type="checkbox" id="fan-sched-enable">
-                                            <span class="slider-sm"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="day-picker" id="fan-day-picker">
-                                        <button class="day-btn active" data-day="1">T2</button>
-                                        <button class="day-btn active" data-day="2">T3</button>
-                                        <button class="day-btn active" data-day="3">T4</button>
-                                        <button class="day-btn active" data-day="4">T5</button>
-                                        <button class="day-btn active" data-day="5">T6</button>
-                                        <button class="day-btn active" data-day="6">T7</button>
-                                        <button class="day-btn active" data-day="0">CN</button>
-                                    </div>
-
-                                    <div class="schedule-picker-grid-premium">
-                                        <!-- Bật Column -->
-                                        <div class="picker-column-premium">
-                                            <div class="custom-time-picker" id="fan-on-time" data-value="12:00">
-                                                <div class="time-display-premium">
-                                                    <div class="time-display-left">
-                                                        <span class="picker-label-premium">Bật lúc</span>
-                                                        <span class="time-text-large" id="fan-on-time-val">12:00</span>
-                                                    </div>
-                                                    <div class="clock-icon-wrapper-green">
-                                                        <i class="fa-regular fa-clock clock-icon"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="time-dropdown-premium">
-                                                    <div class="time-columns-premium">
-                                                        <div class="time-column-premium hours-col"></div>
-                                                        <div class="time-column-premium minutes-col"></div>
-                                                    </div>
-                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Tắt Column -->
-                                        <div class="picker-column-premium">
-                                            <div class="custom-time-picker" id="fan-off-time" data-value="14:00">
-                                                <div class="time-display-premium">
-                                                    <div class="time-display-left">
-                                                        <span class="picker-label-premium">Tắt lúc</span>
-                                                        <span class="time-text-large" id="fan-off-time-val">14:00</span>
-                                                    </div>
-                                                    <div class="clock-icon-wrapper-blue">
-                                                        <i class="fa-regular fa-clock clock-icon"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="time-dropdown-premium">
-                                                    <div class="time-columns-premium">
-                                                        <div class="time-column-premium hours-col"></div>
-                                                        <div class="time-column-premium minutes-col"></div>
-                                                    </div>
-                                                    <button class="time-confirm-btn-premium">Xác nhận</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Schedule Footer -->
-                                    <div class="schedule-footer-premium-pill">
-                                        <span class="status-indicator-dot" id="fan-indicator-dot"></span>
-                                        <span class="next-action-text" id="fan-next-action-text">Chưa kích hoạt lịch trình</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </section>
 
             <!-- Tab: RFID Manager -->
