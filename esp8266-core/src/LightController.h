@@ -33,6 +33,12 @@ private:
     int outdoorOffHour = -1, outdoorOffMin = -1;
     int lastOutdoorTriggerHour = -1, lastOutdoorTriggerMin = -1;
     int outdoorScheduleDays = 127;
+
+    bool fanScheduleEnabled = false;
+    int fanOnHour = -1, fanOnMin = -1;
+    int fanOffHour = -1, fanOffMin = -1;
+    int lastFanTriggerHour = -1, lastFanTriggerMin = -1;
+    int fanScheduleDays = 127;
     
     unsigned long lastScheduleCheck = 0;
 
@@ -151,6 +157,8 @@ public:
             indoorScheduleEnabled = enabled;
         } else if (device == "outdoor_light") {
             outdoorScheduleEnabled = enabled;
+        } else if (device == "fan") {
+            fanScheduleEnabled = enabled;
         }
         Serial.printf("Schedule for %s: %s\n", device.c_str(), enabled ? "ENABLED" : "DISABLED");
     }
@@ -164,6 +172,9 @@ public:
             } else if (device == "outdoor_light") {
                 outdoorOnHour = hour;
                 outdoorOnMin = min;
+            } else if (device == "fan") {
+                fanOnHour = hour;
+                fanOnMin = min;
             }
             Serial.printf("Schedule ON for %s: %02d:%02d\n", device.c_str(), hour, min);
         }
@@ -172,13 +183,15 @@ public:
     void setScheduleDays(const String& device, int days) {
         if (device == "indoor_light") indoorScheduleDays = days;
         else if (device == "outdoor_light") outdoorScheduleDays = days;
+        else if (device == "fan") fanScheduleDays = days;
         Serial.printf("Schedule days for %s: %d\n", device.c_str(), days);
     }
 
     void setScheduleDay(const String& device, const String& dayName, bool enabled) {
         int bit = dayNameToBit(dayName);
         if (bit < 0) return;
-        int& days = (device == "indoor_light") ? indoorScheduleDays : outdoorScheduleDays;
+        int& days = (device == "indoor_light") ? indoorScheduleDays : 
+                    (device == "fan") ? fanScheduleDays : outdoorScheduleDays;
         if (enabled) days |= (1 << bit);
         else days &= ~(1 << bit);
         Serial.printf("Schedule day %s for %s: %s (bitmask: %d)\n", dayName.c_str(), device.c_str(), enabled ? "ON" : "OFF", days);
@@ -193,6 +206,9 @@ public:
             } else if (device == "outdoor_light") {
                 outdoorOffHour = hour;
                 outdoorOffMin = min;
+            } else if (device == "fan") {
+                fanOffHour = hour;
+                fanOffMin = min;
             }
             Serial.printf("Schedule OFF for %s: %02d:%02d\n", device.c_str(), hour, min);
         }
@@ -264,6 +280,30 @@ private:
                     if (outdoorStatus) {
                         setOutdoorLight(false);
                         fb->logEvent("schedule", "Hẹn giờ: Tắt đèn ngoài trời.");
+                    }
+                }
+            }
+        }
+
+        // Kiểm tra quạt (chỉ chạy khi đã kích hoạt lịch trình và đúng ngày)
+        if (fanScheduleEnabled && fanOnHour != -1 && fanOffHour != -1
+            && (fanScheduleDays & (1 << currentDow))) {
+            if (currentHour == fanOnHour && currentMin == fanOnMin) {
+                if (currentHour != lastFanTriggerHour || currentMin != lastFanTriggerMin) {
+                    lastFanTriggerHour = currentHour;
+                    lastFanTriggerMin = currentMin;
+                    if (!fanStatus) {
+                        setFan(true);
+                        fb->logEvent("schedule", "Hẹn giờ: Bật quạt.");
+                    }
+                }
+            } else if (currentHour == fanOffHour && currentMin == fanOffMin) {
+                if (currentHour != lastFanTriggerHour || currentMin != lastFanTriggerMin) {
+                    lastFanTriggerHour = currentHour;
+                    lastFanTriggerMin = currentMin;
+                    if (fanStatus) {
+                        setFan(false);
+                        fb->logEvent("schedule", "Hẹn giờ: Tắt quạt.");
                     }
                 }
             }

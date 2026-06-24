@@ -473,16 +473,64 @@ export function initDashboard() {
 
     // Đọc trạng thái Quạt từ Firebase
     onValue(ref(db, "devices/fan"), (snapshot) => {
-        const fanOn = !!snapshot.val();
+        const data = snapshot.val();
+        if (!data) return;
+
+        const fanOn = (data.status === true);
         const toggle = document.getElementById("fan-toggle");
         const card = document.getElementById("fan-card-container");
         const statusText = document.getElementById("fan-status-text");
-        const icon = document.getElementById("fan-icon");
 
         if (toggle) toggle.checked = fanOn;
         if (card) card.classList.toggle("active", fanOn);
         if (statusText) {
             statusText.innerText = fanOn ? "Đang Bật" : "Đang Tắt";
+        }
+
+        // Cập nhật hẹn giờ Quạt
+        const fanScheduleSection = document.getElementById("fan-schedule-section");
+        if (data.schedule) {
+            const enableCheck = document.getElementById("fan-sched-enable");
+            if (enableCheck) enableCheck.checked = data.schedule.enabled;
+
+            // Cập nhật bộ chọn giờ mới
+            if (window.updatePicker_fan_on_time) window.updatePicker_fan_on_time(data.schedule.on_time || "12:00");
+            if (window.updatePicker_fan_off_time) window.updatePicker_fan_off_time(data.schedule.off_time || "14:00");
+
+            // UX: Vô hiệu hóa ô chọn giờ và day picker nếu không bật hẹn giờ
+            if (fanScheduleSection) {
+                const fanSchedPickers = fanScheduleSection.querySelector(".schedule-picker-grid-premium");
+                if (fanSchedPickers) {
+                    fanSchedPickers.classList.toggle("disabled", !data.schedule.enabled);
+                }
+                fanScheduleSection.style.display = "block";
+                fanScheduleSection.classList.toggle("active", data.schedule.enabled);
+            }
+
+            const fanDays = data.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
+            updateDayPicker("fan-day-picker", fanDays, !data.schedule.enabled, DAY_NAMES);
+
+            // Hiển thị trạng thái lịch trình tiếp theo
+            const fanNextActionText = document.getElementById("fan-next-action-text");
+            const fanIndicator = document.getElementById("fan-indicator-dot");
+
+            if (data.schedule.enabled) {
+                const nextTime = fanOn ? (data.schedule.off_time || "14:00") : (data.schedule.on_time || "12:00");
+                const nextAct = fanOn ? "Tắt" : "Bật";
+                if (fanNextActionText) {
+                    fanNextActionText.innerHTML = `Lịch trình tiếp theo: <strong>${nextAct} lúc ${nextTime}</strong>`;
+                }
+                if (fanIndicator) {
+                    fanIndicator.classList.add("active");
+                }
+            } else {
+                if (fanNextActionText) {
+                    fanNextActionText.innerText = "Chưa kích hoạt lịch trình";
+                }
+                if (fanIndicator) {
+                    fanIndicator.classList.remove("active");
+                }
+            }
         }
     });
 
@@ -578,13 +626,21 @@ export function initDashboard() {
     const fanToggle = document.getElementById("fan-toggle");
     if (fanToggle) {
         fanToggle.addEventListener("change", (e) => {
-            set(ref(db, "devices/fan"), e.target.checked);
+            set(ref(db, "devices/fan/status"), e.target.checked);
+        });
+    }
+
+    const fanSchedEnable = document.getElementById("fan-sched-enable");
+    if (fanSchedEnable) {
+        fanSchedEnable.addEventListener("change", (e) => {
+            set(ref(db, "devices/fan/schedule/enabled"), e.target.checked);
         });
     }
 
     // Khởi tạo day pickers
     initDayPicker("indoor-day-picker", "devices/indoor_light/schedule/days", DAY_NAMES);
     initDayPicker("outdoor-day-picker", "devices/outdoor_light/schedule/days", DAY_NAMES);
+    initDayPicker("fan-day-picker", "devices/fan/schedule/days", DAY_NAMES);
 
     // Khởi tạo custom time pickers
     initPremiumTimePickers((pickerId, newVal) => {
@@ -596,6 +652,10 @@ export function initDashboard() {
             set(ref(db, "devices/outdoor_light/schedule/on_time"), newVal);
         } else if (pickerId === "outdoor-off-time") {
             set(ref(db, "devices/outdoor_light/schedule/off_time"), newVal);
+        } else if (pickerId === "fan-on-time") {
+            set(ref(db, "devices/fan/schedule/on_time"), newVal);
+        } else if (pickerId === "fan-off-time") {
+            set(ref(db, "devices/fan/schedule/off_time"), newVal);
         }
     });
 }

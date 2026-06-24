@@ -75,7 +75,23 @@
       "status": "open",
       "mode": "auto"
     },
-    "fan": false
+    "fan": {
+      "status": false,
+      "schedule": {
+        "enabled": false,
+        "on_time": "12:00",
+        "off_time": "14:00",
+        "days": {
+          "monday": true,
+          "tuesday": true,
+          "wednesday": true,
+          "thursday": true,
+          "friday": true,
+          "saturday": true,
+          "sunday": true
+        }
+      }
+    }
   },
   "sensors": {
     "temperature": 25.0,
