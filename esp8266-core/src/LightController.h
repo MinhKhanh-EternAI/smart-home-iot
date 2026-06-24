@@ -221,8 +221,8 @@ private:
         int currentMin = timeinfo->tm_min;
         int currentDow = timeinfo->tm_wday; // 0=CN, 1=T2, ..., 6=T7
 
-        // Kiểm tra đèn trong nhà (chỉ chạy khi ở chế độ Theo lịch và đúng ngày)
-        if (indoorMode == "schedule" && indoorScheduleEnabled && indoorOnHour != -1 && indoorOffHour != -1
+        // Kiểm tra đèn trong nhà (chỉ chạy khi đã kích hoạt lịch trình và đúng ngày)
+        if (indoorScheduleEnabled && indoorOnHour != -1 && indoorOffHour != -1
             && (indoorScheduleDays & (1 << currentDow))) {
             if (currentHour == indoorOnHour && currentMin == indoorOnMin) {
                 if (currentHour != lastIndoorTriggerHour || currentMin != lastIndoorTriggerMin) {

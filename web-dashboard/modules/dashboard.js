@@ -276,21 +276,9 @@ export function initDashboard() {
             if (card) card.classList.toggle("active", inLight.status);
         }
 
-        // Chế độ Đèn Trong Nhà (Manual/Schedule)
-        const inModeManual = document.getElementById("in-mode-manual");
-        const inModeSchedule = document.getElementById("in-mode-schedule");
         const inScheduleSection = document.getElementById("indoor-schedule-section");
-        const isIndoorSched = (inLight.mode === "schedule");
         if (inScheduleSection) {
-            if (isIndoorSched) {
-                if (inModeSchedule) inModeSchedule.classList.add("active");
-                if (inModeManual) inModeManual.classList.remove("active");
-                inScheduleSection.style.display = "block";
-            } else {
-                if (inModeSchedule) inModeSchedule.classList.remove("active");
-                if (inModeManual) inModeManual.classList.add("active");
-                inScheduleSection.style.display = "none";
-            }
+            inScheduleSection.style.display = "block";
         }
         
         // Hẹn giờ Đèn trong nhà
@@ -508,19 +496,7 @@ export function initDashboard() {
         });
     }
 
-    const inModeManual = document.getElementById("in-mode-manual");
-    if (inModeManual) {
-        inModeManual.addEventListener("click", () => {
-            set(ref(db, "devices/indoor_light/mode"), "manual");
-        });
-    }
 
-    const inModeSchedule = document.getElementById("in-mode-schedule");
-    if (inModeSchedule) {
-        inModeSchedule.addEventListener("click", () => {
-            set(ref(db, "devices/indoor_light/mode"), "schedule");
-        });
-    }
 
     const inSchedEnable = document.getElementById("indoor-sched-enable");
     if (inSchedEnable) {
