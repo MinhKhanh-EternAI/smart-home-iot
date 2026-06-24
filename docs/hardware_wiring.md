@@ -17,10 +17,10 @@ Tài liệu này hướng dẫn chi tiết cách kết nối các linh kiện ph
 | **D2 (GPIO4)** | I2C SDA | 3.3V | Kết nối song song đến SDA của LCD I2C và PCF8574. |
 | **D1 (GPIO5)** | I2C SCL | 3.3V | Kết nối song song đến SCL của LCD I2C và PCF8574. |
 | **D3 (GPIO0)** | Cảm biến DHT11 | 3.3V | Chân boot. Phải ở mức HIGH khi boot. DHT11 cần có trở pull-up (4.7k - 10k) lên 3.3V, điều này giúp ESP8266 boot bình thường. |
-| **D4 (GPIO2)** | Cảm biến PIR | 3.3V | Chân boot/LED onboard. Phải ở mức HIGH khi boot. Cảm biến PIR khi khởi động cần tránh kéo chân này xuống LOW. |
+| **D4 (GPIO2)** | Servo Cửa (Door) | 5V (Tín hiệu 3.3V) | PWM ổn định, không bị ảnh hưởng bởi UART bootloader. |
 | **A0 (ADC0)** | Water Sensor | 3.3V (VCC) | Đọc giá trị Analog từ cảm biến mưa. |
-| **RX (GPIO3)** | Servo Cửa (Door) | 5V (Tín hiệu 3.3V) | **Cảnh báo**: Chân nhận dữ liệu UART. Việc nạp code qua USB sẽ bị ảnh hưởng nếu Servo đang cắm vào đây. Servo sẽ bị rung/giật khi ESP8266 khởi động hoặc nạp chương trình. |
-| **TX (GPIO1)** | Servo Mái (Roof) | 5V (Tín hiệu 3.3V) | **Cảnh báo**: Chân truyền dữ liệu UART. Trong quá trình boot, ESP8266 phát dữ liệu debug (74880 baud), làm Servo Mái xoay/giật mạnh. |
+| **RX (GPIO3)** | Servo Mái (Roof) | 5V (Tín hiệu 3.3V) | **Cảnh báo**: Chân nhận dữ liệu UART. Phải gọi `Serial.end()` trong `setup()` trước `Servo.attach()`. Servo sẽ bị rung/giật khi nạp code. |
+| **TX (GPIO1)** | *Không dùng* | — | Chân UART TX, không sử dụng trong cấu hình hiện tại. |
 
 ### Mạch mở rộng I2C Waveshare PCF8574 (Địa chỉ I2C mặc định thường là `0x20` hoặc `0x27` hoặc `0x3F`)
 | Chân PCF8574 | Thiết bị | Ghi chú |

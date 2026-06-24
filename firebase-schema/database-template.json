@@ -17,12 +17,12 @@
       {
         "name": "smart_door",
         "desc": "Cửa tự động Servo",
-        "pin": "RX"
+        "pin": "D4"
       },
       {
         "name": "smart_roof",
         "desc": "Mái che tự động",
-        "pin": "TX"
+        "pin": "RX"
       }
     ],
     "wifi": {
