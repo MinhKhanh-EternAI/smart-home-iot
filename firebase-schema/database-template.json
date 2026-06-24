@@ -33,6 +33,7 @@
   "devices": {
     "indoor_light": {
       "status": false,
+      "mode": "manual",
       "schedule": {
         "enabled": false,
         "on_time": "18:00",
@@ -57,7 +58,8 @@
     "roof": {
       "status": "open",
       "mode": "auto"
-    }
+    },
+    "fan": false
   },
   "sensors": {
     "temperature": 25.0,

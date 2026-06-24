@@ -368,17 +368,15 @@
                             <span class="badge" id="door-status-badge">Đóng</span>
                         </div>
                         <div class="device-body flex-col">
-                            <div class="control-row">
-                                <button class="action-btn" id="btn-unlock-door">
-                                    <i class="fa-solid fa-lock-open"></i> Mở Cửa (15 giây)
-                                </button>
-                            </div>
                             <div class="slider-config-row">
                                 <span>Thời gian tự đóng:</span>
                                 <div class="slider-val-box">
-                                    <input type="range" id="door-autoclose-range" min="3" max="15" value="15">
-                                    <span id="door-autoclose-lbl">15s</span>
+                                    <input type="range" id="door-autoclose-range" min="3" max="15" value="5">
+                                    <span id="door-autoclose-lbl">5s</span>
                                 </div>
+                            </div>
+                            <div class="info-row">
+                                <i class="fa-solid fa-id-card"></i> Cửa chỉ mở bằng cách quẹt thẻ RFID tại thiết bị.
                             </div>
                         </div>
                     </div>

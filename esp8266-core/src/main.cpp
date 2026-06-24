@@ -81,9 +81,7 @@ void onDeviceControl(const String& device, const String& key, const String& valu
         }
     } 
     else if (device == "door") {
-        if (key == "status") {
-            doorCtrl.setStatusFromFirebase(value);
-        } else if (key == "auto_close_ms") {
+        if (key == "auto_close_ms") {
             doorCtrl.setAutoCloseDelay((unsigned long)value.toInt());
         }
     }
@@ -100,14 +98,11 @@ void onDeviceControl(const String& device, const String& key, const String& valu
 }
 
 void setup() {
-    // Chỉ kích hoạt Serial Debug nếu sử dụng cấu hình chân Tối ưu (Tránh xung đột Servo ở RX/TX)
-    #if USE_OPTIMIZED_PINS
-        Serial.begin(115200);
-        delay(500);
-        Serial.println("\n======================================");
-        Serial.println("SMART HOME SYSTEM BOOTING (OPTIMIZED)");
-        Serial.println("======================================");
-    #endif
+    Serial.begin(115200);
+    delay(500);
+    Serial.println("\n================================");
+    Serial.println("SMART HOME SYSTEM BOOTING");
+    Serial.println("================================");
 
     // 1. Khởi tạo WiFi
     WifiHelper::init();
@@ -120,13 +115,9 @@ void setup() {
     doorCtrl.init(&fbHelper);
     climateCtrl.init(&fbHelper);
 
-    // Đóng Serial để giải phóng RX (GPIO3) cho Servo Roof.
-    // Sau bước này không có debug Serial trong chế độ USE_OPTIMIZED_PINS.
-    #if USE_OPTIMIZED_PINS
-        Serial.println("Serial closing — RX (GPIO3) freed for Servo Roof.");
-        Serial.flush();
-        Serial.end();
-    #endif
+    Serial.println("Serial closing — RX (GPIO3) freed for Servo Roof.");
+    Serial.flush();
+    Serial.end();
 
     roofCtrl.init(&fbHelper);
 

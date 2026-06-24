@@ -148,13 +148,18 @@ public:
         WiFi.disconnect();
         WiFi.mode(WIFI_AP);
         
+        // Đặt IP tĩnh cho AP: 192.168.1.86
+        IPAddress apIP(192, 168, 1, 86);
+        IPAddress gateway(192, 168, 1, 86);
+        IPAddress subnet(255, 255, 255, 0);
+        WiFi.softAPConfig(apIP, gateway, subnet);
+
         // Tạo mạng WiFi không mật khẩu
         WiFi.softAP(AP_SSID);
         Serial.printf("[WifiHelper] AP Mode khoi dong. SSID: %s\n", AP_SSID);
         Serial.print("[WifiHelper] AP IP Address: "); Serial.println(WiFi.softAPIP());
         
-        // Hiển thị thông tin AP lên LCD
-        printToLCD("AP: SmartHome", "IP: 192.168.4.1");
+
         
         // Thiết lập các Endpoint cho Web Server
         ESP8266WebServer& server = getServer();

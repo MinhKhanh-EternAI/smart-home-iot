@@ -245,9 +245,13 @@ private:
         int type = 0;
         for (size_t i = 0; i < len; i++) {
             json.iteratorGet(i, type, key, value);
-            FirebaseJson deviceJson;
-            deviceJson.setJsonData(value);
-            parseAndNotifyDevice(key, deviceJson);
+            if (value.length() > 0 && value[0] == '{') {
+                FirebaseJson deviceJson;
+                deviceJson.setJsonData(value);
+                parseAndNotifyDevice(key, deviceJson);
+            } else {
+                controlCallback(key, "", value);
+            }
         }
         json.iteratorEnd();
     }

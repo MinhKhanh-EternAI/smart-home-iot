@@ -1,4 +1,4 @@
-import { db, state, showToast, showConfirm } from "../app.js";
+import { db, state } from "../app.js";
 import { ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 function getVietnameseDayOfWeek() {
@@ -257,10 +257,6 @@ export function initDashboard() {
         updateSensorsUI(snapshot.val());
     });
 
-    onValue(ref(db, "realtime/sensor"), (snapshot) => {
-        updateSensorsUI(snapshot.val());
-    });
-
     // Đọc và đồng bộ các Thiết bị (Devices)
     onValue(ref(db, "devices"), (snapshot) => {
         const data = snapshot.val();
@@ -447,10 +443,8 @@ export function initDashboard() {
         const seconds = Math.round(autoCloseMs / 1000);
         const rangeInput = document.getElementById("door-autoclose-range");
         const rangeLbl = document.getElementById("door-autoclose-lbl");
-        const unlockBtn = document.getElementById("btn-unlock-door");
         if (rangeInput) rangeInput.value = seconds;
         if (rangeLbl) rangeLbl.innerText = seconds + "s";
-        if (unlockBtn) unlockBtn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Mở Cửa (${seconds} giây)`;
 
 
         // --- Mái Che ---
@@ -567,26 +561,12 @@ export function initDashboard() {
         });
     }
 
-    const unlockDoorBtn = document.getElementById("btn-unlock-door");
-    if (unlockDoorBtn) {
-        unlockDoorBtn.addEventListener("click", () => {
-            const seconds = document.getElementById("door-autoclose-range")?.value || 5;
-            showConfirm(`Xác nhận mở cửa từ xa? Cửa sẽ tự đóng sau ${seconds} giây.`, () => {
-                set(ref(db, "devices/door/status"), "open")
-                    .then(() => showToast("Đã gửi lệnh mở cửa!", "success"))
-                    .catch(err => showToast("Lỗi mở cửa: " + err.message, "error"));
-            });
-        });
-    }
-
     const doorRangeInput = document.getElementById("door-autoclose-range");
     if (doorRangeInput) {
         doorRangeInput.addEventListener("input", (e) => {
             const val = parseInt(e.target.value);
             const rangeLbl = document.getElementById("door-autoclose-lbl");
-            const unlockBtn = document.getElementById("btn-unlock-door");
             if (rangeLbl) rangeLbl.innerText = val + "s";
-            if (unlockBtn) unlockBtn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Mở Cửa (${val} giây)`;
         });
         doorRangeInput.addEventListener("change", (e) => {
             const ms = parseInt(e.target.value) * 1000;

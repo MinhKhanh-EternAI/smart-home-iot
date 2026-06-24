@@ -48,19 +48,9 @@ public:
             Serial.println("LCD I2C Skip Init (Preserved AP Mode Display).");
         }
 
-        // Khởi tạo Servo
-        // Nếu dùng cấu hình chân gốc RX/TX, cần lưu ý:
-        // Servo.attach() sẽ bắt đầu gửi tín hiệu điều khiển ra chân đó.
-        #if USE_OPTIMIZED_PINS
-            doorServo.attach(SERVO_DOOR_PIN);
-            doorServo.write(DOOR_CLOSE_ANGLE);
-            Serial.printf("Servo Door attached to Pin: %d\n", SERVO_DOOR_PIN);
-        #else
-            // Với chân RX (GPIO3), ta vẫn attach bình thường nhưng tắt debug
-            doorServo.attach(SERVO_DOOR_PIN);
-            doorServo.write(DOOR_CLOSE_ANGLE);
-            Serial.println("Servo Door attached to RX pin (GPIO3).");
-        #endif
+        doorServo.attach(SERVO_DOOR_PIN);
+        doorServo.write(DOOR_CLOSE_ANGLE);
+        Serial.printf("Servo Door attached to Pin: %d\n", SERVO_DOOR_PIN);
     }
 
     void update() {
@@ -184,19 +174,6 @@ public:
         autoCloseDelay = ms;
     }
 
-    void setStatusFromFirebase(const String& status) {
-        if (status == "open") {
-            openDoor();
-            
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print("Door Opened");
-            lcd.setCursor(0, 1);
-            lcd.print("via WebApp");
-        } else if (status == "closed") {
-            closeDoor();
-        }
-    }
 };
 
 #endif // DOOR_CONTROLLER_H

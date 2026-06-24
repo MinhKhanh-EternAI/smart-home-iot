@@ -51,14 +51,9 @@ public:
         writeRelay(PCF_BUZZER, false);
         writeRelay(PCF_FAN_RELAY, false);
 
-        #if USE_OPTIMIZED_PINS
-            // Với thư viện PCF8574, chân đầu vào chỉ cần được ghi mức HIGH (chế độ quasi-bidirectional) để có thể đọc
-            pcf.write(PCF_PIR_INPUT, HIGH); 
-            Serial.println("PIR Sensor configured on PCF8574 Pin 3");
-        #else
-            pinMode(PIR_PIN_ESP, INPUT);
-            Serial.printf("PIR Sensor configured on ESP8266 Pin: %d\n", PIR_PIN_ESP);
-        #endif
+        // Cảm biến vật cản hồng ngoại LM393 trên PCF8574 P3 (quasi-bidirectional, ghi HIGH trước khi đọc)
+        pcf.write(PCF_LM393_INPUT, HIGH);
+        Serial.println("LM393 IR Sensor configured on PCF8574 Pin 3");
 
 
         // Khởi tạo thời gian hệ thống qua NTP (Múi giờ GMT+7 của Việt Nam)
@@ -67,13 +62,8 @@ public:
     }
 
     void update() {
-        // 1. Đọc cảm biến chuyển động PIR
-        bool currentPIR = false;
-        #if USE_OPTIMIZED_PINS
-            currentPIR = (pcf.read(PCF_PIR_INPUT) == HIGH);
-        #else
-            currentPIR = (digitalRead(PIR_PIN_ESP) == HIGH);
-        #endif
+        // 1. Đọc cảm biến vật cản hồng ngoại LM393 (LOW = có vật cản)
+        bool currentPIR = (pcf.read(PCF_LM393_INPUT) == LOW);
 
         if (currentPIR != pirState) {
             pirState = currentPIR;

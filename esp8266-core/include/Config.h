@@ -2,12 +2,6 @@
 #define CONFIG_H
 
 #include <Arduino.h>
-
-// ==========================================
-// 1. Cấu hình WiFi & Firebase
-// ==========================================
-// FIREBASE_HOST và FIREBASE_API_KEY được khai báo trong Secrets.h
-// Tạo file đó từ Secrets.h.example và KHÔNG bao giờ commit lên git.
 #include "Secrets.h"
 
 #define DEFAULT_WIFI_SSID     "Your_WiFi_SSID"
@@ -15,67 +9,40 @@
 #define EEPROM_SIZE           96
 #define AP_SSID               "SmartHome-Config"
 
-// ==========================================
-// 2. Tùy chọn Tối ưu hóa Chân điều khiển
-// ==========================================
-// CHỌN CẤU HÌNH CHÂN:
-// - Đặt 1: Sử dụng cấu hình chân Tối ưu (Tránh rung Servo ở RX/TX, PIR đưa lên PCF8574).
-// - Đặt 0: Sử dụng cấu hình chân Gốc theo yêu cầu ban đầu (Servo ở RX/TX, PIR ở D4).
-#define USE_OPTIMIZED_PINS 1
+// SPI cho RFID RC522
+#define RC522_SS_PIN          D8
+#define RC522_RST_PIN         D0
+#define RC522_SCK_PIN         D5
+#define RC522_MOSI_PIN        D7
+#define RC522_MISO_PIN        D6
 
-// ==========================================
-// 3. Định nghĩa chân GPIO của ESP8266
-// ==========================================
-// Giao tiếp SPI cho RFID RC522
-#define RC522_SS_PIN          D8   // GPIO15
-#define RC522_RST_PIN         D0   // GPIO16
-#define RC522_SCK_PIN         D5   // GPIO14
-#define RC522_MOSI_PIN        D7   // GPIO13
-#define RC522_MISO_PIN        D6   // GPIO12
+// I2C cho LCD, PCF8574
+#define I2C_SDA_PIN           D2
+#define I2C_SCL_PIN           D1
 
-// Giao tiếp I2C cho LCD và PCF8574
-#define I2C_SDA_PIN           D2   // GPIO4
-#define I2C_SCL_PIN           D1   // GPIO5
+// DHT11
+#define DHT_PIN               D3
 
-// Cảm biến DHT11 và Cảm biến Nước
-#define DHT_PIN               D3   // GPIO0
-#define WATER_SENSOR_PIN      A0   // Analog input
+// Cảm biến mưa
+#define WATER_SENSOR_PIN      A0
 
-#if USE_OPTIMIZED_PINS
-  // Cấu hình chân Tối ưu (Khuyên dùng)
-  // setup() gọi Serial.end() trước khi RoofController.init() để giải phóng
-  // RX (GPIO3) cho Servo Roof. Mất debug Serial trong runtime là tradeoff chấp nhận được.
-  #define SERVO_DOOR_PIN      D4   // GPIO2 — an toàn, không dùng cho UART
-  #define SERVO_ROOF_PIN      3    // RX (GPIO3) — dùng sau khi Serial.end() trong setup()
-  #define PIR_PIN_ESP         -1   // PIR kết nối vào PCF8574 P3
-#else
-  // Cấu hình chân Gốc theo yêu cầu
-  #define SERVO_DOOR_PIN      3    // RX (GPIO3)
-  #define SERVO_ROOF_PIN      1    // TX (GPIO1)
-  #define PIR_PIN_ESP         D4   // GPIO2
+// Servo
+#define SERVO_DOOR_PIN        D4
+#define SERVO_ROOF_PIN        3     // RX (GPIO3) — Serial.end() trước khi dùng
+
+// PCF8574 I2C Expander
+#define PCF_I2C_ADDRESS       0x20
+#define PCF_RELAY_OUTDOOR     0
+#define PCF_RELAY_INDOOR      1
+#define PCF_BUZZER            2
+#define PCF_LM393_INPUT       3
+#define PCF_FAN_RELAY         4     // DC motor quạt (bật/tắt qua relay)
+
+// Ngưỡng cảm biến
+#define RAIN_THRESHOLD        500
+#define DOOR_OPEN_ANGLE       90
+#define DOOR_CLOSE_ANGLE      0
+#define ROOF_OPEN_ANGLE       90
+#define ROOF_CLOSE_ANGLE      0
+
 #endif
-
-// ==========================================
-// 4. Định nghĩa chân mở rộng trên PCF8574
-// ==========================================
-#define PCF_I2C_ADDRESS       0x20 // Địa chỉ I2C mặc định của PCF8574 (có thể là 0x20, 0x27, 0x3F)
-
-#define PCF_RELAY_OUTDOOR     0    // P0
-#define PCF_RELAY_INDOOR      1    // P1
-#define PCF_BUZZER            2    // P2
-#define PCF_FAN_RELAY         4    // P4
-
-#if USE_OPTIMIZED_PINS
-  #define PCF_PIR_INPUT       3    // P3 (Cảm biến PIR chuyển sang chân này)
-#endif
-
-// ==========================================
-// 5. Cấu hình ngưỡng cảm biến & thời gian
-// ==========================================
-#define RAIN_THRESHOLD        500  // Ngưỡng phát hiện mưa trên Water Sensor A0 (0-1023, giá trị nhỏ hơn = nhiều nước hơn)
-#define DOOR_OPEN_ANGLE       90   // Góc mở Servo Cửa
-#define DOOR_CLOSE_ANGLE      0    // Góc đóng Servo Cửa
-#define ROOF_OPEN_ANGLE       90   // Góc mở Servo Mái
-#define ROOF_CLOSE_ANGLE      0    // Góc đóng Servo Mái
-
-#endif // CONFIG_H

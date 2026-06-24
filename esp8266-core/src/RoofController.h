@@ -21,16 +21,9 @@ public:
     void init(FirebaseHelper* fbHelper) {
         fb = fbHelper;
         
-        #if USE_OPTIMIZED_PINS
-            roofServo.attach(SERVO_ROOF_PIN);
-            roofServo.write(ROOF_OPEN_ANGLE);
-            Serial.printf("Servo Roof attached to Pin: %d\n", SERVO_ROOF_PIN);
-        #else
-            // Chân TX (GPIO1)
-            roofServo.attach(SERVO_ROOF_PIN);
-            roofServo.write(ROOF_OPEN_ANGLE);
-            Serial.println("Servo Roof attached to TX pin (GPIO1).");
-        #endif
+        roofServo.attach(SERVO_ROOF_PIN);
+        roofServo.write(ROOF_OPEN_ANGLE);
+        Serial.printf("Servo Roof attached to Pin: %d\n", SERVO_ROOF_PIN);
         
         isClosed = false;
     }
