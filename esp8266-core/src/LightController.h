@@ -28,12 +28,6 @@ private:
     int lastIndoorTriggerHour = -1, lastIndoorTriggerMin = -1;
     int indoorScheduleDays = 127; // Bitmask: bit0=CN, bit1=T2,...,bit6=T7, 127=mọi ngày
 
-    bool outdoorScheduleEnabled = false;
-    int outdoorOnHour = -1, outdoorOnMin = -1;
-    int outdoorOffHour = -1, outdoorOffMin = -1;
-    int lastOutdoorTriggerHour = -1, lastOutdoorTriggerMin = -1;
-    int outdoorScheduleDays = 127;
-
     bool fanScheduleEnabled = false;
     int fanOnHour = -1, fanOnMin = -1;
     int fanOffHour = -1, fanOffMin = -1;
@@ -155,8 +149,6 @@ public:
     void setScheduleEnabled(const String& device, bool enabled) {
         if (device == "indoor_light") {
             indoorScheduleEnabled = enabled;
-        } else if (device == "outdoor_light") {
-            outdoorScheduleEnabled = enabled;
         } else if (device == "fan") {
             fanScheduleEnabled = enabled;
         }
@@ -169,9 +161,6 @@ public:
             if (device == "indoor_light") {
                 indoorOnHour = hour;
                 indoorOnMin = min;
-            } else if (device == "outdoor_light") {
-                outdoorOnHour = hour;
-                outdoorOnMin = min;
             } else if (device == "fan") {
                 fanOnHour = hour;
                 fanOnMin = min;
@@ -182,7 +171,6 @@ public:
 
     void setScheduleDays(const String& device, int days) {
         if (device == "indoor_light") indoorScheduleDays = days;
-        else if (device == "outdoor_light") outdoorScheduleDays = days;
         else if (device == "fan") fanScheduleDays = days;
         Serial.printf("Schedule days for %s: %d\n", device.c_str(), days);
     }
@@ -190,8 +178,7 @@ public:
     void setScheduleDay(const String& device, const String& dayName, bool enabled) {
         int bit = dayNameToBit(dayName);
         if (bit < 0) return;
-        int& days = (device == "indoor_light") ? indoorScheduleDays : 
-                    (device == "fan") ? fanScheduleDays : outdoorScheduleDays;
+        int& days = (device == "indoor_light") ? indoorScheduleDays : fanScheduleDays;
         if (enabled) days |= (1 << bit);
         else days &= ~(1 << bit);
         Serial.printf("Schedule day %s for %s: %s (bitmask: %d)\n", dayName.c_str(), device.c_str(), enabled ? "ON" : "OFF", days);
@@ -203,9 +190,6 @@ public:
             if (device == "indoor_light") {
                 indoorOffHour = hour;
                 indoorOffMin = min;
-            } else if (device == "outdoor_light") {
-                outdoorOffHour = hour;
-                outdoorOffMin = min;
             } else if (device == "fan") {
                 fanOffHour = hour;
                 fanOffMin = min;
@@ -256,30 +240,6 @@ private:
                     if (indoorStatus) {
                         setIndoorLight(false);
                         fb->logEvent("schedule", "Hẹn giờ: Tắt đèn trong nhà.");
-                    }
-                }
-            }
-        }
-
-        // Kiểm tra đèn ngoài trời (chỉ chạy khi ở chế độ Thủ công và đúng ngày)
-        if (outdoorMode == "manual" && outdoorScheduleEnabled && outdoorOnHour != -1 && outdoorOffHour != -1
-            && (outdoorScheduleDays & (1 << currentDow))) {
-            if (currentHour == outdoorOnHour && currentMin == outdoorOnMin) {
-                if (currentHour != lastOutdoorTriggerHour || currentMin != lastOutdoorTriggerMin) {
-                    lastOutdoorTriggerHour = currentHour;
-                    lastOutdoorTriggerMin = currentMin;
-                    if (!outdoorStatus) {
-                        setOutdoorLight(true);
-                        fb->logEvent("schedule", "Hẹn giờ: Bật đèn ngoài trời.");
-                    }
-                }
-            } else if (currentHour == outdoorOffHour && currentMin == outdoorOffMin) {
-                if (currentHour != lastOutdoorTriggerHour || currentMin != lastOutdoorTriggerMin) {
-                    lastOutdoorTriggerHour = currentHour;
-                    lastOutdoorTriggerMin = currentMin;
-                    if (outdoorStatus) {
-                        setOutdoorLight(false);
-                        fb->logEvent("schedule", "Hẹn giờ: Tắt đèn ngoài trời.");
                     }
                 }
             }

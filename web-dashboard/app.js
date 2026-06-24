@@ -25,7 +25,7 @@ export const state = {
     sensors: { rain: false, motion: false, temperature: null, humidity: null },
     devices: {
         indoor_light: { status: false, schedule: { enabled: false } },
-        outdoor_light: { status: false, mode: "auto", schedule: { enabled: false } },
+        outdoor_light: { status: false, mode: "auto" },
         door: { status: "closed" },
         roof: { status: "open", mode: "auto" }
     }

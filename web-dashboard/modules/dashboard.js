@@ -326,7 +326,7 @@ export function initDashboard() {
         }
 
         // --- Đèn Ngoài Sân ---
-        const outLight = data.outdoor_light || { status: false, mode: "auto", schedule: { enabled: false, on_time: "18:00", off_time: "06:00" } };
+        const outLight = data.outdoor_light || { status: false, mode: "auto" };
         const outLightToggle = document.getElementById("outdoor-light-toggle");
         if (outLightToggle) {
             outLightToggle.checked = outLight.status;
@@ -343,63 +343,19 @@ export function initDashboard() {
         // Chế độ Đèn Ngoài Sân (Auto/Manual)
         const outModeAuto = document.getElementById("out-mode-auto");
         const outModeManual = document.getElementById("out-mode-manual");
-        const outScheduleSection = document.getElementById("outdoor-schedule-section");
         const outAutoInfo = document.getElementById("outdoor-auto-info");
+        const outManualInfo = document.getElementById("outdoor-manual-info");
         const isAuto = (outLight.mode === "auto");
         if (isAuto) {
             if (outModeAuto) outModeAuto.classList.add("active");
             if (outModeManual) outModeManual.classList.remove("active");
-            if (outScheduleSection) outScheduleSection.style.display = "none";
             if (outAutoInfo) outAutoInfo.style.display = "flex";
+            if (outManualInfo) outManualInfo.style.display = "none";
         } else {
             if (outModeAuto) outModeAuto.classList.remove("active");
             if (outModeManual) outModeManual.classList.add("active");
-            if (outScheduleSection) outScheduleSection.style.display = "block";
             if (outAutoInfo) outAutoInfo.style.display = "none";
-        }
-        
-        // Hẹn giờ Đèn ngoài sân
-        if (outLight.schedule) {
-            const enableCheck = document.getElementById("outdoor-sched-enable");
-            if (enableCheck) enableCheck.checked = outLight.schedule.enabled;
-            
-            // Cập nhật bộ chọn giờ mới
-            if (window.updatePicker_outdoor_on_time) window.updatePicker_outdoor_on_time(outLight.schedule.on_time || "18:00");
-            if (window.updatePicker_outdoor_off_time) window.updatePicker_outdoor_off_time(outLight.schedule.off_time || "06:00");
-
-            // UX: Vô hiệu hóa ô chọn giờ và day picker nếu không bật hẹn giờ
-            if (outScheduleSection) {
-                const outdoorSchedPickers = outScheduleSection.querySelector(".schedule-picker-grid-premium");
-                if (outdoorSchedPickers) {
-                    outdoorSchedPickers.classList.toggle("disabled", !outLight.schedule.enabled);
-                }
-            }
-            const outDays = outLight.schedule.days || { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true };
-            updateDayPicker("outdoor-day-picker", outDays, !outLight.schedule.enabled, DAY_NAMES);
-
-            // Hiển thị trạng thái lịch trình tiếp theo
-            const outdoorNextActionText = document.getElementById("outdoor-next-action-text");
-            const outdoorIndicator = document.getElementById("outdoor-indicator-dot");
-            if (outScheduleSection) {
-                outScheduleSection.classList.toggle("active", outLight.schedule.enabled);
-            }
-            if (outLight.schedule.enabled) {
-                const nextTime = outLight.status ? (outLight.schedule.off_time || "06:00") : (outLight.schedule.on_time || "18:00");
-                const nextAct = outLight.status ? "Tắt" : "Bật";
-                if (outdoorNextActionText) {
-                    outdoorNextActionText.innerHTML = `Lịch trình tiếp theo: <strong>${nextAct} lúc ${nextTime}</strong>`;
-                }
-                if (outdoorIndicator) {
-                    outdoorIndicator.classList.add("active");
-                }
-            } else {
-                if (outdoorNextActionText) {
-                    outdoorNextActionText.innerText = "Chưa kích hoạt lịch trình";
-                }
-                if (outdoorIndicator) {
-                    outdoorIndicator.classList.remove("active");
-                }
-            }
+            if (outManualInfo) outManualInfo.style.display = "flex";
         }
 
         // --- Cửa Thông Minh ---
@@ -574,13 +530,6 @@ export function initDashboard() {
         });
     }
 
-    const outSchedEnable = document.getElementById("outdoor-sched-enable");
-    if (outSchedEnable) {
-        outSchedEnable.addEventListener("change", (e) => {
-            set(ref(db, "devices/outdoor_light/schedule/enabled"), e.target.checked);
-        });
-    }
-
     const doorRangeInput = document.getElementById("door-autoclose-range");
     if (doorRangeInput) {
         doorRangeInput.addEventListener("input", (e) => {
@@ -639,7 +588,6 @@ export function initDashboard() {
 
     // Khởi tạo day pickers
     initDayPicker("indoor-day-picker", "devices/indoor_light/schedule/days", DAY_NAMES);
-    initDayPicker("outdoor-day-picker", "devices/outdoor_light/schedule/days", DAY_NAMES);
     initDayPicker("fan-day-picker", "devices/fan/schedule/days", DAY_NAMES);
 
     // Khởi tạo custom time pickers
@@ -648,10 +596,6 @@ export function initDashboard() {
             set(ref(db, "devices/indoor_light/schedule/on_time"), newVal);
         } else if (pickerId === "indoor-off-time") {
             set(ref(db, "devices/indoor_light/schedule/off_time"), newVal);
-        } else if (pickerId === "outdoor-on-time") {
-            set(ref(db, "devices/outdoor_light/schedule/on_time"), newVal);
-        } else if (pickerId === "outdoor-off-time") {
-            set(ref(db, "devices/outdoor_light/schedule/off_time"), newVal);
         } else if (pickerId === "fan-on-time") {
             set(ref(db, "devices/fan/schedule/on_time"), newVal);
         } else if (pickerId === "fan-off-time") {

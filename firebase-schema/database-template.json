@@ -51,21 +51,7 @@
     },
     "outdoor_light": {
       "status": false,
-      "mode": "auto",
-      "schedule": {
-        "enabled": false,
-        "on_time": "18:00",
-        "off_time": "06:00",
-        "days": {
-          "monday": true,
-          "tuesday": true,
-          "wednesday": true,
-          "thursday": true,
-          "friday": true,
-          "saturday": true,
-          "sunday": true
-        }
-      }
+      "mode": "auto"
     },
     "door": {
       "status": "closed",

@@ -67,43 +67,6 @@ void onDeviceControl(const String& device, const String& key, const String& valu
             lightCtrl.setOutdoorLight(value == "true");
         } else if (key == "mode") {
             lightCtrl.setOutdoorMode(value);
-        } else if (key == "schedule/enabled") {
-            lightCtrl.setScheduleEnabled(device, value == "true");
-        } else if (key == "schedule/on_time") {
-            lightCtrl.setScheduleOnTime(device, value);
-        } else if (key == "schedule/off_time") {
-            lightCtrl.setScheduleOffTime(device, value);
-        } else if (key.startsWith("schedule/days/")) {
-            String dayName = key.substring(14);
-            lightCtrl.setScheduleDay(device, dayName, value == "true");
-
-        } else if (key == "schedule") {
-            FirebaseJson json;
-            json.setJsonData(value);
-            FirebaseJsonData result;
-            
-            json.get(result, "enabled");
-            if (result.success) lightCtrl.setScheduleEnabled(device, result.to<bool>());
-            
-            json.get(result, "on_time");
-            if (result.success) lightCtrl.setScheduleOnTime(device, result.to<String>());
-            
-            json.get(result, "off_time");
-            if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
-            
-            json.get(result, "days");
-            if (result.success && result.jsonObject.iteratorBegin() > 0) {
-                FirebaseJsonData dayResult;
-                const char* dayNames[7] = {"sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
-                for (int i = 0; i < 7; i++) {
-                    result.jsonObject.get(dayResult, dayNames[i]);
-                    if (dayResult.success) {
-                        lightCtrl.setScheduleDay(device, dayNames[i], dayResult.to<bool>());
-                    }
-                }
-                result.jsonObject.iteratorEnd();
-            }
-
         }
     } 
     else if (device == "door") {
