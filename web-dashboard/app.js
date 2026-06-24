@@ -238,7 +238,7 @@ function updateTime() {
     if (!liveTimeEl) return;
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const date = new Date();
-    liveTimeEl.innerText = date.toLocaleDateString('vi-VN', options);
+    liveTimeEl.innerText = date.toLocaleString('vi-VN', options);
 }
 setInterval(updateTime, 1000);
 updateTime();

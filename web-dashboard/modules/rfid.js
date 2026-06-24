@@ -12,6 +12,14 @@ function escapeHTML(str) {
 }
 
 export function initRFID() {
+    // Nút làm mới danh sách thẻ (Firebase realtime nên chỉ cần toast xác nhận)
+    const refreshBtn = document.getElementById("btn-refresh-cards");
+    if (refreshBtn) {
+        refreshBtn.addEventListener("click", () => {
+            showToast("Đã làm mới danh sách thẻ!", "info");
+        });
+    }
+
     // Load danh sách thẻ RFID
     onValue(ref(db, "rfid/cards"), (snapshot) => {
         const tbody = document.getElementById("rfid-cards-table");

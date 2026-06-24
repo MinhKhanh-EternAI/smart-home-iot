@@ -1153,6 +1153,7 @@ tr:hover td {
 
 /* Utilities */
 .text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
 .text-danger { color: var(--danger); }
 .text-success { color: var(--success); }
 

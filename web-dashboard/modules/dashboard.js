@@ -123,6 +123,7 @@ function initPremiumTimePickers(onTimeChange) {
         });
 
         // Click confirm
+        if (!confirmBtn) return;
         confirmBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const newVal = `${selectedHour}:${selectedMin}`;
@@ -295,6 +296,7 @@ export function initDashboard() {
         if (inLight.schedule) {
             if (inLight.schedule.days === undefined) {
                 set(ref(db, "devices/indoor_light/schedule/days"), 127);
+                inLight.schedule.days = 127;
             }
             const enableCheck = document.getElementById("indoor-sched-enable");
             if (enableCheck) enableCheck.checked = inLight.schedule.enabled;
@@ -375,6 +377,7 @@ export function initDashboard() {
         if (outLight.schedule) {
             if (outLight.schedule.days === undefined) {
                 set(ref(db, "devices/outdoor_light/schedule/days"), 127);
+                outLight.schedule.days = 127;
             }
             const enableCheck = document.getElementById("outdoor-sched-enable");
             if (enableCheck) enableCheck.checked = outLight.schedule.enabled;
