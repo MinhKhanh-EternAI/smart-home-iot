@@ -9,18 +9,9 @@ function getVietnameseDayOfWeek() {
     return `hôm nay (${dayName})`;
 }
 
-// Hàm kiểm tra cảnh báo thông minh: Trời mưa + Mái che mở ở chế độ thủ công
+// Hàm kiểm tra cảnh báo thông minh: Trời mưa + Mái che mở ở chế độ thủ công (Đã tắt theo yêu cầu)
 export function checkSmartAlerts() {
-    const roofWarning = document.getElementById("roof-rain-warning");
-    const roofCard = document.getElementById("roof-manual-controls")?.closest(".device-card");
-    
-    if (state.sensors.rain && state.devices.roof.status === "open" && state.devices.roof.mode === "manual") {
-        if (roofWarning) roofWarning.style.display = "flex";
-        if (roofCard) roofCard.classList.add("warning-alarm-card");
-    } else {
-        if (roofWarning) roofWarning.style.display = "none";
-        if (roofCard) roofCard.classList.remove("warning-alarm-card");
-    }
+    // Đã xóa cảnh báo chữ và viền đỏ
 }
 
 function scrollToSelected(container, val) {

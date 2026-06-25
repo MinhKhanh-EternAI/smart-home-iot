@@ -1,17 +1,16 @@
 #ifndef WIFI_HELPER_H
 #define WIFI_HELPER_H
 
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+#include <WiFi.h>
+#include <WebServer.h>
 #include <EEPROM.h>
-#include <LiquidCrystal_I2C.h>
 #include <Firebase_ESP_Client.h>
 #include "Config.h"
 
 class WifiHelper {
 private:
-    static ESP8266WebServer& getServer() {
-        static ESP8266WebServer server(80);
+    static WebServer& getServer() {
+        static WebServer server(80);
         return server;
     }
 
@@ -22,7 +21,6 @@ public:
     }
 
 private:
-
     // Ghi chuỗi vào EEPROM
     static void writeStringToEEPROM(int offset, const String& str) {
         int len = str.length();
@@ -45,30 +43,6 @@ private:
     }
 
 public:
-    static int& getLCDAddress() {
-        static int lcdAddress = -1;
-        return lcdAddress;
-    }
-
-    static void printToLCD(const String& line1, const String& line2 = "") {
-        int addr = getLCDAddress();
-        if (addr != -1) {
-            Serial.printf("[LCD] Writing -> L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
-            LiquidCrystal_I2C lcd(addr, 16, 2);
-            lcd.init();
-            lcd.backlight();
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print(line1.substring(0, 16));
-            if (line2.length() > 0) {
-                lcd.setCursor(0, 1);
-                lcd.print(line2.substring(0, 16));
-            }
-        } else {
-            Serial.printf("[LCD-Skip] LCD not detected. Message: L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
-        }
-    }
-
     static void init() {
         Serial.println("\n--- [WifiHelper] Bat dau khoi tao WiFi & EEPROM ---");
         EEPROM.begin(EEPROM_SIZE);
@@ -81,35 +55,9 @@ public:
         Serial.printf("[WifiHelper] SSID doc tu EEPROM: \"%s\"\n", savedSSID.c_str());
         Serial.printf("[WifiHelper] Pass doc tu EEPROM: \"%s\"\n", savedPass.c_str());
         
-        // Khởi tạo I2C Bus với các chân cấu hình trước khi detect LCD
-        Serial.printf("[WifiHelper] Khoi dong I2C Bus... SDA Pin: %d, SCL Pin: %d\n", I2C_SDA_PIN, I2C_SCL_PIN);
-        Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-        
-        // Dò tìm LCD trên bus I2C để tránh treo chip khi phần cứng bị lỏng/thiếu nguồn
-        Serial.println("[WifiHelper] Quet I2C bus tim LCD (0x27, 0x3F, 0x20)...");
-        int lcdAddr = -1;
-        byte addresses[] = {0x27, 0x3F, 0x20};
-        for (int i = 0; i < 3; i++) {
-            Wire.beginTransmission(addresses[i]);
-            byte error = Wire.endTransmission();
-            if (error == 0) {
-                lcdAddr = addresses[i];
-                Serial.printf("[WifiHelper] Tim thay LCD tai dia chi I2C: 0x%02X\n", lcdAddr);
-                break;
-            } else {
-                Serial.printf("[WifiHelper] Dia chi 0x%02X khong phan hoi (Error: %d)\n", addresses[i], error);
-            }
-        }
-        getLCDAddress() = lcdAddr;
-        if (lcdAddr == -1) {
-            Serial.println("[WifiHelper] CANH BAO: Khong tim thay LCD. Bo qua hien thi LCD.");
-        }
-        
         bool connected = false;
         
         if (savedSSID.length() > 0 && savedSSID != "Your_SSID" && savedSSID[0] != 0xFF) {
-            printToLCD("Connecting WiFi", savedSSID);
-            
             WiFi.mode(WIFI_STA);
             WiFi.begin(savedSSID.c_str(), savedPass.c_str());
             
@@ -125,14 +73,12 @@ public:
             if (WiFi.status() == WL_CONNECTED) {
                 connected = true;
                 Serial.println("\n[WifiHelper] Wi-Fi da ket noi thanh cong!");
-                Serial.print("[WifiHelper] IP cua ESP8266: "); Serial.println(WiFi.localIP());
-                
-                printToLCD("WiFi Connected!", WiFi.localIP().toString());
+                Serial.print("[WifiHelper] IP cua ESP32: "); Serial.println(WiFi.localIP());
                 
                 // Khởi chạy đồng bộ cấu hình WiFi từ xa từ Firebase
                 startConfigSync();
                 
-                delay(2000); // Giữ thông tin IP trong 2 giây
+                delay(2000);
             } else {
                 Serial.println("\n[WifiHelper] Ket noi Wi-Fi that bai (Timeout)!");
             }
@@ -164,10 +110,8 @@ public:
         Serial.printf("[WifiHelper] AP Mode khoi dong. SSID: %s\n", AP_SSID);
         Serial.print("[WifiHelper] AP IP Address: "); Serial.println(WiFi.softAPIP());
         
-
-        
         // Thiết lập các Endpoint cho Web Server
-        ESP8266WebServer& server = getServer();
+        WebServer& server = getServer();
         
         // Trang chủ cấu hình WiFi
         server.on("/", HTTP_GET, []() {
@@ -177,9 +121,9 @@ public:
                 "<title>SmartHome Config Portal</title>"
                 "<style>"
                 ":root {"
-                "  --primary: #6366f1;"
-                "  --primary-glow: rgba(99, 102, 241, 0.2);"
-                "  --primary-hover: #4f46e5;"
+                "  --primary: #0ea5e9;"
+                "  --primary-glow: rgba(14, 165, 233, 0.2);"
+                "  --primary-hover: #0284c7;"
                 "  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1e38 50%, #090d16 100%);"
                 "  --panel-bg: rgba(22, 28, 45, 0.45);"
                 "  --panel-border: rgba(255, 255, 255, 0.08);"
@@ -189,8 +133,8 @@ public:
                 "}"
                 "body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0b0f19; color: var(--text-primary); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; overflow-x: hidden; }"
                 ".glass-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-gradient); z-index: -2; overflow: hidden; }"
-                ".glass-bg::after { content: ''; position: absolute; top: 20%; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, var(--primary-glow) 0%, rgba(99, 102, 241, 0) 70%); filter: blur(50px); z-index: -1; animation: bgPulse 15s infinite alternate; }"
-                ".glass-bg::before { content: ''; position: absolute; bottom: 10%; right: 15%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0) 70%); filter: blur(60px); z-index: -1; animation: bgPulse 20s infinite alternate-reverse; }"
+                ".glass-bg::after { content: ''; position: absolute; top: 20%; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, var(--primary-glow) 0%, rgba(14, 165, 233, 0) 70%); filter: blur(50px); z-index: -1; animation: bgPulse 15s infinite alternate; }"
+                ".glass-bg::before { content: ''; position: absolute; bottom: 10%; right: 15%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%); filter: blur(60px); z-index: -1; animation: bgPulse 20s infinite alternate-reverse; }"
                 "@keyframes bgPulse { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 30px) scale(1.2); } }"
                 ".card { background: var(--panel-bg); border: 1px solid var(--panel-border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 420px; box-shadow: var(--panel-shadow); text-align: center; position: relative; overflow: hidden; }"
                 ".content-wrapper { position: relative; z-index: 1; }"
@@ -200,7 +144,7 @@ public:
                 "  50% { transform: scale(1.08); filter: drop-shadow(0 0 15px var(--primary)); }"
                 "}"
                 "h2 { margin: 0 0 6px 0; font-weight: 600; font-size: 24px; letter-spacing: -0.5px; background: linear-gradient(to right, #ffffff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }"
-                ".badge { display: inline-block; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); margin-bottom: 20px; color: #d8b4fe; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }"
+                ".badge { display: inline-block; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); margin-bottom: 20px; color: #bae6fd; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }"
                 "p { color: var(--text-secondary); font-size: 14px; line-height: 1.5; margin: 0 0 24px 0; }"
                 ".btn { background: var(--primary); color: white; border: 0; padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 14px var(--primary-glow); margin-bottom: 16px; box-sizing: border-box; outline: none; }"
                 ".btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px var(--primary-glow); }"
@@ -219,10 +163,10 @@ public:
                 "<div class='card'>"
                 "<div class='content-wrapper'>"
                 "<div class='chip-icon'>"
-                "<svg width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='#c084fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='2'/><rect x='9' y='9' width='6' height='6'/><path d='M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3'/></svg>"
+                "<svg width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='#38bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='4' width='16' height='16' rx='2'/><rect x='9' y='9' width='6' height='6'/><path d='M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3'/></svg>"
                 "</div>"
                 "<h2>SmartHome Config</h2>"
-                "<div class='badge'>ESP8266 Core • Mạch Điều Khiển</div>"
+                "<div class='badge'>ESP32 Assistant • Trợ Lý Giọng Nói</div>"
                 "<p>Cấu hình kết nối Wi-Fi để thiết bị này liên kết vào hệ thống Smart Home.</p>"
                 "<button class='btn btn-scan' id='btn-scan' onclick='scanNetworks()'>Quét mạng Wi-Fi xung quanh</button>"
                 "<div class='loading' id='loading'>Đang tìm kiếm mạng Wi-Fi...</div>"
@@ -315,9 +259,6 @@ public:
             writeStringToEEPROM(32, password);
             
             getServer().send(200, "application/json", "{\"status\":\"ok\"}");
-            
-            // Hiển thị LCD thông báo lưu thành công và khởi động lại
-            printToLCD("WiFi Config Saved", "Rebooting...");
             
             delay(2000);
             ESP.restart();

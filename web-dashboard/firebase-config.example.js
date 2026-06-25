@@ -18,3 +18,6 @@ export const firebaseConfig = {
     apiKey: "YOUR_FIREBASE_API_KEY",
     databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
+
+export const DEFAULT_AP_IP = "192.168.1.86";
+

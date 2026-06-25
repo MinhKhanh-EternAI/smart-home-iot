@@ -32,6 +32,7 @@ public:
         
         Serial.println("Initializing Firebase...");
         config.host = FIREBASE_HOST;
+        config.database_url = "https://" FIREBASE_HOST "/";
         config.api_key = FIREBASE_API_KEY;
 
         // Đăng nhập vô danh (Anonymous sign-in)

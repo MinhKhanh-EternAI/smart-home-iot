@@ -8,6 +8,9 @@
 #define DEFAULT_WIFI_PASSWORD "Your_WiFi_Password"
 #define EEPROM_SIZE           96
 #define AP_SSID               "SmartHome-Config"
+#define AP_IP_ADDR            192, 168, 1, 86
+#define AP_SUBNET_ADDR        255, 255, 255, 0
+
 
 // SPI cho RFID RC522
 #define RC522_SS_PIN          D8

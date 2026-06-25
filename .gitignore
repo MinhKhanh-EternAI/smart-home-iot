@@ -2,3 +2,4 @@
 # KHÔNG commit file này lên git
 web-dashboard/firebase-config.js
 ld/
+.vscode/

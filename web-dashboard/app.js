@@ -4,10 +4,10 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Import modular pages
-import { initDashboard } from "./modules/dashboard.js?v=1.0.16";
-import { initRFID } from "./modules/rfid.js?v=1.0.16";
-import { initLogs } from "./modules/logs.js?v=1.0.16";
-import { initConfig } from "./modules/config.js?v=1.0.16";
+import { initDashboard } from "./modules/dashboard.js?v=1.0.26";
+import { initRFID } from "./modules/rfid.js?v=1.0.26";
+import { initLogs } from "./modules/logs.js?v=1.0.26";
+import { initConfig } from "./modules/config.js?v=1.0.26";
 
 // Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
 import { firebaseConfig } from "./firebase-config.js";
@@ -251,6 +251,18 @@ initDashboard(db, state);
 initRFID(db, showToast, showConfirm);
 initLogs(db);
 initConfig(db, showToast);
+
+// Device filter tabs
+document.querySelectorAll(".device-filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".device-filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const filter = btn.dataset.filter;
+        document.querySelectorAll("#devices-container .device-card").forEach(card => {
+            card.style.display = (filter === "all" || card.dataset.zone === filter) ? "" : "none";
+        });
+    });
+});
 
 // Khởi tạo tab từ URL hash khi tải trang (giữ nguyên tab khi reload)
 const initHash = location.hash.slice(1);

@@ -1,16 +1,23 @@
 let db;
 let showToast;
 import { ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { DEFAULT_AP_IP } from "../firebase-config.js";
 
 export function initConfig(database, toastFn) {
     db = database;
     showToast = toastFn;
+
+    // Set default AP IP on load
+    const apIpEl = document.getElementById("wifi-ap-ip-display");
+    if (apIpEl) apIpEl.innerText = DEFAULT_AP_IP;
+
     // WiFi Config — chỉ hiện SSID, không pre-fill mật khẩu (bảo mật)
     onValue(ref(db, "config/wifi"), (snapshot) => {
         const wifi = snapshot.val();
         const ssidEl = document.getElementById("wifi-ssid");
         const passEl = document.getElementById("wifi-pass");
         const apNoteEl = document.getElementById("wifi-ap-note");
+        const apIpEl = document.getElementById("wifi-ap-ip-display");
 
         if (ssidEl) ssidEl.value = wifi?.ssid || "";
         if (passEl) {
@@ -18,6 +25,7 @@ export function initConfig(database, toastFn) {
             passEl.placeholder = wifi?.ssid ? "Nhập mật khẩu mới để thay đổi..." : "Nhập mật khẩu WiFi...";
         }
         if (apNoteEl) apNoteEl.style.display = wifi?.ssid ? "none" : "flex";
+        if (apIpEl) apIpEl.innerText = wifi?.ap_ip || DEFAULT_AP_IP;
     });
 
     const wifiForm = document.getElementById("wifi-config-form");
