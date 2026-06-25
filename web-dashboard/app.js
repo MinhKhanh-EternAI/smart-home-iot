@@ -155,6 +155,7 @@ const tabTitles = {
     dashboard: "Hệ thống Điều khiển",
     rfid: "Quản lý thẻ RFID",
     logs: "Nhật ký Hoạt động",
+    "wifi-config": "Cấu hình Kết nối WiFi",
     config: "Cấu hình Hệ thống"
 };
 

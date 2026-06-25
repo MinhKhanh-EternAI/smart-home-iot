@@ -14,12 +14,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body class="light-mode">
     <script>
         // Áp dụng theme tức thì trước khi render DOM để tránh chớp màn hình (flash of dark mode)
         const savedTheme = localStorage.getItem("theme") || "light";
-        if (savedTheme === "light") {
-            document.body.classList.add("light-mode");
+        if (savedTheme === "dark") {
+            document.body.classList.remove("light-mode");
         }
     </script>
     <div class="glass-bg"></div>
@@ -39,6 +39,9 @@
                 </a>
                 <a href="#logs" class="menu-item" data-tab="logs">
                     <i class="fa-solid fa-list-ul"></i> <span>Event Logs</span>
+                </a>
+                <a href="#wifi-config" class="menu-item" data-tab="wifi-config">
+                    <i class="fa-solid fa-wifi"></i> <span>WiFi Config</span>
                 </a>
                 <a href="#config" class="menu-item" data-tab="config">
                     <i class="fa-solid fa-sliders"></i> <span>System Config</span>
@@ -509,31 +512,33 @@
                 </div>
             </section>
 
+            <!-- Tab: WiFi Config -->
+            <section id="tab-wifi-config" class="tab-content">
+                <div class="glass-card" style="max-width: 600px; margin: 0 auto; width: 100%;">
+                    <h3>Cấu hình Kết nối WiFi</h3>
+                    <div class="info-note" id="wifi-ap-note" style="display:none;">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>ESP đang ở chế độ AP? Truy cập <strong id="wifi-ap-ip-display">...</strong> để cài đặt WiFi lần đầu. Form này dùng để thay đổi WiFi từ xa qua Firebase.</span>
+                    </div>
+                    <form id="wifi-config-form" class="config-form">
+                        <div class="form-group">
+                            <label for="wifi-ssid">SSID (Tên WiFi)</label>
+                            <input type="text" id="wifi-ssid" placeholder="Nhập tên WiFi..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="wifi-pass">Mật khẩu</label>
+                            <input type="password" id="wifi-pass" placeholder="Nhập mật khẩu WiFi..." required>
+                        </div>
+                        <button type="submit" class="primary-btn">Cập Nhật WiFi</button>
+                    </form>
+                </div>
+            </section>
+
             <!-- Tab: Config -->
             <section id="tab-config" class="tab-content">
                 <div class="two-column-layout">
                     <!-- Left: Configuration Forms -->
                     <div class="flex-col gap-2">
-                        <!-- WiFi Config -->
-                        <div class="glass-card">
-                            <h3>Cấu hình Kết nối WiFi</h3>
-                            <div class="info-note" id="wifi-ap-note" style="display:none;">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span>ESP đang ở chế độ AP? Truy cập <strong id="wifi-ap-ip-display">...</strong> để cài đặt WiFi lần đầu. Form này dùng để thay đổi WiFi từ xa qua Firebase.</span>
-                            </div>
-                            <form id="wifi-config-form" class="config-form">
-                                <div class="form-group">
-                                    <label for="wifi-ssid">SSID (Tên WiFi)</label>
-                                    <input type="text" id="wifi-ssid" placeholder="Nhập tên WiFi..." required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="wifi-pass">Mật khẩu</label>
-                                    <input type="password" id="wifi-pass" placeholder="Nhập mật khẩu WiFi..." required>
-                                </div>
-                                <button type="submit" class="primary-btn">Cập Nhật WiFi</button>
-                            </form>
-                        </div>
-
                         <!-- MCP & MQTT Config -->
                         <div class="glass-card">
                             <h3>Cấu hình Endpoint AI & MQTT</h3>
@@ -579,6 +584,10 @@
         <a href="#logs" class="mobile-nav-item" data-tab="logs">
             <i class="fa-solid fa-list-ul"></i>
             <span>Logs</span>
+        </a>
+        <a href="#wifi-config" class="mobile-nav-item" data-tab="wifi-config">
+            <i class="fa-solid fa-wifi"></i>
+            <span>WiFi</span>
         </a>
         <a href="#config" class="mobile-nav-item" data-tab="config">
             <i class="fa-solid fa-sliders"></i>
