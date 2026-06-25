@@ -278,15 +278,15 @@ body {
 /* Sensors Grid */
 .sensors-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
 }
 
 .sensor-card {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--border-radius-lg);
-    padding: 20px;
+    padding: 24px;
     box-shadow: var(--panel-shadow);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -296,61 +296,273 @@ body {
     box-shadow: 0 12px 40px rgba(0,0,0,0.4);
 }
 
+body.light-mode .sensor-card:hover {
+    box-shadow: 0 12px 30px rgba(148, 163, 184, 0.12);
+}
+
 .sensor-header {
     display: flex;
     align-items: center;
     gap: 12px;
     color: var(--text-secondary);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .sensor-header .icon {
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .sensor-header h3 {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 .sensor-value {
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     margin-bottom: 8px;
 }
 
 .sensor-footer {
-    font-size: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Climate Gauges (Circular style) */
+.climate-gauges {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.gauge-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 24px;
+    flex: 1;
+    min-width: 170px;
+    max-width: 240px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 0 16px rgba(255, 255, 255, 0.01);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+}
+
+.gauge-container:hover {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35), inset 0 0 24px rgba(255, 255, 255, 0.02);
+}
+
+body.light-mode .gauge-container {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 24px rgba(148, 163, 184, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+body.light-mode .gauge-container:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 16px 32px rgba(148, 163, 184, 0.12);
+}
+
+.gauge-svg-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gauge-svg-circular {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.gauge-track-circular {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+}
+
+.temp-container .gauge-track-circular {
+    stroke: rgba(239, 68, 68, 0.08);
+}
+
+.hum-container .gauge-track-circular {
+    stroke: rgba(14, 165, 233, 0.08);
+}
+
+body.light-mode .temp-container .gauge-track-circular {
+    stroke: rgba(239, 68, 68, 0.1);
+}
+
+body.light-mode .hum-container .gauge-track-circular {
+    stroke: rgba(14, 165, 233, 0.1);
+}
+
+.gauge-fill-circular {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.temp-fill-circular {
+    stroke: #ef4444;
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
+}
+
+.hum-fill-circular {
+    stroke: #0ea5e9;
+    filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.4));
+}
+
+.gauge-center-circular {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.gauge-icon-circular {
+    position: absolute;
+    top: 24%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    margin: 0;
+}
+
+.gauge-icon-circular.temp-color {
+    color: #ef4444;
+}
+
+.gauge-icon-circular.hum-color {
+    color: #0ea5e9;
+}
+
+.gauge-value-row {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 1px;
+}
+
+.gauge-value-circular {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.gauge-unit-circular {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.gauge-label-circular {
+    position: absolute;
+    bottom: 16%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-muted);
+    margin: 0;
 }
 
-/* Sensor Specifics Colors */
-.temperature .icon { color: var(--danger); }
-.humidity .icon { color: var(--info); }
-.rain-card.raining {
-    border-color: rgba(14, 165, 233, 0.4);
-    background: linear-gradient(135deg, rgba(22, 28, 45, 0.45) 0%, rgba(14, 165, 233, 0.1) 100%);
-}
-.rain-card.raining .icon {
-    color: var(--info);
-    animation: bounce 2s infinite;
-}
-.motion-card.detected {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: linear-gradient(135deg, rgba(22, 28, 45, 0.45) 0%, rgba(16, 185, 129, 0.1) 100%);
-}
-.motion-card.detected .icon {
-    color: var(--success);
-    animation: flash 1.5s infinite;
+/* History Chart Card Specific Styles */
+.sensor-card.chart-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    transition: all var(--transition-normal);
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+/* Warning Alarm Card for Smart Roof */
+.device-card.warning-alarm-card {
+    border-color: rgba(239, 68, 68, 0.45) !important;
+    background: linear-gradient(135deg, var(--panel-bg) 0%, rgba(239, 68, 68, 0.08) 100%) !important;
+    animation: warning-card-glow 2s infinite ease-in-out;
 }
-@keyframes flash {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+@keyframes warning-card-glow {
+    0%, 100% { 
+        box-shadow: var(--panel-shadow), 0 0 0 rgba(239, 68, 68, 0); 
+        border-color: rgba(239, 68, 68, 0.4);
+    }
+    50% { 
+        box-shadow: var(--panel-shadow), 0 0 12px rgba(239, 68, 68, 0.25); 
+        border-color: rgba(239, 68, 68, 0.7);
+    }
+}
+
+.warning-row-roof {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #f87171;
+    border-radius: var(--border-radius-md);
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 14px;
+    animation: alert-shake 3s infinite ease-in-out;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+body.light-mode .warning-row-roof {
+    background: rgba(220, 38, 38, 0.08);
+    border-color: rgba(220, 38, 38, 0.18);
+    color: #b91c1c;
+}
+
+.warning-row-roof i {
+    font-size: 16px;
+    color: var(--danger);
+    animation: warning-flash 1s infinite alternate ease-in-out;
+}
+
+body.light-mode .warning-row-roof i {
+    color: #dc2626;
+}
+
+@keyframes warning-flash {
+    from { opacity: 0.5; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes alert-shake {
+    0%, 100% { transform: translateX(0); }
+    90%, 94%, 98% { transform: translateX(-2px); }
+    92%, 96% { transform: translateX(2px); }
 }
 
 /* Devices Grid */
@@ -1738,8 +1950,8 @@ body.light-mode .info-row {
     }
     
     .sensors-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 cột gọn gàng trên mobile */
-        gap: 12px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
     }
     
     .sensor-card {
@@ -1767,7 +1979,7 @@ body.light-mode .info-row {
 
 @media (max-width: 480px) {
     .sensors-grid {
-        grid-template-columns: 1fr; /* Màn hình cực nhỏ thì 1 cột cảm biến */
+        grid-template-columns: minmax(0, 1fr); /* Màn hình cực nhỏ thì 1 cột cảm biến */
     }
     
     .log-filter-bar {
@@ -1943,25 +2155,7 @@ body.light-mode .custom-time-picker .time-item:hover {
 }
 
 /* Smart Alarm for Rain Card */
-.sensor-card.rain-card.warning-alarm {
-    border-color: rgba(239, 68, 68, 0.4) !important;
-    background: linear-gradient(135deg, rgba(22, 28, 45, 0.45) 0%, rgba(239, 68, 68, 0.12) 100%) !important;
-    animation: warning-glow 1.5s infinite alternate;
-}
 
-.sensor-card.rain-card.warning-alarm .icon {
-    color: var(--danger) !important;
-    animation: flash 1s infinite;
-}
-
-.sensor-card.rain-card.warning-alarm .sensor-value {
-    color: #fca5a5 !important;
-}
-
-.sensor-card.rain-card.warning-alarm .sensor-footer {
-    color: #ef4444 !important;
-    font-weight: 600;
-}
 
 @keyframes warning-glow {
     from { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1); }

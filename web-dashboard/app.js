@@ -4,10 +4,10 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Import modular pages
-import { initDashboard } from "./modules/dashboard.js";
-import { initRFID } from "./modules/rfid.js";
-import { initLogs } from "./modules/logs.js";
-import { initConfig } from "./modules/config.js";
+import { initDashboard } from "./modules/dashboard.js?v=1.0.16";
+import { initRFID } from "./modules/rfid.js?v=1.0.16";
+import { initLogs } from "./modules/logs.js?v=1.0.16";
+import { initConfig } from "./modules/config.js?v=1.0.16";
 
 // Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
 import { firebaseConfig } from "./firebase-config.js";
@@ -22,7 +22,7 @@ signInAnonymously(auth).catch((err) => console.error("Firebase auth error:", err
 
 // Trạng thái toàn cục để đồng bộ logic hiển thị cảnh báo
 export const state = {
-    sensors: { rain: false, motion: false, temperature: null, humidity: null },
+    sensors: { rain: false, temperature: null, humidity: null },
     devices: {
         indoor_light: { status: false, schedule: { enabled: false } },
         outdoor_light: { status: false, mode: "auto" },
@@ -229,6 +229,7 @@ if (themeToggleBtn) {
         const newTheme = currentTheme === "light" ? "dark" : "light";
         localStorage.setItem("theme", newTheme);
         applyTheme(newTheme);
+        window.dispatchEvent(new CustomEvent("themechanged", { detail: { theme: newTheme } }));
     });
 }
 
@@ -246,10 +247,10 @@ updateTime();
 // ==========================================
 // Khởi tạo các module trang
 // ==========================================
-initDashboard();
-initRFID();
-initLogs();
-initConfig();
+initDashboard(db, state);
+initRFID(db, showToast, showConfirm);
+initLogs(db);
+initConfig(db, showToast);
 
 // Khởi tạo tab từ URL hash khi tải trang (giữ nguyên tab khi reload)
 const initHash = location.hash.slice(1);

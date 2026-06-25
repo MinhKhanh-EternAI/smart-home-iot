@@ -1,4 +1,4 @@
-import { db } from "../app.js";
+let db;
 import { ref, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 let allEventLogs = [];
@@ -52,7 +52,8 @@ function renderEventLogs(filter) {
     });
 }
 
-export function initLogs() {
+export function initLogs(database) {
+    db = database;
     const feedContainer = document.getElementById("event-logs-feed");
     if (!feedContainer) return;
 

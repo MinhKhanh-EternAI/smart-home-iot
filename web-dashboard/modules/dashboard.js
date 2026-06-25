@@ -1,4 +1,5 @@
-import { db, state } from "../app.js";
+let db;
+let state;
 import { ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 function getVietnameseDayOfWeek() {
@@ -10,20 +11,15 @@ function getVietnameseDayOfWeek() {
 
 // Hàm kiểm tra cảnh báo thông minh: Trời mưa + Mái che mở ở chế độ thủ công
 export function checkSmartAlerts() {
-    const rainCard = document.getElementById("rain-status-card");
-    const rainDetails = document.getElementById("rain-details");
-    if (!rainCard || !rainDetails) return;
+    const roofWarning = document.getElementById("roof-rain-warning");
+    const roofCard = document.getElementById("roof-manual-controls")?.closest(".device-card");
     
     if (state.sensors.rain && state.devices.roof.status === "open" && state.devices.roof.mode === "manual") {
-        // Cảnh báo nguy hiểm khi trời mưa nhưng mở mái che thủ công
-        rainCard.classList.add("warning-alarm");
-        rainDetails.innerHTML = "⚠️ Nguy hiểm: Mái đang mở thủ công!";
+        if (roofWarning) roofWarning.style.display = "flex";
+        if (roofCard) roofCard.classList.add("warning-alarm-card");
     } else {
-        rainCard.classList.remove("warning-alarm");
-        
-        // Cập nhật lại thông tin mái che bình thường
-        const roof = state.devices.roof;
-        rainDetails.innerText = `Mái che đang: ${roof.status === "open" ? "Mở" : "Đóng"} (${roof.mode === "auto" ? "Tự động" : "Thủ công"})`;
+        if (roofWarning) roofWarning.style.display = "none";
+        if (roofCard) roofCard.classList.remove("warning-alarm-card");
     }
 }
 
@@ -177,7 +173,242 @@ function initPremiumTimePickers(onTimeChange) {
     });
 }
 
-export function initDashboard() {
+let chartInstance = null;
+const chartMaxPoints = 24;
+const chartData = {
+    labels: [],
+    temp: [],
+    hum: []
+};
+
+function initChart() {
+    const ctx = document.getElementById('temp-hum-chart');
+    if (!ctx) return;
+    
+    const isLight = document.body.classList.contains("light-mode");
+    const textColor = isLight ? '#475569' : '#94a3b8';
+    const gridColor = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)';
+
+    const chartCtx = ctx.getContext('2d');
+    const tempGradient = chartCtx.createLinearGradient(0, 0, 0, 200);
+    tempGradient.addColorStop(0, 'rgba(239, 68, 68, 0.12)');
+    tempGradient.addColorStop(1, 'rgba(239, 68, 68, 0.00)');
+    
+    const humGradient = chartCtx.createLinearGradient(0, 0, 0, 200);
+    humGradient.addColorStop(0, 'rgba(14, 165, 233, 0.12)');
+    humGradient.addColorStop(1, 'rgba(14, 165, 233, 0.00)');
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Nhiệt độ (°C)',
+                    data: chartData.temp,
+                    borderColor: '#ef4444',
+                    borderWidth: 2,
+                    backgroundColor: tempGradient,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ef4444',
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-temp'
+                },
+                {
+                    label: 'Độ ẩm (%)',
+                    data: chartData.hum,
+                    borderColor: '#0ea5e9',
+                    borderWidth: 2,
+                    backgroundColor: humGradient,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#0ea5e9',
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-hum'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: textColor,
+                        boxWidth: 8,
+                        font: {
+                            family: 'Outfit',
+                            size: 11,
+                            weight: '500'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.95)',
+                    titleColor: isLight ? '#0f172a' : '#f8fafc',
+                    bodyColor: isLight ? '#334155' : '#cbd5e1',
+                    borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                    borderWidth: 1,
+                    titleFont: { family: 'Outfit', size: 13, weight: '700' },
+                    bodyFont: { family: 'Outfit', size: 13 },
+                    padding: 10,
+                    cornerRounding: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: { family: 'Outfit', size: 11 },
+                        maxTicksLimit: 6,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                },
+                'y-temp': {
+                    type: 'linear',
+                    position: 'left',
+                    grid: {
+                        color: gridColor,
+                        borderDash: [5, 5]
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: { family: 'Outfit', size: 11 },
+                        callback: function(val) { return val + '°C'; }
+                    },
+                    min: 15,
+                    max: 45
+                },
+                'y-hum': {
+                    type: 'linear',
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: { family: 'Outfit', size: 11 },
+                        callback: function(val) { return val + '%'; }
+                    },
+                    min: 20,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function prefillHourlyData(currentTemp, currentHum) {
+    chartData.labels.length = 0;
+    chartData.temp.length = 0;
+    chartData.hum.length = 0;
+    
+    const now = new Date();
+    // Prefill 24 points: from 23 hours ago to current hour
+    for (let i = 23; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 60 * 60 * 1000);
+        const hourStr = d.getHours().toString().padStart(2, '0') + ':00';
+        
+        // Generate mock data centered around current values
+        let mockTemp = currentTemp !== null ? currentTemp + Math.round(Math.sin((d.getHours() - 6) / 3) * 3 + (Math.random() - 0.5) * 2) : 25;
+        let mockHum = currentHum !== null ? currentHum + Math.round(Math.cos((d.getHours() - 6) / 3) * 8 + (Math.random() - 0.5) * 4) : 60;
+        
+        mockTemp = Math.max(15, Math.min(45, Math.round(mockTemp)));
+        mockHum = Math.max(20, Math.min(100, Math.round(mockHum)));
+        
+        chartData.labels.push(hourStr);
+        chartData.temp.push(mockTemp);
+        chartData.hum.push(mockHum);
+    }
+}
+
+function updateChartData(temp, hum) {
+    if (temp === null || hum === null) return;
+    
+    // Ensure chart values are always integers
+    const roundedTemp = Math.round(temp);
+    const roundedHum = Math.round(hum);
+    
+    if (chartData.labels.length === 0) {
+        prefillHourlyData(roundedTemp, roundedHum);
+        if (chartInstance) {
+            chartInstance.update();
+        } else {
+            initChart();
+        }
+        return;
+    }
+    
+    const now = new Date();
+    const currentHourStr = now.getHours().toString().padStart(2, '0') + ':00';
+    const lastIndex = chartData.labels.length - 1;
+    
+    if (chartData.labels[lastIndex] === currentHourStr) {
+        // Still in the same hour, update the current point with latest rounded values
+        chartData.temp[lastIndex] = roundedTemp;
+        chartData.hum[lastIndex] = roundedHum;
+    } else {
+        // A new hour has started! Add new point
+        chartData.labels.push(currentHourStr);
+        chartData.temp.push(roundedTemp);
+        chartData.hum.push(roundedHum);
+        
+        if (chartData.labels.length > chartMaxPoints) {
+            chartData.labels.shift();
+            chartData.temp.shift();
+            chartData.hum.shift();
+        }
+    }
+    
+    if (chartInstance) {
+        chartInstance.update();
+    } else {
+        initChart();
+    }
+}
+
+window.addEventListener("themechanged", (e) => {
+    if (chartInstance) {
+        const isLight = e.detail.theme === "light";
+        const textColor = isLight ? '#475569' : '#94a3b8';
+        const gridColor = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)';
+        
+        chartInstance.options.plugins.legend.labels.color = textColor;
+        chartInstance.options.plugins.tooltip.backgroundColor = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.95)';
+        chartInstance.options.plugins.tooltip.titleColor = isLight ? '#0f172a' : '#f8fafc';
+        chartInstance.options.plugins.tooltip.bodyColor = isLight ? '#334155' : '#cbd5e1';
+        chartInstance.options.plugins.tooltip.borderColor = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
+        
+        chartInstance.options.scales.x.ticks.color = textColor;
+        chartInstance.options.scales['y-temp'].ticks.color = textColor;
+        chartInstance.options.scales['y-temp'].grid.color = gridColor;
+        chartInstance.options.scales['y-hum'].ticks.color = textColor;
+        
+        chartInstance.update();
+    }
+});
+
+export function initDashboard(database, globalState) {
+    db = database;
+    state = globalState;
     const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const VIET_DAY_NAMES = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
@@ -212,43 +443,39 @@ export function initDashboard() {
 
         // Cập nhật state toàn cục
         if (data.rain !== undefined) state.sensors.rain = !!data.rain;
-        if (data.motion !== undefined) state.sensors.motion = !!data.motion;
         
         if (data.temperature !== undefined) state.sensors.temperature = data.temperature;
         else if (data.temp !== undefined) state.sensors.temperature = data.temp;
         
         if (data.humidity !== undefined) state.sensors.humidity = data.humidity;
 
-        // Cập nhật Nhiệt độ / Độ ẩm
+        // Cập nhật Nhiệt độ / Độ ẩm + tiến trình vòm tròn
         const tempEl = document.getElementById("temp-val");
         const humEl = document.getElementById("hum-val");
-        if (tempEl) tempEl.innerText = (state.sensors.temperature !== null && state.sensors.temperature !== undefined) ? parseFloat(state.sensors.temperature).toFixed(1) : "--";
-        if (humEl) humEl.innerText = (state.sensors.humidity !== null && state.sensors.humidity !== undefined) ? parseFloat(state.sensors.humidity).toFixed(1) : "--";
+        const tempGaugeCircular = document.getElementById("temp-gauge-circular");
+        const humGaugeCircular = document.getElementById("hum-gauge-circular");
+        const circumferenceCircular = Math.PI * 45 * 1.5; // Chu vi vòm tròn 270 độ r=45
 
-        // Trạng thái mưa
-        const rainCard = document.getElementById("rain-status-card");
-        const rainVal = document.getElementById("rain-val");
-        if (rainCard && rainVal && data.rain !== undefined) {
-            if (state.sensors.rain) {
-                rainCard.classList.add("raining");
-                rainVal.innerText = "Trời Đang Mưa";
-            } else {
-                rainCard.classList.remove("raining");
-                rainVal.innerText = "Không Mưa";
-            }
+        const temp = (state.sensors.temperature !== null && state.sensors.temperature !== undefined) ? parseFloat(state.sensors.temperature) : null;
+        const hum = (state.sensors.humidity !== null && state.sensors.humidity !== undefined) ? parseFloat(state.sensors.humidity) : null;
+
+        if (tempEl) tempEl.innerText = temp !== null ? Math.round(temp).toString() : "--";
+        if (humEl) humEl.innerText = hum !== null ? Math.round(hum).toString() : "--";
+
+        if (tempGaugeCircular) {
+            const progress = temp !== null ? Math.max(0, Math.min(temp / 50, 1)) : 0;
+            tempGaugeCircular.style.strokeDasharray = circumferenceCircular;
+            tempGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
+        }
+        if (humGaugeCircular) {
+            const progress = hum !== null ? Math.max(0, Math.min(hum / 100, 1)) : 0;
+            humGaugeCircular.style.strokeDasharray = circumferenceCircular;
+            humGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
         }
 
-        // Trạng thái chuyển động
-        const motionCard = document.getElementById("motion-status-card");
-        const motionVal = document.getElementById("motion-val");
-        if (motionCard && motionVal && data.motion !== undefined) {
-            if (state.sensors.motion) {
-                motionCard.classList.add("detected");
-                motionVal.innerText = "Có Chuyển Động";
-            } else {
-                motionCard.classList.remove("detected");
-                motionVal.innerText = "Yên Tĩnh";
-            }
+        // Cập nhật biểu đồ (Chart) nếu có dữ liệu hợp lệ
+        if (temp !== null && hum !== null) {
+            updateChartData(temp, hum);
         }
 
         // Kiểm tra cảnh báo thông minh
@@ -256,13 +483,36 @@ export function initDashboard() {
     };
 
     onValue(ref(db, "sensors"), (snapshot) => {
-        updateSensorsUI(snapshot.val());
+        const val = snapshot.val();
+        if (val) {
+            updateSensorsUI(val);
+        } else {
+            // Mock data để test giao diện
+            const mockData = {
+                temperature: 25.5,
+                humidity: 65,
+                rain: true,
+                last_updated: Date.now()
+            };
+            set(ref(db, "sensors"), mockData);
+        }
     });
 
     // Đọc và đồng bộ các Thiết bị (Devices)
     onValue(ref(db, "devices"), (snapshot) => {
         const data = snapshot.val();
-        if (!data) return;
+        if (!data) {
+            // Mock devices data để test giao diện
+            const mockDevices = {
+                indoor_light: { status: true, mode: "manual", schedule: { enabled: true, on_time: "18:00", off_time: "06:00", days: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true } } },
+                outdoor_light: { status: false, mode: "auto" },
+                door: { status: "closed", auto_close_ms: 5000 },
+                roof: { status: "open", mode: "auto" },
+                fan: { status: false, schedule: { enabled: false, on_time: "12:00", off_time: "14:00", days: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true, saturday: true, sunday: true } } }
+            };
+            set(ref(db, "devices"), mockDevices);
+            return;
+        }
 
         // Cập nhật state toàn cục
         state.devices = data;
@@ -435,13 +685,9 @@ export function initDashboard() {
         const fanOn = (data.status === true);
         const toggle = document.getElementById("fan-toggle");
         const card = document.getElementById("fan-card-container");
-        const statusText = document.getElementById("fan-status-text");
 
         if (toggle) toggle.checked = fanOn;
         if (card) card.classList.toggle("active", fanOn);
-        if (statusText) {
-            statusText.innerText = fanOn ? "Đang Bật" : "Đang Tắt";
-        }
 
         // Cập nhật hẹn giờ Quạt
         const fanScheduleSection = document.getElementById("fan-schedule-section");
@@ -602,4 +848,7 @@ export function initDashboard() {
             set(ref(db, "devices/fan/schedule/off_time"), newVal);
         }
     });
+
+    // Khởi tạo đồ thị
+    initChart();
 }

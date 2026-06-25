@@ -1,4 +1,6 @@
-import { db, showToast, showConfirm } from "../app.js";
+let db;
+let showToast;
+let showConfirm;
 import { ref, onValue, set, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 function escapeHTML(str) {
@@ -11,7 +13,10 @@ function escapeHTML(str) {
               .replace(/'/g, "&#039;");
 }
 
-export function initRFID() {
+export function initRFID(database, toastFn, confirmFn) {
+    db = database;
+    showToast = toastFn;
+    showConfirm = confirmFn;
     // Nút làm mới danh sách thẻ (Firebase realtime nên chỉ cần toast xác nhận)
     const refreshBtn = document.getElementById("btn-refresh-cards");
     if (refreshBtn) {

@@ -1,7 +1,10 @@
-import { db, showToast } from "../app.js";
+let db;
+let showToast;
 import { ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-export function initConfig() {
+export function initConfig(database, toastFn) {
+    db = database;
+    showToast = toastFn;
     // WiFi Config — chỉ hiện SSID, không pre-fill mật khẩu (bảo mật)
     onValue(ref(db, "config/wifi"), (snapshot) => {
         const wifi = snapshot.val();
