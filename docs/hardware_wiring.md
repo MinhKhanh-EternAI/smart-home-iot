@@ -28,7 +28,7 @@ Tài liệu này hướng dẫn chi tiết cách kết nối các linh kiện ph
 | **P0** | Module Relay 2 kênh (Kênh 1) | Điều khiển Đèn ngoài sân (Outdoor Light) - LED 12V. |
 | **P1** | Module Relay 2 kênh (Kênh 2) | Điều khiển Đèn trong nhà (Indoor Light) - LED 12V. |
 | **P2** | Module Còi chíp 3.4-5V | Kêu báo hiệu trạng thái (quét RFID thành công/thất bại). |
-| **P3** | Cảm biến PIR | Phát hiện chuyển động (khi ở chế độ tối ưu chân). |
+| **P3** | Cảm biến vật cản hồng ngoại LM393 / PIR | Đóng vai trò phát hiện chuyển động/vật cản. |
 | **P4** | Module Relay 1 kênh | Điều khiển Động cơ DC 5V (Quạt thông minh - Smart Fan). |
 | **P5 - P7** | Trống | Sử dụng mở rộng trong tương lai. |
 

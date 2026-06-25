@@ -64,7 +64,7 @@ Chi tiết sơ đồ chân GPIO của **ESP8266** và module mở rộng I/O **P
 *   **RFID RC522:** Giao tiếp qua giao thức SPI (D5, D6, D7, D8, D0).
 *   **Màn hình LCD I2C & PCF8574:** Chia sẻ chung bus I2C (SDA -> D2, SCL -> D1).
 *   **Relays điều khiển thiết bị (Đèn, Quạt) & Buzzer:** Điều khiển gián tiếp thông qua các chân đầu ra trên module **PCF8574** để tiết kiệm chân GPIO của ESP8266.
-*   **Servo Cửa & Mái che:** Nối vào chân RX (GPIO3) và TX (GPIO1) của ESP8266.
+*   **Servo Cửa (Door) & Mái che (Roof):** Nối tương ứng vào chân **D4 (GPIO2)** và **RX (GPIO3)** của ESP8266.
 
 ---
 
