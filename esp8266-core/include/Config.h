@@ -4,9 +4,13 @@
 #include <Arduino.h>
 #include "Secrets.h"
 
+// Tăng số này mỗi lần flash code mới để tự động xoá EEPROM (WiFi, cấu hình cũ)
+#define FIRMWARE_VERSION      2
+
 #define DEFAULT_WIFI_SSID     "Your_WiFi_SSID"
 #define DEFAULT_WIFI_PASSWORD "Your_WiFi_Password"
-#define EEPROM_SIZE           96
+#define EEPROM_SIZE           100     // 96 (SSID+pass) + 4 (version marker)
+#define EEPROM_VERSION_OFFSET 96
 #define AP_SSID               "SmartHome-Config"
 #define AP_IP_ADDR            192, 168, 1, 86
 #define AP_SUBNET_ADDR        255, 255, 255, 0
@@ -23,8 +27,11 @@
 #define I2C_SDA_PIN           D2
 #define I2C_SCL_PIN           D1
 
-// DHT11
+// DHT11 (set 0 để tắt nếu không gắn cảm biến)
+#define USE_DHT               0
+#if USE_DHT
 #define DHT_PIN               D3
+#endif
 
 // Cảm biến mưa
 #define WATER_SENSOR_PIN      A0

@@ -5,7 +5,6 @@
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
 #include <LiquidCrystal_I2C.h>
-#include <Firebase_ESP_Client.h>
 #include "Config.h"
 
 class WifiHelper {
@@ -111,6 +110,22 @@ public:
         Serial.println("\n--- [WifiHelper] Bat dau khoi tao WiFi & EEPROM ---");
         EEPROM.begin(EEPROM_SIZE);
         Serial.println("[WifiHelper] EEPROM.begin() khoi tao thanh cong.");
+
+        // Kiểm tra version firmware — nếu không khớp thì xoá EEPROM (flash mới)
+        uint32_t storedVersion;
+        EEPROM.get(EEPROM_VERSION_OFFSET, storedVersion);
+        if (storedVersion != FIRMWARE_VERSION) {
+            Serial.printf("[WifiHelper] FIRMWARE_VERSION thay doi (%lu -> %d). Xoa EEPROM...\n",
+                          (unsigned long)storedVersion, FIRMWARE_VERSION);
+            for (int i = 0; i < EEPROM_SIZE; i++) {
+                EEPROM.write(i, 0);
+            }
+            EEPROM.put(EEPROM_VERSION_OFFSET, (uint32_t)FIRMWARE_VERSION);
+            EEPROM.commit();
+            Serial.println("[WifiHelper] EEPROM da duoc xoa va ghi version moi.");
+        } else {
+            Serial.printf("[WifiHelper] FIRMWARE_VERSION %d — giu nguyen EEPROM.\n", FIRMWARE_VERSION);
+        }
 
         // Giữ nút FLASH (GPIO0/D3) trong 3 giây khi khởi động để xóa WiFi
         checkWiFiResetButton();
@@ -412,8 +427,12 @@ public:
         static unsigned long lastDebounceTime = 0;
         static bool lastReading = HIGH;
         static int lastReportedSec = 0;
+        static bool pinInitialized = false;
 
-        pinMode(0, INPUT_PULLUP);
+        if (!pinInitialized) {
+            pinMode(0, INPUT_PULLUP);
+            pinInitialized = true;
+        }
 
         bool reading = digitalRead(0);
 

@@ -1,35 +1,48 @@
 #ifndef CLIMATE_CONTROLLER_H
 #define CLIMATE_CONTROLLER_H
 
-#include <DHT.h>
 #include <time.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
 
+#if USE_DHT
+#include <DHT.h>
+#endif
+
 class ClimateController {
 private:
-    DHT dht;
     FirebaseHelper* fb;
     
+#if USE_DHT
+    DHT dht;
     float lastTemp = -999.0;
     float lastHum = -999.0;
     unsigned long lastReadTime = 0;
-    const unsigned long readInterval = 10000; // Đọc nhiệt độ/độ ẩm mỗi 10 giây
+    const unsigned long readInterval = 10000;
+#endif
 
 public:
+#if USE_DHT
     ClimateController() : dht(DHT_PIN, DHT11) {}
+#else
+    ClimateController() {}
+#endif
 
     void init(FirebaseHelper* fbHelper) {
         fb = fbHelper;
-        //dht.begin();
-        //Serial.println("DHT11 sensor initialized.");
+#if USE_DHT
+        dht.begin();
+        Serial.println("DHT11 sensor initialized.");
+#else
+        Serial.println("ClimateController: DHT not connected (USE_DHT=0).");
+#endif
     }
 
     void update() {
+#if USE_DHT
         unsigned long now = millis();
         if (now - lastReadTime >= readInterval) {
             lastReadTime = now;
-            /* không gắn DHT — tạm bỏ
             float h = dht.readHumidity();
             float t = dht.readTemperature();
             
@@ -56,8 +69,8 @@ public:
                     fb->logEvent("security", "CẢNH BÁO: Nhiệt độ vượt ngưỡng an toàn (" + String(t) + "C)!");
                 }
             }
-            */
         }
+#endif
     }
 };
 

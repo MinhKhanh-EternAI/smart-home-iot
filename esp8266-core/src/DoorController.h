@@ -3,7 +3,6 @@
 
 #include <SPI.h>
 #include <MFRC522.h>
-#include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
@@ -36,15 +35,12 @@ public:
         mfrc522.PCD_Init();
         Serial.println("RFID RC522 Initialized.");
 
-        // Khởi tạo LCD
+        // Hiển thị thông báo chờ (LCD tự init qua WifiHelper::printToLCD)
         if (!WifiHelper::getAPMode()) {
-            LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
-            lcd.init();
-            lcd.backlight();
             showStandbyMessage();
-            Serial.println("LCD I2C Initialized.");
+            Serial.println("LCD I2C ready.");
         } else {
-            Serial.println("LCD I2C Skip Init (Preserved AP Mode Display).");
+            Serial.println("LCD I2C skip (AP Mode).");
         }
 
         doorServo.attach(SERVO_DOOR_PIN);
@@ -86,10 +82,7 @@ public:
         Serial.print("RFID Scanned! UID: ");
         Serial.println(cardUID);
 
-        LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Checking card...");
+        WifiHelper::printToLCD("Checking card...", "");
         
         String holderName = "Unknown";
         bool isActive = false;
@@ -101,11 +94,7 @@ public:
             // Xác thực thành công
             Serial.printf("Access GRANTED to: %s\n", holderName.c_str());
             
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print("Access GRANTED");
-            lcd.setCursor(0, 1);
-            lcd.print(holderName.substring(0, 16)); // Hiển thị tối đa 16 ký tự tên
+            WifiHelper::printToLCD("Access GRANTED", holderName.substring(0, 16));
 
             fb->logRFIDAccess(cardUID, holderName, "granted");
             fb->logEvent("door", "Cửa mở bằng thẻ RFID: " + holderName);
@@ -115,16 +104,12 @@ public:
             // Xác thực thất bại
             Serial.println("Access DENIED!");
             
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print("Access DENIED!");
-            lcd.setCursor(0, 1);
             if (!cardExists) {
-                lcd.print("Unregistered Card");
+                WifiHelper::printToLCD("Access DENIED!", "Unregistered Card");
                 fb->logRFIDAccess(cardUID, "Unknown", "denied");
                 fb->logEvent("security", "Quét thẻ chưa đăng ký: " + cardUID);
             } else {
-                lcd.print("Card Inactive");
+                WifiHelper::printToLCD("Access DENIED!", "Card Inactive");
                 fb->logRFIDAccess(cardUID, holderName, "inactive_denied");
                 fb->logEvent("security", "Quét thẻ bị khóa: " + holderName);
             }
@@ -163,12 +148,7 @@ public:
         if (WifiHelper::getAPMode()) {
             return;
         }
-        LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("   SMART HOME   ");
-        lcd.setCursor(0, 1);
-        lcd.print("Scan RFID Card..");
+        WifiHelper::printToLCD("   SMART HOME   ", "Scan RFID Card..");
     }
 
     void setAutoCloseDelay(unsigned long ms) {
