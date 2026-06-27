@@ -68,7 +68,7 @@
                 <!-- Device Connection Status Bar -->
                 <div class="device-status-row-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 15px 0 25px 0;">
                     <!-- ESP8266 Connection Status -->
-                    <div class="glass-card" style="padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div class="glass-card" id="status-esp8266" style="padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(74, 144, 226, 0.1); color: var(--accent);">
                                 <i class="fa-solid fa-microchip" style="font-size: 1.1rem;"></i>
@@ -82,7 +82,7 @@
                     </div>
 
                     <!-- ESP32 Connection Status -->
-                    <div class="glass-card" style="padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div class="glass-card" id="status-esp32" style="padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(245, 166, 35, 0.1); color: #f5a623;">
                                 <i class="fa-solid fa-server" style="font-size: 1.1rem;"></i>

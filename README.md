@@ -20,7 +20,6 @@ smart-home-iot/
 │   ├── hardware_wiring.md      # Hướng dẫn đấu nối phần cứng, GPIO mapping và sơ đồ nguồn
 │   └── rfid_guide.md           # Hướng dẫn quét, lấy mã UID và đăng ký thẻ RFID
 ├── esp8266-core/               # Mã nguồn C++ điều khiển thiết bị chính (ESP8266 NodeMCU Lolin)
-├── esp32-assistant/            # Mã nguồn mở rộng phụ trợ (ESP32)
 ├── firebase-schema/            # Cấu trúc cơ sở dữ liệu mẫu Firebase Realtime Database
 ├── web-dashboard/              # Mã nguồn giao diện Web Portal quản trị
 │   ├── index.html              # Trang chủ giao diện Web (Thiết kế Glassmorphism)

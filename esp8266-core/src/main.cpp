@@ -162,6 +162,7 @@ void loop() {
     // Duy trì các kết nối
     WifiHelper::handleClient();
     WifiHelper::keepAlive();
+    WifiHelper::checkResetButton();
     fbHelper.keepAlive();
 
     // Cập nhật trạng thái nhịp tim (heartbeat) & IP cục bộ lên Firebase

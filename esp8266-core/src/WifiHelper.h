@@ -44,19 +44,57 @@ private:
         return str;
     }
 
+    static void checkWiFiResetButton() {
+        pinMode(0, INPUT_PULLUP);
+        delay(10);
+        if (digitalRead(0) == LOW) {
+            Serial.println("[WifiHelper] Phat hien nhan nut BOOT! Giu 3s de reset WiFi...");
+            unsigned long pressed = millis();
+            while (millis() - pressed < 3000) {
+                delay(10);
+                if (digitalRead(0) != LOW) {
+                    Serial.println("[WifiHelper] Nha nut som -> bo qua.");
+                    return;
+                }
+            }
+            Serial.println("[WifiHelper] Xoa WiFi credentials...");
+            for (int i = 0; i < EEPROM_SIZE; i++) {
+                EEPROM.write(i, 0);
+            }
+            EEPROM.commit();
+            WiFi.disconnect(true);
+            Serial.println("[WifiHelper] WiFi da xoa! Nha nut BOOT de reboot...");
+            while (digitalRead(0) == LOW) {
+                delay(10);
+            }
+            delay(200);
+            Serial.println("[WifiHelper] Dang reboot vao AP mode...");
+            ESP.restart();
+        }
+    }
+
 public:
     static int& getLCDAddress() {
         static int lcdAddress = -1;
         return lcdAddress;
     }
 
+    static LiquidCrystal_I2C& getLCD() {
+        static LiquidCrystal_I2C lcd(getLCDAddress() != -1 ? getLCDAddress() : 0x27, 16, 2);
+        return lcd;
+    }
+
     static void printToLCD(const String& line1, const String& line2 = "") {
         int addr = getLCDAddress();
         if (addr != -1) {
-            Serial.printf("[LCD] Writing -> L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
-            LiquidCrystal_I2C lcd(addr, 16, 2);
-            lcd.init();
-            lcd.backlight();
+            if (Serial) Serial.printf("[LCD] Writing -> L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
+            LiquidCrystal_I2C& lcd = getLCD();
+            static bool lcdInited = false;
+            if (!lcdInited) {
+                lcd.init();
+                lcd.backlight();
+                lcdInited = true;
+            }
             lcd.clear();
             lcd.setCursor(0, 0);
             lcd.print(line1.substring(0, 16));
@@ -65,7 +103,7 @@ public:
                 lcd.print(line2.substring(0, 16));
             }
         } else {
-            Serial.printf("[LCD-Skip] LCD not detected. Message: L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
+            if (Serial) Serial.printf("[LCD-Skip] LCD not detected. Message: L1: \"%s\", L2: \"%s\"\n", line1.c_str(), line2.c_str());
         }
     }
 
@@ -73,7 +111,10 @@ public:
         Serial.println("\n--- [WifiHelper] Bat dau khoi tao WiFi & EEPROM ---");
         EEPROM.begin(EEPROM_SIZE);
         Serial.println("[WifiHelper] EEPROM.begin() khoi tao thanh cong.");
-        
+
+        // Giữ nút FLASH (GPIO0/D3) trong 3 giây khi khởi động để xóa WiFi
+        checkWiFiResetButton();
+
         // Đọc thông tin WiFi đã lưu
         String savedSSID = readStringFromEEPROM(0, 32);
         String savedPass = readStringFromEEPROM(32, 64);
@@ -148,7 +189,7 @@ public:
         getAPMode() = true;
         
         WiFi.disconnect();
-        WiFi.mode(WIFI_AP);
+        WiFi.mode(WIFI_AP_STA);
         
         // Đặt IP tĩnh cho AP từ Config.h
         IPAddress apIP(AP_IP_ADDR);
@@ -320,6 +361,21 @@ public:
             ESP.restart();
         });
 
+        // Endpoint xóa WiFi (factory reset)
+        server.on("/reset", HTTP_GET, []() {
+            String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Reset WiFi</title><style>body{font-family:sans-serif;background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;}.card{background:#1e293b;padding:32px;border-radius:16px;text-align:center;max-width:400px;}.btn{background:#ef4444;color:white;border:0;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:16px;margin-top:16px;}.btn:hover{background:#dc2626;}</style></head><body><div class='card'><h2>Reset WiFi?</h2><p>Thiet bi se xoa WiFi va khoi dong lai.</p><button class='btn' onclick='fetch(\"/reset\",{method:\"POST\"}).then(()=>alert(\"WiFi da xoa! Dang reboot...\"));'>Xac nhan Reset</button></div></body></html>";
+            getServer().send(200, "text/html", html);
+        });
+        server.on("/reset", HTTP_POST, []() {
+            getServer().send(200, "application/json", "{\"status\":\"ok\"}");
+            printToLCD("WiFi Reset!", "Rebooting...");
+            for (int i = 0; i < EEPROM_SIZE; i++) EEPROM.write(i, 0);
+            EEPROM.commit();
+            WiFi.disconnect(true);
+            delay(1000);
+            ESP.restart();
+        });
+
         server.begin();
         Serial.println("Web Server initialized and listening on port 80.");
     }
@@ -337,7 +393,7 @@ public:
             unsigned long now = millis();
             if (now - lastReconnectAttempt > 15000) { // Thử kết nối lại mỗi 15 giây
                 lastReconnectAttempt = now;
-                Serial.println("WiFi disconnected. Reconnecting...");
+                if (Serial) Serial.println("WiFi disconnected. Reconnecting...");
                 
                 String savedSSID = readStringFromEEPROM(0, 32);
                 String savedPass = readStringFromEEPROM(32, 64);
@@ -347,6 +403,60 @@ public:
                     WiFi.begin(savedSSID.c_str(), savedPass.c_str());
                 }
             }
+        }
+    }
+
+    static void checkResetButton() {
+        static bool wasPressed = false;
+        static unsigned long pressedTime = 0;
+        static unsigned long lastDebounceTime = 0;
+        static bool lastReading = HIGH;
+        static int lastReportedSec = 0;
+
+        pinMode(0, INPUT_PULLUP);
+
+        bool reading = digitalRead(0);
+
+        if (reading != lastReading) {
+            lastDebounceTime = millis();
+        }
+        lastReading = reading;
+
+        if (millis() - lastDebounceTime < 50) return;
+
+        if (reading == LOW) {
+            if (!wasPressed) {
+                wasPressed = true;
+                pressedTime = millis();
+                lastReportedSec = 0;
+                if (Serial) Serial.println("[WifiHelper] Nut FLASH nhan! Giu 5s de reset WiFi...");
+                printToLCD("Giu FLASH 5s", "de reset WiFi");
+            } else {
+                int sec = (millis() - pressedTime) / 1000;
+                if (sec > lastReportedSec && sec < 5) {
+                    lastReportedSec = sec;
+                    if (Serial) Serial.printf("[WifiHelper] Con %ds...\n", 5 - sec);
+                    printToLCD("Giu FLASH 5s", String(5 - sec) + "s con lai...");
+                }
+            }
+        } else {
+            if (wasPressed) {
+                wasPressed = false;
+                if (Serial) Serial.println("[WifiHelper] Nha nut som -> bo qua.");
+                printToLCD("Da huy", "");
+            }
+        }
+
+        if (wasPressed && (millis() - pressedTime >= 5000)) {
+            if (Serial) Serial.println("[WifiHelper] Reset WiFi! Xoa credentials...");
+            printToLCD("Dang xoa WiFi...", "Rebooting...");
+            for (int i = 0; i < EEPROM_SIZE; i++) {
+                EEPROM.write(i, 0);
+            }
+            EEPROM.commit();
+            WiFi.disconnect(true);
+            delay(1000);
+            ESP.restart();
         }
     }
 };

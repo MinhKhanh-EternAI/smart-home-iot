@@ -12,7 +12,6 @@
 class DoorController {
 private:
     MFRC522 mfrc522;
-    LiquidCrystal_I2C lcd;
     Servo doorServo;
     FirebaseHelper* fb;
     
@@ -26,8 +25,7 @@ private:
 
 public:
     DoorController() : 
-        mfrc522(RC522_SS_PIN, RC522_RST_PIN),
-        lcd(0x27, 16, 2) // Địa chỉ LCD mặc định 0x27, màn hình 16x2
+        mfrc522(RC522_SS_PIN, RC522_RST_PIN)
     {}
 
     void init(FirebaseHelper* fbHelper) {
@@ -40,6 +38,7 @@ public:
 
         // Khởi tạo LCD
         if (!WifiHelper::getAPMode()) {
+            LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
             lcd.init();
             lcd.backlight();
             showStandbyMessage();
@@ -87,6 +86,7 @@ public:
         Serial.print("RFID Scanned! UID: ");
         Serial.println(cardUID);
 
+        LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("Checking card...");
@@ -163,6 +163,7 @@ public:
         if (WifiHelper::getAPMode()) {
             return;
         }
+        LiquidCrystal_I2C& lcd = WifiHelper::getLCD();
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("   SMART HOME   ");

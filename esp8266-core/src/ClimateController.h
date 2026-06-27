@@ -21,26 +21,23 @@ public:
 
     void init(FirebaseHelper* fbHelper) {
         fb = fbHelper;
-        dht.begin();
-        Serial.println("DHT11 sensor initialized.");
+        //dht.begin();
+        //Serial.println("DHT11 sensor initialized.");
     }
 
     void update() {
         unsigned long now = millis();
         if (now - lastReadTime >= readInterval) {
             lastReadTime = now;
-            
+            /* không gắn DHT — tạm bỏ
             float h = dht.readHumidity();
             float t = dht.readTemperature();
             
-            // Kiểm tra xem dữ liệu đọc có hợp lệ không
             if (isnan(h) || isnan(t)) {
                 Serial.println("Failed to read from DHT sensor!");
                 return;
             }
             
-            // Chỉ cập nhật lên Firebase nếu giá trị thay đổi đáng kể (tránh spam ghi DB)
-            // hoặc gửi định kỳ
             bool tempChanged = (abs(t - lastTemp) >= 0.5);
             bool humChanged = (abs(h - lastHum) >= 1.0);
             
@@ -55,11 +52,11 @@ public:
                 
                 fb->setInt("/sensors/last_updated", (int)time(nullptr));
                 
-                // Cảnh báo nhiệt độ quá cao (chống cháy)
                 if (t >= 50.0) {
                     fb->logEvent("security", "CẢNH BÁO: Nhiệt độ vượt ngưỡng an toàn (" + String(t) + "C)!");
                 }
             }
+            */
         }
     }
 };
