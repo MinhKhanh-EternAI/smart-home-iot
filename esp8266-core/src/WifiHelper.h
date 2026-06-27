@@ -129,9 +129,6 @@ public:
                 
                 printToLCD("WiFi Connected!", WiFi.localIP().toString());
                 
-                // Khởi chạy đồng bộ cấu hình WiFi từ xa từ Firebase
-                startConfigSync();
-                
                 delay(2000); // Giữ thông tin IP trong 2 giây
             } else {
                 Serial.println("\n[WifiHelper] Ket noi Wi-Fi that bai (Timeout)!");
@@ -325,67 +322,6 @@ public:
 
         server.begin();
         Serial.println("Web Server initialized and listening on port 80.");
-    }
-
-    static void startConfigSync() {
-        Serial.println("\n[WifiHelper] Bat dau dong bo cau hinh WiFi tu xa...");
-        
-        static FirebaseData fbConfigStream;
-        static FirebaseConfig fbConfigCfg;
-        static FirebaseAuth fbConfigAuth;
-
-        fbConfigCfg.host = FIREBASE_HOST;
-        fbConfigCfg.database_url = "https://" FIREBASE_HOST "/";
-        fbConfigCfg.api_key = FIREBASE_API_KEY;
-
-        // Đăng nhập ẩn danh
-        Firebase.signUp(&fbConfigCfg, &fbConfigAuth, "", "");
-        Firebase.begin(&fbConfigCfg, &fbConfigAuth);
-        Firebase.reconnectWiFi(true);
-
-        if (!Firebase.RTDB.beginStream(&fbConfigStream, "/config/wifi")) {
-            Serial.printf("[WifiHelper] Loi stream config: %s\n", fbConfigStream.errorReason().c_str());
-            return;
-        }
-
-        Firebase.RTDB.setStreamCallback(&fbConfigStream,
-            [](FirebaseStream data) {
-                if (data.dataType() == "json") {
-                    FirebaseJson &json = data.jsonObject();
-                    FirebaseJsonData ssidVal, passVal;
-                    json.get(ssidVal, "ssid");
-                    json.get(passVal, "password");
-
-                    if (ssidVal.success && passVal.success) {
-                        String newSSID = ssidVal.to<String>();
-                        String newPass = passVal.to<String>();
-
-                        if (newSSID.length() > 0 && newSSID != "Your_SSID" && newSSID[0] != 0xFF) {
-                            String currSSID = readStringFromEEPROM(0, 32);
-                            String currPass = readStringFromEEPROM(32, 64);
-
-                            if (newSSID != currSSID || newPass != currPass) {
-                                Serial.println("[WifiHelper] Nhan duoc cau hinh WiFi moi! Dang cap nhat EEPROM...");
-                                writeStringToEEPROM(0, newSSID);
-                                writeStringToEEPROM(32, newPass);
-
-                                #ifdef ESP8266
-                                printToLCD("WiFi Config Sync", "Rebooting...");
-                                #endif
-
-                                delay(2000);
-                                ESP.restart();
-                            } else {
-                                Serial.println("[WifiHelper] Cau hinh WiFi trung khop. Khong can cap nhat.");
-                            }
-                        }
-                    }
-                }
-            },
-            [](bool timeout) {
-                if (timeout) Serial.println("[WifiHelper] Config stream timeout...");
-            }
-        );
     }
 
     static void handleClient() {

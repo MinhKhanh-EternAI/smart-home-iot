@@ -4,10 +4,10 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Import modular pages
-import { initDashboard } from "./modules/dashboard.js?v=1.0.26";
-import { initRFID } from "./modules/rfid.js?v=1.0.26";
-import { initLogs } from "./modules/logs.js?v=1.0.26";
-import { initConfig } from "./modules/config.js?v=1.0.26";
+import { initDashboard } from "./modules/dashboard.js?v=1.0.34";
+import { initRFID } from "./modules/rfid.js?v=1.0.34";
+import { initLogs } from "./modules/logs.js?v=1.0.34";
+import { initConfig } from "./modules/config.js?v=1.0.34";
 
 // Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
 import { firebaseConfig } from "./firebase-config.js";
@@ -147,7 +147,6 @@ export function showConfirm(message, onConfirm) {
 // ==========================================
 const menuItems = document.querySelectorAll(".menu-item");
 const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
-const tabContents = document.querySelectorAll(".tab-content");
 const pageTitle = document.getElementById("page-title");
 const themeToggleBtn = document.getElementById("btn-theme-toggle");
 
@@ -155,7 +154,6 @@ const tabTitles = {
     dashboard: "Hệ thống Điều khiển",
     rfid: "Quản lý thẻ RFID",
     logs: "Nhật ký Hoạt động",
-    "wifi-config": "Cấu hình Kết nối WiFi",
     config: "Cấu hình Hệ thống"
 };
 
@@ -169,7 +167,7 @@ function applyTab(tabName) {
         if (i.getAttribute("data-tab") === tabName) i.classList.add("active");
         else i.classList.remove("active");
     });
-    tabContents.forEach(tab => {
+    document.querySelectorAll(".tab-content").forEach(tab => {
         if (tab.id === `tab-${tabName}`) tab.classList.add("active");
         else tab.classList.remove("active");
     });
@@ -245,26 +243,127 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
-// ==========================================
-// Khởi tạo các module trang
-// ==========================================
-initDashboard(db, state);
-initRFID(db, showToast, showConfirm);
-initLogs(db);
-initConfig(db, showToast);
+// Trạng thái cục bộ của các thiết bị để theo dõi IP và nhịp tim
+let deviceStatusData = {
+    esp8266: { ip: "", last_seen: 0 },
+    esp32: { ip: "", last_seen: 0 }
+};
 
-// Device filter tabs
-document.querySelectorAll(".device-filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        document.querySelectorAll(".device-filter-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const filter = btn.dataset.filter;
-        document.querySelectorAll("#devices-container .device-card").forEach(card => {
-            card.style.display = (filter === "all" || card.dataset.zone === filter) ? "" : "none";
+function initDeviceStatus(db) {
+    const statusKeys = ["esp8266", "esp32"];
+    
+    statusKeys.forEach(device => {
+        const deviceRef = ref(db, `status/${device}`);
+        onValue(deviceRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                deviceStatusData[device].ip = data.ip || "";
+                deviceStatusData[device].last_seen = data.last_seen || 0;
+                updateDeviceUI(device);
+            }
         });
     });
-});
 
-// Khởi tạo tab từ URL hash khi tải trang (giữ nguyên tab khi reload)
-const initHash = location.hash.slice(1);
-switchTab(tabTitles[initHash] ? initHash : "dashboard");
+    // Định kỳ kiểm tra (mỗi 5 giây) để cập nhật trạng thái Online/Offline dựa trên last_seen
+    setInterval(() => {
+        statusKeys.forEach(device => {
+            updateDeviceUI(device);
+        });
+    }, 5000);
+}
+
+function updateDeviceUI(device) {
+    const badge = document.getElementById(`badge-${device}`);
+    const ipLbl = document.querySelector(`#status-${device} .device-ip-lbl`);
+    
+    if (!badge || !ipLbl) return;
+
+    const data = deviceStatusData[device];
+    const now = Date.now();
+    
+    // Nếu last_seen trong vòng 30 giây qua -> Online
+    const isOnline = data.last_seen && (now - data.last_seen < 30000);
+    
+    if (isOnline) {
+        badge.className = "badge online";
+        badge.innerText = "Online";
+        if (data.ip) {
+            ipLbl.innerHTML = `IP: <a href="http://${data.ip}" target="_blank" class="device-ip-link">${data.ip} <i class="fa-solid fa-up-right-from-square" style="font-size: 0.7rem;"></i></a>`;
+        } else {
+            ipLbl.innerText = "IP: Không xác định";
+        }
+    } else {
+        badge.className = "badge offline";
+        badge.innerText = "Offline";
+        if (data.ip) {
+            ipLbl.innerHTML = `IP: ${data.ip} (Offline)`;
+        } else {
+            ipLbl.innerText = "IP: Ngoại tuyến";
+        }
+    }
+}
+
+function initDeviceFilters() {
+    document.querySelectorAll(".device-filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".device-filter-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const filter = btn.dataset.filter;
+            document.querySelectorAll("#devices-container .device-card").forEach(card => {
+                card.style.display = (filter === "all" || card.dataset.zone === filter) ? "" : "none";
+            });
+        });
+    });
+}
+
+// Hàm tải động song song toàn bộ các tab giao diện
+async function loadAllTabs() {
+    const mainContent = document.querySelector(".main-content");
+    const tabs = ["dashboard", "rfid", "logs", "config"];
+    
+    try {
+        const fetchPromises = tabs.map(tab => 
+            fetch(`./tabs/${tab}.html?v=1.0.34`)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Could not load tab ${tab}`);
+                    return res.text();
+                })
+                .then(html => ({ tab, html }))
+        );
+        
+        const results = await Promise.all(fetchPromises);
+        
+        // Nhúng các tab vào main content, xếp sau phần header
+        results.forEach(({ html }) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const section = doc.querySelector('section');
+            if (section) {
+                mainContent.appendChild(section);
+            }
+        });
+        
+        // Sau khi tất cả đã được nạp vào DOM, khởi tạo các module trang con
+        initDashboard(db, state);
+        initRFID(db, showToast, showConfirm);
+        initLogs(db);
+        initConfig(db, showToast);
+        
+        // Khởi tạo bộ lọc thiết bị
+        initDeviceFilters();
+
+        // Khởi tạo lắng nghe trạng thái IP của 2 mạch
+        initDeviceStatus(db);
+
+        // Khởi tạo tab từ URL hash khi tải trang
+        const initHash = location.hash.slice(1);
+        switchTab(tabTitles[initHash] ? initHash : "dashboard");
+        
+    } catch (error) {
+        console.error("Lỗi khi tải các tab giao diện:", error);
+        showToast("Không thể tải cấu trúc trang. Vui lòng F5 làm mới lại!", "error");
+    }
+}
+
+// Bắt đầu tải các tab khi khởi chạy web dashboard
+loadAllTabs();

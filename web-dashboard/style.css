@@ -657,7 +657,7 @@ body.light-mode .warning-row-roof i {
 
 .device-filter-btn {
     background: transparent;
-    border: 0;
+    border: 0; outline: none;
     color: var(--text-secondary);
     padding: 8px 16px;
     font-size: 13px;
@@ -1743,10 +1743,10 @@ body.light-mode .sidebar {
 }
 
 body.light-mode .top-header {
-    background: rgba(255,255,255,0.8);
-    border-bottom: 1px solid #e9eff6;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
+    border-bottom: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 /* Glass Card & Device Card */
@@ -3689,6 +3689,7 @@ body.light-mode .device-filter-btn {
     border-radius: 10px !important;
     font-weight: 600 !important;
     color: #64748b !important;
+    border: none !important;
 }
 
 body.light-mode .device-filter-btn:hover:not(.active) {
@@ -3700,6 +3701,8 @@ body.light-mode .device-filter-btn.active {
     background: #3b82f6 !important;
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+    border: none !important;
+    outline: none !important;
 }
 
 body.light-mode .device-card {
@@ -4013,3 +4016,42 @@ body:not(.light-mode) .mobile-nav {
         padding: 12px;
     }
 }
+
+/* Badges for device connection status */
+.badge.online {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #a7f3d0;
+    border-color: rgba(16, 185, 129, 0.3);
+    font-weight: 700;
+}
+body.light-mode .badge.online {
+    background-color: rgba(21, 128, 61, 0.1);
+    color: #15803d;
+    border-color: rgba(21, 128, 61, 0.25);
+}
+
+.badge.offline {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.3);
+    font-weight: 700;
+}
+body.light-mode .badge.offline {
+    background-color: rgba(185, 28, 28, 0.1);
+    color: #b91c1c;
+    border-color: rgba(185, 28, 28, 0.25);
+}
+
+/* Local IP Address Link Styling */
+.device-ip-link {
+    color: var(--accent) !important;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px dotted var(--accent);
+    transition: all 0.2s ease;
+}
+.device-ip-link:hover {
+    opacity: 0.85;
+    border-bottom-style: solid;
+}
+

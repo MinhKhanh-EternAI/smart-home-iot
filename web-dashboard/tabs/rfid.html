@@ -1,0 +1,57 @@
+            <section id="tab-rfid" class="tab-content">
+                <div class="two-column-layout">
+                    <!-- Left: Card List -->
+                    <div class="glass-card">
+                        <div class="card-header-actions">
+                            <h3>Danh sách Thẻ RFID</h3>
+                            <button class="icon-btn" id="btn-refresh-cards"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>UID Thẻ</th>
+                                        <th>Tên Chủ Thẻ</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rfid-cards-table">
+                                    <!-- Dynamic Content -->
+                                    <tr>
+                                        <td colspan="4" class="text-center">Đang tải danh sách thẻ...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Add Card & Access Logs -->
+                    <div class="flex-col gap-2">
+                        <!-- Form Add Card -->
+                        <div class="glass-card">
+                            <h3>Đăng ký Thẻ Mới</h3>
+                            <form id="add-card-form" class="config-form">
+                                <div class="form-group">
+                                    <label for="new-card-uid">UID Thẻ (Hex, ví dụ: 4A8B9C2D)</label>
+                                    <input type="text" id="new-card-uid" placeholder="Nhập UID thẻ" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-card-name">Tên Chủ Thẻ</label>
+                                    <input type="text" id="new-card-name" placeholder="Ví dụ: Nguyễn Văn A" required>
+                                </div>
+                                <button type="submit" class="primary-btn">Đăng Ký Thẻ</button>
+                            </form>
+                        </div>
+
+                        <!-- Access Logs -->
+                        <div class="glass-card flex-grow">
+                            <h3>Lịch sử Quẹt Thẻ</h3>
+                            <div class="log-list-container" id="rfid-access-logs">
+                                <!-- Dynamic logs -->
+                                <p class="text-center">Đang tải lịch sử...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>

@@ -94,6 +94,24 @@ public:
         return Firebase.RTDB.setString(&fbData, path.c_str(), val.c_str());
     }
 
+    void updateHeartbeat(const String& ip) {
+        if (!ready()) return;
+        
+        static unsigned long lastHeartbeatTime = 0;
+        if (lastHeartbeatTime == 0 || millis() - lastHeartbeatTime >= 15000) {
+            lastHeartbeatTime = millis();
+            
+            time_t now = time(nullptr);
+            double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
+            
+            FirebaseJson json;
+            json.add("ip", ip.c_str());
+            json.add("last_seen", ts);
+            
+            Firebase.RTDB.setJSON(&fbData, "/status/esp8266", &json);
+        }
+    }
+
     // Đọc trạng thái từ Firebase để xác thực thẻ RFID
     bool checkRFIDCard(const String& cardUID, String& name, bool& active) {
         if (!ready()) return false;

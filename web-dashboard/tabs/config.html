@@ -1,0 +1,33 @@
+            <section id="tab-config" class="tab-content">
+                <div class="two-column-layout">
+                    <!-- Left: Configuration Forms -->
+                    <div class="flex-col gap-2">
+                        <!-- MCP & MQTT Config -->
+                        <div class="glass-card">
+                            <h3>Cấu hình Endpoint AI & MQTT</h3>
+                            <form id="mcp-config-form" class="config-form">
+                                <div class="form-group">
+                                    <label for="mcp-endpoint">Endpoint Xiaozhi MCP</label>
+                                    <input type="url" id="mcp-endpoint" placeholder="http://192.168.1.x:8000/api"
+                                        required>
+                                </div>
+                                <button type="submit" class="primary-btn">Lưu Cấu Hình AI</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Tool JSON Configuration -->
+                    <div class="glass-card flex-col">
+                        <div class="card-header-actions">
+                            <h3>Cấu hình Tools JSON</h3>
+                            <span class="subtext">Đồng bộ trực tiếp với Firebase</span>
+                        </div>
+                        <div class="json-editor-container">
+                            <textarea id="tools-json-editor" spellcheck="false"></textarea>
+                            <div class="json-error" id="json-error-msg" style="display: none;">JSON không hợp lệ!</div>
+                        </div>
+                        <button class="primary-btn" id="btn-save-tools-json"><i class="fa-solid fa-floppy-disk"></i> Lưu
+                            Cấu Hình Tools</button>
+                    </div>
+                </div>
+            </section>

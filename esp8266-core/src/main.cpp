@@ -164,6 +164,11 @@ void loop() {
     WifiHelper::keepAlive();
     fbHelper.keepAlive();
 
+    // Cập nhật trạng thái nhịp tim (heartbeat) & IP cục bộ lên Firebase
+    if (WiFi.status() == WL_CONNECTED) {
+        fbHelper.updateHeartbeat(WiFi.localIP().toString());
+    }
+
     // Cập nhật hoạt động các mô-đun
     doorCtrl.update();
     roofCtrl.update();

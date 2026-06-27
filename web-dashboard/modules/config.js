@@ -1,49 +1,10 @@
 let db;
 let showToast;
 import { ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { DEFAULT_AP_IP } from "../firebase-config.js";
 
 export function initConfig(database, toastFn) {
     db = database;
     showToast = toastFn;
-
-    // Set default AP IP on load
-    const apIpEl = document.getElementById("wifi-ap-ip-display");
-    if (apIpEl) apIpEl.innerText = DEFAULT_AP_IP;
-
-    // WiFi Config — chỉ hiện SSID, không pre-fill mật khẩu (bảo mật)
-    onValue(ref(db, "config/wifi"), (snapshot) => {
-        const wifi = snapshot.val();
-        const ssidEl = document.getElementById("wifi-ssid");
-        const passEl = document.getElementById("wifi-pass");
-        const apNoteEl = document.getElementById("wifi-ap-note");
-        const apIpEl = document.getElementById("wifi-ap-ip-display");
-
-        if (ssidEl) ssidEl.value = wifi?.ssid || "";
-        if (passEl) {
-            passEl.value = "";
-            passEl.placeholder = wifi?.ssid ? "Nhập mật khẩu mới để thay đổi..." : "Nhập mật khẩu WiFi...";
-        }
-        if (apNoteEl) apNoteEl.style.display = wifi?.ssid ? "none" : "flex";
-        if (apIpEl) apIpEl.innerText = wifi?.ap_ip || DEFAULT_AP_IP;
-    });
-
-    const wifiForm = document.getElementById("wifi-config-form");
-    if (wifiForm) {
-        wifiForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const ssid = document.getElementById("wifi-ssid").value.trim();
-            const pass = document.getElementById("wifi-pass").value.trim();
-            if (!pass) {
-                showToast("Vui lòng nhập mật khẩu WiFi.", "error");
-                return;
-            }
-            set(ref(db, "config/wifi"), { ssid, password: pass }).then(() => {
-                document.getElementById("wifi-pass").value = "";
-                showToast("Đã gửi cấu hình WiFi lên Firebase. Thiết bị sẽ kết nối lại khi online.", "success");
-            }).catch(err => showToast("Lỗi: " + err.message, "error"));
-        });
-    }
 
     // MCP AI Config
     onValue(ref(db, "config/mcp"), (snapshot) => {
