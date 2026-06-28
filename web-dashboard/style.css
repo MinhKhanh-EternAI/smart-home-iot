@@ -779,6 +779,51 @@ body.light-mode .device-filter-btn.active {
     flex-direction: column;
 }
 
+.door-btn-row {
+    display: flex;
+    gap: 10px;
+}
+
+.door-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary, #f8fafc);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.door-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.door-btn-open {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+.door-btn-open:hover {
+    background: rgba(52, 211, 153, 0.1);
+}
+
+.door-btn-close {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.3);
+}
+
+.door-btn-close:hover {
+    background: rgba(248, 113, 113, 0.1);
+}
+
 .gap-2 {
     gap: 20px;
 }

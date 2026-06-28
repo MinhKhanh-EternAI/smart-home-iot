@@ -121,21 +121,26 @@
                                 </div>
                                 <div>
                                     <h3>Cửa Thông Minh</h3>
-                                    <span class="device-location">Cửa chính RFID</span>
+                                    <span class="device-location">Cửa chính</span>
                                 </div>
                             </div>
                             <span class="badge" id="door-status-badge">Đóng</span>
                         </div>
                         <div class="device-body flex-col">
+                            <div class="door-btn-row">
+                                <button class="door-btn door-btn-open" id="door-open-btn">
+                                    <i class="fa-solid fa-unlock"></i> Mở cửa
+                                </button>
+                                <button class="door-btn door-btn-close" id="door-close-btn">
+                                    <i class="fa-solid fa-lock"></i> Đóng cửa
+                                </button>
+                            </div>
                             <div class="slider-config-row">
-                                <span>Thời gian tự đóng:</span>
+                                <span>Tự động đóng sau:</span>
                                 <div class="slider-val-box">
-                                    <input type="range" id="door-autoclose-range" min="3" max="15" value="5">
+                                    <input type="range" id="door-autoclose-range" min="3" max="30" value="5">
                                     <span id="door-autoclose-lbl">5s</span>
                                 </div>
-                            </div>
-                            <div class="info-row">
-                                <i class="fa-solid fa-id-card"></i> Cửa chỉ mở bằng cách quẹt thẻ RFID tại thiết bị.
                             </div>
                         </div>
                     </div>

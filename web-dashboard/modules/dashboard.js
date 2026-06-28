@@ -272,6 +272,19 @@ export function initDashboard(database, globalState) {
         });
     }
 
+    const doorOpenBtn = document.getElementById("door-open-btn");
+    const doorCloseBtn = document.getElementById("door-close-btn");
+    if (doorOpenBtn) {
+        doorOpenBtn.addEventListener("click", () => {
+            set(ref(db, "devices/door/status"), "open");
+        });
+    }
+    if (doorCloseBtn) {
+        doorCloseBtn.addEventListener("click", () => {
+            set(ref(db, "devices/door/status"), "closed");
+        });
+    }
+
     const doorRangeInput = document.getElementById("door-autoclose-range");
     if (doorRangeInput) {
         doorRangeInput.addEventListener("input", (e) => {
