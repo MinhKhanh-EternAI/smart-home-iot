@@ -68,7 +68,7 @@ public:
     }
 
     void setStatusFromFirebase(const String& status) {
-        // Chỉ cho phép điều khiển thủ công qua Web khi ở chế độ manual
+        if (mode != "manual") return;
         if (status == "open") {
             openRoof();
         } else if (status == "closed") {

@@ -51,8 +51,8 @@ public:
                 return;
             }
             
-            bool tempChanged = (abs(t - lastTemp) >= 0.5);
-            bool humChanged = (abs(h - lastHum) >= 1.0);
+            bool tempChanged = (fabsf(t - lastTemp) >= 0.5f);
+            bool humChanged = (fabsf(h - lastHum) >= 1.0f);
             
             if (tempChanged || humChanged || lastTemp == -999.0) {
                 lastTemp = t;

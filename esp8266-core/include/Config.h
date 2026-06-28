@@ -7,21 +7,17 @@
 // Tăng số này mỗi lần flash code mới để tự động xoá EEPROM (WiFi, cấu hình cũ)
 #define FIRMWARE_VERSION      3
 
-#define DEFAULT_WIFI_SSID     "Your_WiFi_SSID"
-#define DEFAULT_WIFI_PASSWORD "Your_WiFi_Password"
 #define EEPROM_SIZE           100     // 96 (SSID+pass) + 4 (version marker)
 #define EEPROM_VERSION_OFFSET 96
 #define AP_SSID               "SmartHome-Config"
+#define AP_PASSWORD           ""        // để trống nếu muốn open, set mật khẩu nếu cần bảo mật
 #define AP_IP_ADDR            192, 168, 1, 86
 #define AP_SUBNET_ADDR        255, 255, 255, 0
 
 
-// SPI cho RFID RC522
+// SPI cho RFID RC522 (SCK/MOSI/MISO mặc định theo ESP8266 SPI: D5/D7/D6)
 #define RC522_SS_PIN          D8
 #define RC522_RST_PIN         D0
-#define RC522_SCK_PIN         D5
-#define RC522_MOSI_PIN        D7
-#define RC522_MISO_PIN        D6
 
 // I2C cho LCD, PCF8574
 #define I2C_SDA_PIN           D2

@@ -213,7 +213,7 @@ public:
         WiFi.softAPConfig(apIP, gateway, subnet);
 
         // Tạo mạng WiFi không mật khẩu
-        WiFi.softAP(AP_SSID);
+        WiFi.softAP(AP_SSID, AP_PASSWORD);
         Serial.printf("[WifiHelper] AP Mode khoi dong. SSID: %s\n", AP_SSID);
         Serial.print("[WifiHelper] AP IP Address: "); Serial.println(WiFi.softAPIP());
         

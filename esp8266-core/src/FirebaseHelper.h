@@ -14,13 +14,23 @@ extern FirebaseHelper* fbHelperInstance;
 
 class FirebaseHelper {
 private:
+    static const unsigned long HEARTBEAT_INTERVAL = 15000;
+    static const unsigned long STREAM_RETRY_INTERVAL = 30000;
+
     FirebaseData fbData;
     FirebaseData fbStream;
     FirebaseAuth auth;
     FirebaseConfig config;
     bool isReady = false;
+    bool streamStarted = false;
+    unsigned long lastStreamRetry = 0;
 
     DeviceControlCallback controlCallback = nullptr;
+
+    static double currentTimestamp() {
+        time_t now = time(nullptr);
+        return (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
+    }
 
 public:
     FirebaseHelper() {
@@ -65,8 +75,15 @@ public:
     void keepAlive() {
         if (Firebase.ready()) {
             isReady = true;
+            if (!streamStarted) {
+                startStream();
+            }
         } else {
             isReady = false;
+            if (streamStarted && millis() - lastStreamRetry >= STREAM_RETRY_INTERVAL) {
+                lastStreamRetry = millis();
+                startStream();
+            }
         }
     }
 
@@ -98,15 +115,12 @@ public:
         if (!ready()) return;
         
         static unsigned long lastHeartbeatTime = 0;
-        if (lastHeartbeatTime == 0 || millis() - lastHeartbeatTime >= 15000) {
+        if (lastHeartbeatTime == 0 || millis() - lastHeartbeatTime >= HEARTBEAT_INTERVAL) {
             lastHeartbeatTime = millis();
-            
-            time_t now = time(nullptr);
-            double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
             
             FirebaseJson json;
             json.add("ip", ip.c_str());
-            json.add("last_seen", ts);
+            json.add("last_seen", currentTimestamp());
             
             Firebase.RTDB.setJSON(&fbData, "/status/esp8266", &json);
         }
@@ -137,12 +151,8 @@ public:
     void logEvent(const String& type, const String& message) {
         if (!ready()) return;
 
-        time_t now = time(nullptr);
-        // Dùng Unix epoch ms nếu NTP đã sync (now > năm 2001), ngược lại fallback millis()
-        double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
-
         FirebaseJson json;
-        json.add("timestamp", ts);
+        json.add("timestamp", currentTimestamp());
         json.add("type", type.c_str());
         json.add("message", message.c_str());
 
@@ -153,11 +163,8 @@ public:
     void logRFIDAccess(const String& cardUID, const String& name, const String& status) {
         if (!ready()) return;
 
-        time_t now = time(nullptr);
-        double ts = (now > 1000000000L) ? (double)now * 1000.0 : (double)millis();
-
         FirebaseJson json;
-        json.add("timestamp", ts);
+        json.add("timestamp", currentTimestamp());
         json.add("card_uid", cardUID.c_str());
         json.add("name", name.c_str());
         json.add("status", status.c_str());
@@ -232,6 +239,7 @@ private:
     void startStream() {
         if (!Firebase.RTDB.beginStream(&fbStream, "/devices")) {
             Serial.printf("Stream begin error, %s\n", fbStream.errorReason().c_str());
+            streamStarted = false;
             return;
         }
         
@@ -245,6 +253,8 @@ private:
                 if (timeout) Serial.println("Stream timeout, resuming...");
             }
         );
+        streamStarted = true;
+        lastStreamRetry = millis();
     }
 
     void parseAndNotifyDevice(const String& device, FirebaseJson& json) {

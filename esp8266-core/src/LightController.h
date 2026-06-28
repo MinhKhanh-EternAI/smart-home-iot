@@ -145,28 +145,26 @@ public:
         }
     }
 
-    // Thiết lập từng thuộc tính hẹn giờ từ Firebase stream
     void setScheduleEnabled(const String& device, bool enabled) {
-        if (device == "indoor_light") {
-            indoorScheduleEnabled = enabled;
-        } else if (device == "fan") {
-            fanScheduleEnabled = enabled;
-        }
+        if (device == "indoor_light") indoorScheduleEnabled = enabled;
+        else if (device == "fan") fanScheduleEnabled = enabled;
         Serial.printf("Schedule for %s: %s\n", device.c_str(), enabled ? "ENABLED" : "DISABLED");
     }
 
     void setScheduleOnTime(const String& device, const String& onTime) {
-        int hour = -1, min = -1;
-        if (sscanf(onTime.c_str(), "%d:%d", &hour, &min) == 2) {
-            if (device == "indoor_light") {
-                indoorOnHour = hour;
-                indoorOnMin = min;
-            } else if (device == "fan") {
-                fanOnHour = hour;
-                fanOnMin = min;
-            }
-            Serial.printf("Schedule ON for %s: %02d:%02d\n", device.c_str(), hour, min);
-        }
+        int h = -1, m = -1;
+        if (sscanf(onTime.c_str(), "%d:%d", &h, &m) != 2) return;
+        if (device == "indoor_light") { indoorOnHour = h; indoorOnMin = m; }
+        else if (device == "fan") { fanOnHour = h; fanOnMin = m; }
+        Serial.printf("Schedule ON %s: %02d:%02d\n", device.c_str(), h, m);
+    }
+
+    void setScheduleOffTime(const String& device, const String& offTime) {
+        int h = -1, m = -1;
+        if (sscanf(offTime.c_str(), "%d:%d", &h, &m) != 2) return;
+        if (device == "indoor_light") { indoorOffHour = h; indoorOffMin = m; }
+        else if (device == "fan") { fanOffHour = h; fanOffMin = m; }
+        Serial.printf("Schedule OFF %s: %02d:%02d\n", device.c_str(), h, m);
     }
 
     void setScheduleDays(const String& device, int days) {
@@ -181,29 +179,30 @@ public:
         int& days = (device == "indoor_light") ? indoorScheduleDays : fanScheduleDays;
         if (enabled) days |= (1 << bit);
         else days &= ~(1 << bit);
-        Serial.printf("Schedule day %s for %s: %s (bitmask: %d)\n", dayName.c_str(), device.c_str(), enabled ? "ON" : "OFF", days);
-    }
-
-    void setScheduleOffTime(const String& device, const String& offTime) {
-        int hour = -1, min = -1;
-        if (sscanf(offTime.c_str(), "%d:%d", &hour, &min) == 2) {
-            if (device == "indoor_light") {
-                indoorOffHour = hour;
-                indoorOffMin = min;
-            } else if (device == "fan") {
-                fanOffHour = hour;
-                fanOffMin = min;
-            }
-            Serial.printf("Schedule OFF for %s: %02d:%02d\n", device.c_str(), hour, min);
-        }
     }
 
 
 private:
-    // Hỗ trợ bật/tắt Relay (Giả sử Relay Kích ở mức THẤP - Active Low)
     void writeRelay(uint8_t pin, bool turnOn) {
-        // Nếu active low, bật (turnOn=true) -> ghi LOW, tắt -> ghi HIGH
         pcf.write(pin, turnOn ? LOW : HIGH);
+    }
+
+    void checkOneSchedule(bool enabled, int onH, int onM, int offH, int offM, int days,
+                          int& lastH, int& lastM, bool& status,
+                          void (LightController::*setter)(bool), const char* label,
+                          int curH, int curM, int dow) {
+        if (!enabled || onH == -1 || offH == -1 || !(days & (1 << dow)))
+            return;
+
+        if (curH == onH && curM == onM && (lastH != curH || lastM != curM) && !status) {
+            lastH = curH; lastM = curM;
+            (this->*setter)(true);
+            fb->logEvent("schedule", String("Hẹn giờ: Bật ") + label + ".");
+        } else if (curH == offH && curM == offM && (lastH != curH || lastM != curM) && status) {
+            lastH = curH; lastM = curM;
+            (this->*setter)(false);
+            fb->logEvent("schedule", String("Hẹn giờ: Tắt ") + label + ".");
+        }
     }
 
     void checkSchedules() {
@@ -212,62 +211,23 @@ private:
         time(&rawtime);
         timeinfo = localtime(&rawtime);
 
-        if (timeinfo->tm_year < 120) {
-            // Chưa đồng bộ được thời gian NTP (năm < 2020)
-            return;
-        }
+        if (timeinfo->tm_year < 120) return;
 
-        int currentHour = timeinfo->tm_hour;
-        int currentMin = timeinfo->tm_min;
-        int currentDow = timeinfo->tm_wday; // 0=CN, 1=T2, ..., 6=T7
+        int curH = timeinfo->tm_hour;
+        int curM = timeinfo->tm_min;
+        int dow = timeinfo->tm_wday;
 
-        // Kiểm tra đèn trong nhà (chỉ chạy khi đã kích hoạt lịch trình và đúng ngày)
-        if (indoorScheduleEnabled && indoorOnHour != -1 && indoorOffHour != -1
-            && (indoorScheduleDays & (1 << currentDow))) {
-            if (currentHour == indoorOnHour && currentMin == indoorOnMin) {
-                if (currentHour != lastIndoorTriggerHour || currentMin != lastIndoorTriggerMin) {
-                    lastIndoorTriggerHour = currentHour;
-                    lastIndoorTriggerMin = currentMin;
-                    if (!indoorStatus) {
-                        setIndoorLight(true);
-                        fb->logEvent("schedule", "Hẹn giờ: Bật đèn trong nhà.");
-                    }
-                }
-            } else if (currentHour == indoorOffHour && currentMin == indoorOffMin) {
-                if (currentHour != lastIndoorTriggerHour || currentMin != lastIndoorTriggerMin) {
-                    lastIndoorTriggerHour = currentHour;
-                    lastIndoorTriggerMin = currentMin;
-                    if (indoorStatus) {
-                        setIndoorLight(false);
-                        fb->logEvent("schedule", "Hẹn giờ: Tắt đèn trong nhà.");
-                    }
-                }
-            }
-        }
+        checkOneSchedule(indoorScheduleEnabled, indoorOnHour, indoorOnMin,
+                         indoorOffHour, indoorOffMin, indoorScheduleDays,
+                         lastIndoorTriggerHour, lastIndoorTriggerMin, indoorStatus,
+                         &LightController::setIndoorLight, "đèn trong nhà",
+                         curH, curM, dow);
 
-        // Kiểm tra quạt (chỉ chạy khi đã kích hoạt lịch trình và đúng ngày)
-        if (fanScheduleEnabled && fanOnHour != -1 && fanOffHour != -1
-            && (fanScheduleDays & (1 << currentDow))) {
-            if (currentHour == fanOnHour && currentMin == fanOnMin) {
-                if (currentHour != lastFanTriggerHour || currentMin != lastFanTriggerMin) {
-                    lastFanTriggerHour = currentHour;
-                    lastFanTriggerMin = currentMin;
-                    if (!fanStatus) {
-                        setFan(true);
-                        fb->logEvent("schedule", "Hẹn giờ: Bật quạt.");
-                    }
-                }
-            } else if (currentHour == fanOffHour && currentMin == fanOffMin) {
-                if (currentHour != lastFanTriggerHour || currentMin != lastFanTriggerMin) {
-                    lastFanTriggerHour = currentHour;
-                    lastFanTriggerMin = currentMin;
-                    if (fanStatus) {
-                        setFan(false);
-                        fb->logEvent("schedule", "Hẹn giờ: Tắt quạt.");
-                    }
-                }
-            }
-        }
+        checkOneSchedule(fanScheduleEnabled, fanOnHour, fanOnMin,
+                         fanOffHour, fanOffMin, fanScheduleDays,
+                         lastFanTriggerHour, lastFanTriggerMin, fanStatus,
+                         &LightController::setFan, "quạt",
+                         curH, curM, dow);
     }
 };
 
