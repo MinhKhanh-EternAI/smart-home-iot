@@ -1,86 +1,24 @@
 {
-  "config": {
-    "mcp": {
-      "endpoint": "wss://api.xiaozhi.me/mcp/?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjk3NDc3MCwiYWdlbnRJZCI6MjA3NTY2NywiZW5kcG9pbnRJZCI6ImFnZW50XzIwNzU2NjciLCJwdXJwb3NlIjoibWNwLWVuZHBvaW50IiwiaWF0IjoxNzgyNjI4OTIyLCJleHAiOjE4MTQxODY1MjJ9.9JAQENO2psnk0X0VVcCg2Vlu5GsFLGoDIrQ2HriGFW-ejFpgvqWAOhaLnOqLrbCrpHrrxu0tcWkEud0VsMdYxg"
-    },
-    "tools": [
-      {
-        "name": "indoor_light",
-        "desc": "Đèn trong nhà",
-        "pin": "PCF8574_P1"
-      },
-      {
-        "name": "outdoor_light",
-        "desc": "Đèn sân vườn",
-        "pin": "PCF8574_P0"
-      },
-      {
-        "name": "smart_door",
-        "desc": "Cửa tự động Servo",
-        "pin": "D4"
-      },
-      {
-        "name": "smart_roof",
-        "desc": "Mái che tự động",
-        "pin": "RX"
-      }
-    ]
-  },
   "devices": {
     "indoor_light": {
-      "status": false,
-      "mode": "manual",
-      "schedule": {
-        "enabled": false,
-        "on_time": "18:00",
-        "off_time": "06:00",
-        "days": {
-          "monday": true,
-          "tuesday": true,
-          "wednesday": true,
-          "thursday": true,
-          "friday": true,
-          "saturday": true,
-          "sunday": true
-        }
-      }
-    },
-    "outdoor_light": {
-      "status": false,
-      "mode": "auto"
+      "status": false
     },
     "door": {
       "status": "closed",
       "auto_close_ms": 5000
-    },
-    "roof": {
-      "status": "open",
-      "mode": "auto"
-    },
-    "fan": {
-      "status": false,
-      "schedule": {
-        "enabled": false,
-        "on_time": "12:00",
-        "off_time": "14:00",
-        "days": {
-          "monday": true,
-          "tuesday": true,
-          "wednesday": true,
-          "thursday": true,
-          "friday": true,
-          "saturday": true,
-          "sunday": true
-        }
-      }
     }
   },
   "sensors": {
-    "temperature": 25.0,
-    "humidity": 60.0,
-    "rain": false,
-    "motion": false,
-    "last_updated": 0
+    "temperature": 28.0,
+    "humidity": 65.0,
+    "last_updated": 1718496000000,
+    "history": {
+      "entry_1": {
+        "timestamp": 1718496000000,
+        "temperature": 28.0,
+        "humidity": 65.0
+      }
+    }
   },
   "rfid": {
     "cards": {
