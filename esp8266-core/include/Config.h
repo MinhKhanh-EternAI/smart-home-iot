@@ -4,51 +4,49 @@
 #include <Arduino.h>
 #include "Secrets.h"
 
-// Tăng số này mỗi lần flash code mới để tự động xoá EEPROM (WiFi, cấu hình cũ)
-#define FIRMWARE_VERSION      3
-
-#define EEPROM_SIZE           100     // 96 (SSID+pass) + 4 (version marker)
-#define EEPROM_VERSION_OFFSET 96
-#define AP_SSID               "SmartHome-Config"
-#define AP_PASSWORD           ""        // để trống nếu muốn open, set mật khẩu nếu cần bảo mật
-#define AP_IP_ADDR            192, 168, 1, 86
+// Cấu hình Wi-Fi cục bộ phát ra từ ESP8266 (AP Mode)
+#define AP_SSID               "SmartHome-AP"
+#define AP_PASS               "12345678"          // Mật khẩu Wi-Fi AP
+#define AP_IP_ADDR            192, 168, 4, 1      // IP mặc định của AP tránh trùng với lớp mạng Router (thường là 192.168.1.x)
 #define AP_SUBNET_ADDR        255, 255, 255, 0
 
+// Kích thước EEPROM để lưu SSID và mật khẩu Wi-Fi cấu hình
+#define EEPROM_SIZE           96
 
-// SPI cho RFID RC522 (SCK/MOSI/MISO mặc định theo ESP8266 SPI: D5/D7/D6)
+// --- CẤU HÌNH PHẦN CỨNG ---
+
+// SPI cho RFID RC522
 #define RC522_SS_PIN          D8
-#define RC522_RST_PIN         D0
+#define RC522_RST_PIN         D4   // Chân ảo (đã nối cứng RST của RFID vào 3.3V)
+#define RC522_SCK_PIN         D5
+#define RC522_MOSI_PIN        D7
+#define RC522_MISO_PIN        D6
 
-// I2C cho LCD, PCF8574
+// I2C cho màn hình LCD và Mạch mở rộng PCF8574
 #define I2C_SDA_PIN           D2
 #define I2C_SCL_PIN           D1
 
-// DHT11 (set 0 để tắt nếu không gắn cảm biến)
-#define USE_DHT               0
-#if USE_DHT
-#define DHT_PIN               D3
-#endif
-
-// Cảm biến mưa
-#define WATER_SENSOR_PIN      A0
-
-// Servo
+// Chân điều khiển Servo cửa MG90S (PWM trực tiếp từ ESP8266)
 #define SERVO_DOOR_PIN        D4
-#define SERVO_ROOF_PIN        3     // RX (GPIO3) — Serial.end() trước khi dùng
 
-// PCF8574 I2C Expander
+// Lựa chọn cách đấu nối Relay và Buzzer:
+// 1: Dùng mạch mở rộng PCF8574 qua I2C (theo cấu hình ban đầu)
+// 0: Đấu nối trực tiếp vào các chân GPIO của ESP8266
+#define USE_PCF8574           0
+
+// Cấu hình khi dùng PCF8574 (I2C Address mặc định thường là 0x20)
 #define PCF_I2C_ADDRESS       0x20
-#define PCF_RELAY_OUTDOOR     0
-#define PCF_RELAY_INDOOR      1
-#define PCF_BUZZER            2
-#define PCF_LM393_INPUT       3
-#define PCF_FAN_RELAY         4     // DC motor quạt (bật/tắt qua relay)
+#define PCF_RELAY_LIGHT       1    // Chân P1 trên PCF8574 điều khiển Relay Đèn 12V (Active Low)
+#define PCF_BUZZER            2    // Chân P2 trên PCF8574 điều khiển Buzzer (Active Low)
 
-// Ngưỡng cảm biến
-#define RAIN_THRESHOLD        500
-#define DOOR_OPEN_ANGLE       90
-#define DOOR_CLOSE_ANGLE      0
-#define ROOF_OPEN_ANGLE       90
-#define ROOF_CLOSE_ANGLE      0
+// Cấu hình khi đấu trực tiếp GPIO (Chỉ có hiệu lực khi USE_PCF8574 = 0)
+#define DIRECT_RELAY_PIN      D0   // Chân GPIO điều khiển Relay
+#define DIRECT_BUZZER_PIN     D3   // Chân GPIO điều khiển Buzzer
+#define DIRECT_DHT_PIN        3    // Chân RX (GPIO3) điều khiển cảm biến DHT11
+#define DIRECT_DHT_TYPE       11   // Loại cảm biến (11 tương ứng với DHT11 trong thư viện Adafruit)
 
-#endif
+// Góc quay của Servo MG90S cho cửa
+#define DOOR_OPEN_ANGLE       0
+#define DOOR_CLOSE_ANGLE      180
+
+#endif // CONFIG_H

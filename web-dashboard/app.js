@@ -7,7 +7,6 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { initDashboard } from "./modules/dashboard.js?v=1.0.34";
 import { initRFID } from "./modules/rfid.js?v=1.0.34";
 import { initLogs } from "./modules/logs.js?v=1.0.34";
-import { initConfig } from "./modules/config.js?v=1.0.34";
 
 // Firebase config được inject bởi CI (xem firebase-config.example.js để chạy local)
 import { firebaseConfig } from "./firebase-config.js";
@@ -20,14 +19,12 @@ export const db = getDatabase(app);
 const auth = getAuth(app);
 signInAnonymously(auth).catch((err) => console.error("Firebase auth error:", err));
 
-// Trạng thái toàn cục để đồng bộ logic hiển thị cảnh báo
+// Trạng thái toàn cục
 export const state = {
-    sensors: { rain: false, temperature: null, humidity: null },
+    sensors: { temperature: null, humidity: null },
     devices: {
-        indoor_light: { status: false, schedule: { enabled: false } },
-        outdoor_light: { status: false, mode: "auto" },
-        door: { status: "closed" },
-        roof: { status: "open", mode: "auto" }
+        indoor_light: { status: false },
+        door: { status: "closed" }
     }
 };
 
@@ -153,8 +150,7 @@ const themeToggleBtn = document.getElementById("btn-theme-toggle");
 const tabTitles = {
     dashboard: "Hệ thống Điều khiển",
     rfid: "Quản lý thẻ RFID",
-    logs: "Nhật ký Hoạt động",
-    config: "Cấu hình Hệ thống"
+    logs: "Nhật ký Hoạt động"
 };
 
 // Hàm cập nhật UI tab (không thay đổi URL)
@@ -294,23 +290,10 @@ function updateDeviceUI(device) {
     }
 }
 
-function initDeviceFilters() {
-    document.querySelectorAll(".device-filter-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            document.querySelectorAll(".device-filter-btn").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            const filter = btn.dataset.filter;
-            document.querySelectorAll("#devices-container .device-card").forEach(card => {
-                card.style.display = (filter === "all" || card.dataset.zone === filter) ? "" : "none";
-            });
-        });
-    });
-}
-
 // Hàm tải động song song toàn bộ các tab giao diện
 async function loadAllTabs() {
     const mainContent = document.querySelector(".main-content");
-    const tabs = ["dashboard", "rfid", "logs", "config"];
+    const tabs = ["dashboard", "rfid", "logs"];
     
     try {
         const fetchPromises = tabs.map(tab => 
@@ -338,12 +321,8 @@ async function loadAllTabs() {
         initDashboard(db, state);
         initRFID(db, showToast, showConfirm);
         initLogs(db);
-        initConfig(db, showToast);
         
-        // Khởi tạo bộ lọc thiết bị
-        initDeviceFilters();
-
-        // Khởi tạo lắng nghe trạng thái IP của 2 mạch
+        // Khởi tạo lắng nghe trạng thái IP của ESP8266
         initDeviceStatus(db);
 
         // Khởi tạo tab từ URL hash khi tải trang

@@ -48,9 +48,14 @@
       ".write": "auth != null",
       "temperature": { ".validate": "newData.isNumber()" },
       "humidity": { ".validate": "newData.isNumber()" },
-      "rain": { ".validate": "newData.isBoolean()" },
-      "motion": { ".validate": "newData.isBoolean()" },
-      "last_updated": { ".validate": "newData.isNumber()" }
+      "last_updated": { ".validate": "newData.isNumber()" },
+      "history": {
+        "$entry_id": {
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "temperature": { ".validate": "newData.isNumber()" },
+          "humidity": { ".validate": "newData.isNumber()" }
+        }
+      }
     },
 
     "logs": {

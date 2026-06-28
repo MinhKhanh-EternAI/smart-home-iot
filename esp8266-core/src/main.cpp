@@ -3,157 +3,106 @@
 #include "WifiHelper.h"
 #include "FirebaseHelper.h"
 #include "DoorController.h"
-#include "RoofController.h"
 #include "LightController.h"
-#include "ClimateController.h"
 
-// Khởi tạo các đối tượng điều khiển và con trỏ toàn cục cho Stream callback
+// Khởi tạo các thực thể toàn cục
 FirebaseHelper fbHelper;
 FirebaseHelper* fbHelperInstance = nullptr;
+
 DoorController doorCtrl;
-RoofController roofCtrl;
 LightController lightCtrl;
-ClimateController climateCtrl;
 
-
-static void parseScheduleJson(const String& device, const String& value) {
-    FirebaseJson json;
-    json.setJsonData(value);
-    FirebaseJsonData result;
-
-    json.get(result, "enabled");
-    if (result.success) lightCtrl.setScheduleEnabled(device, result.to<bool>());
-
-    json.get(result, "on_time");
-    if (result.success) lightCtrl.setScheduleOnTime(device, result.to<String>());
-
-    json.get(result, "off_time");
-    if (result.success) lightCtrl.setScheduleOffTime(device, result.to<String>());
-
-    json.get(result, "days");
-    if (result.success) {
-        FirebaseJson daysJson;
-        result.getJSON(daysJson);
-        size_t count = daysJson.iteratorBegin();
-        if (count > 0) {
-            FirebaseJsonData dayResult;
-            const char* dayNames[7] = {"sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
-            for (int i = 0; i < 7; i++) {
-                daysJson.get(dayResult, dayNames[i]);
-                if (dayResult.success) {
-                    lightCtrl.setScheduleDay(device, dayNames[i], dayResult.to<bool>());
-                }
-            }
-            daysJson.iteratorEnd();
-        }
-    }
-}
-
-static void parseScheduleKeys(const String& device, const String& key, const String& value) {
-    if (key == "schedule/enabled") {
-        lightCtrl.setScheduleEnabled(device, value == "true");
-    } else if (key == "schedule/on_time") {
-        lightCtrl.setScheduleOnTime(device, value);
-    } else if (key == "schedule/off_time") {
-        lightCtrl.setScheduleOffTime(device, value);
-    } else if (key.startsWith("schedule/days/")) {
-        String dayName = key.substring(14);
-        lightCtrl.setScheduleDay(device, dayName, value == "true");
-    } else if (key == "schedule") {
-        parseScheduleJson(device, value);
-    }
-}
-
-// Callback xử lý dữ liệu điều khiển từ Firebase stream
+// Callback xử lý dữ liệu điều khiển từ Firebase Stream
 void onDeviceControl(const String& device, const String& key, const String& value) {
+    Serial.printf("[Stream] Nhan update - Thiet bi: %s, Khoa: %s, Gia tri: %s\n", device.c_str(), key.c_str(), value.c_str());
+    
+    // Xử lý điều khiển Đèn 12V (đồng bộ qua node indoor_light của Firebase)
     if (device == "indoor_light") {
-        if (key == "status") {
+        if (key == "status" || key == "") {
             lightCtrl.setIndoorLight(value == "true");
-        } else if (key == "mode") {
-            lightCtrl.setIndoorMode(value);
-        } else {
-            parseScheduleKeys(device, key, value);
         }
     }
-    else if (device == "outdoor_light") {
-        if (key == "status") {
-            lightCtrl.setOutdoorLight(value == "true");
-        } else if (key == "mode") {
-            lightCtrl.setOutdoorMode(value);
-        }
-    } 
+    // Xử lý thiết lập Cửa
     else if (device == "door") {
         if (key == "auto_close_ms") {
             doorCtrl.setAutoCloseDelay((unsigned long)value.toInt());
         }
     }
-    else if (device == "roof") {
-        if (key == "status") {
-            roofCtrl.setStatusFromFirebase(value);
-        } else if (key == "mode") {
-            roofCtrl.setMode(value);
-        }
-    }
-    else if (device == "fan") {
-        if (key == "status" || key == "") {
-            lightCtrl.setFan(value == "true");
-        } else {
-            parseScheduleKeys(device, key, value);
-        }
-    }
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
     delay(500);
-    Serial.println("\n================================");
-    Serial.println("SMART HOME SYSTEM BOOTING");
-    Serial.println("================================");
+    Serial.println("\n==============================================");
+    Serial.println("   SMART HOME (AP+STA MODE) SYSTEM BOOTING");
+    Serial.println("==============================================");
 
-    // 1. Khởi tạo WiFi
+    // 1. Khởi tạo Wi-Fi và Web Server cục bộ
     WifiHelper::init();
 
-    // 2. Khởi tạo Firebase
+    // Đồng bộ thời gian thực từ máy chủ NTP để xác thực chứng chỉ bảo mật SSL cho Firebase
+    if (WiFi.status() == WL_CONNECTED) {
+        delay(2000); // Chờ 2 giây để Wi-Fi và DNS ổn định hoàn toàn
+        Serial.print("[System] Dang dong bo thoi gian NTP...");
+        configTime(7 * 3600, 0, "time.google.com", "time.windows.com");
+        time_t now = time(nullptr);
+        int retry = 0;
+        while (now < 1000000000L && retry < 30) {
+            delay(500);
+            Serial.print(".");
+            now = time(nullptr);
+            retry++;
+        }
+        if (now >= 1000000000L) {
+            Serial.println("\n[System] Dong bo thoi gian thanh cong!");
+        } else {
+            Serial.println("\n[System] Dong bo thoi gian that bai (Timeout).");
+        }
+    }
+
+    // 2. Gán địa chỉ các đối tượng điều khiển cho WifiHelper sử dụng trong API cục bộ
+    WifiHelper::lightCtrl = &lightCtrl;
+    WifiHelper::doorCtrl = &doorCtrl;
+    WifiHelper::fbHelper = &fbHelper;
+
+    // 3. Khởi tạo Firebase
     fbHelper.init(onDeviceControl);
 
-    // 3. Khởi tạo các Mô-đun phần cứng
+    // 4. Khởi tạo các Mô-đun phần cứng
     lightCtrl.init(&fbHelper);
     doorCtrl.init(&fbHelper);
-    climateCtrl.init(&fbHelper);
 
-    Serial.println("Serial closing — RX (GPIO3) freed for Servo Roof.");
-    Serial.flush();
-    Serial.end();
-
-    roofCtrl.init(&fbHelper);
-
-    fbHelper.logEvent("system", "Hệ thống khởi động thành công và đã đồng bộ với Firebase.");
-
-    // Hiển thị màn hình mặc định trên LCD
-    WifiHelper::showDefaultScreen();
+    // Đồng bộ trạng thái ban đầu của Đèn lên Firebase
+    if (fbHelper.ready()) {
+        fbHelper.setBool("/devices/indoor_light/status", lightCtrl.getLightStatus());
+        fbHelper.setString("/devices/door/status", doorCtrl.getDoorStatus() ? "open" : "closed");
+        fbHelper.logEvent("system", "He thong Smart Home (AP+STA) khoi dong thanh cong.");
+    }
+    
+    Serial.println("[System] Khoi dong hoàn tat. San sang lam viec!");
 }
 
 void loop() {
-    // Duy trì các kết nối
+    // Duy trì Web Server và các kết nốli Wi-Fi, Firebase
     WifiHelper::handleClient();
     WifiHelper::keepAlive();
-    WifiHelper::checkResetButton();
     fbHelper.keepAlive();
 
-    // Cập nhật trạng thái nhịp tim (heartbeat) & IP cục bộ lên Firebase
-    if (WiFi.status() == WL_CONNECTED) {
-        fbHelper.updateHeartbeat(WiFi.localIP().toString());
+    // Cập nhật trạng thái nhịp tim (heartbeat) lên Firebase định kỳ (mỗi 15 giây)
+    if (fbHelper.isInitialized() && WiFi.status() == WL_CONNECTED) {
+        static unsigned long lastHeartbeatLoop = 0;
+        if (lastHeartbeatLoop == 0 || millis() - lastHeartbeatLoop >= 15000) {
+            lastHeartbeatLoop = millis();
+            fbHelper.updateHeartbeat(WiFi.localIP().toString());
+        }
     }
 
-    // Cập nhật hoạt động các mô-đun
+    // Cập nhật trạng thái quét RFID & tự động đóng cửa
     doorCtrl.update();
-    roofCtrl.update();
+    
+    // Cập nhật đèn
     lightCtrl.update();
-    climateCtrl.update();
 
-    // Cập nhật LCD (notification timeout, standby screen)
-    WifiHelper::updateLCD();
-
-    // Giải phóng CPU cho ESP8266 chạy background tasks
+    // Nhường CPU cho các tác vụ ngầm của ESP8266
     yield();
 }
