@@ -1,6 +1,9 @@
 # Firebase web config — được GitHub Actions tạo tự động từ Secrets
 web-dashboard/firebase-config.js
 
+# MCP local config (chứa đường dẫn, port tuỳ máy)
+.mcp.json
+
 # Build artifacts
 .pio/
 .vscode/
