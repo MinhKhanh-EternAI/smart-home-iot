@@ -106,7 +106,9 @@ public:
         }
     }
 
-    // ===== LCD Notification & Standby System =====
+    // ===== LCD System: Default screen + Notification overlay =====
+
+    // --- Notification state ---
     static String& getNotifLine1() {
         static String line1 = ""; return line1;
     }
@@ -123,67 +125,90 @@ public:
         static bool has = false; return has;
     }
 
+    // --- Sensor data (fed by ClimateController) ---
     static float& getStandbyTemp() {
         static float t = -999.0f; return t;
     }
     static float& getStandbyHum() {
         static float h = -999.0f; return h;
     }
-    static unsigned long& getLastStandbySwitch() {
-        static unsigned long t = 0; return t;
-    }
-    static int& getStandbyPage() {
-        static int p = 0; return p;
+    static void setStandbyData(float temp, float hum) {
+        getStandbyTemp() = temp;
+        getStandbyHum() = hum;
     }
 
+    // --- Dirty-check cache to avoid redundant I2C writes ---
+    static String& getLastL1() {
+        static String s = ""; return s;
+    }
+    static String& getLastL2() {
+        static String s = ""; return s;
+    }
+    static unsigned long& getLastDefaultUpdate() {
+        static unsigned long t = 0; return t;
+    }
+
+    // --- Default screen (always: L1=WiFi status, L2=Temp/Hum) ---
+    static void showDefaultScreen() {
+        if (getAPMode()) {
+            String l1 = "AP: " + String(AP_SSID);
+            String l2 = "IP: " + WiFi.softAPIP().toString();
+            if (l1 != getLastL1() || l2 != getLastL2()) {
+                getLastL1() = l1; getLastL2() = l2;
+                printToLCD(l1, l2);
+            }
+            return;
+        }
+
+        String l1, l2;
+        if (WiFi.status() == WL_CONNECTED) {
+            l1 = "WiFi:Connected";
+            float t = getStandbyTemp();
+            float h = getStandbyHum();
+            if (t > -998.0f) {
+                char buf[17];
+                snprintf(buf, sizeof(buf), "T:%.1fC H:%.0f%%", t, h);
+                l2 = String(buf);
+            } else {
+                l2 = "Smart Home IoT";
+            }
+        } else {
+            l1 = "WiFi Reconnecting...";
+            l2 = "";
+        }
+
+        if (l1 != getLastL1() || l2 != getLastL2()) {
+            getLastL1() = l1; getLastL2() = l2;
+            printToLCD(l1, l2);
+        }
+    }
+
+    // --- Notification overlay (5s then revert to default) ---
     static void showNotification(const String& line1, const String& line2, unsigned long durationMs = 5000) {
         getNotifLine1() = line1;
         getNotifLine2() = line2;
         getNotifStart() = millis();
         getNotifDuration() = durationMs;
         getHasNotification() = true;
+        getLastL1() = line1;
+        getLastL2() = line2;
         printToLCD(line1, line2);
     }
 
-    static void setStandbyData(float temp, float hum) {
-        getStandbyTemp() = temp;
-        getStandbyHum() = hum;
-    }
-
-    static void showStandbyScreen() {
-        if (getAPMode()) {
-            printToLCD("AP: " + String(AP_SSID), "IP: " + WiFi.softAPIP().toString());
-            return;
-        }
+    // --- Called every loop: handles notification timeout + periodic default refresh ---
+    static void updateLCD() {
         unsigned long now = millis();
-        if (now - getLastStandbySwitch() >= 4000) {
-            getLastStandbySwitch() = now;
-            getStandbyPage() = (getStandbyPage() + 1) % 2;
-        }
-        if (WiFi.status() == WL_CONNECTED) {
-            if (getStandbyPage() == 0) {
-                float t = getStandbyTemp();
-                float h = getStandbyHum();
-                if (t > -998.0f) {
-                    char buf[17];
-                    snprintf(buf, sizeof(buf), "T:%.1fC H:%.0f%%", t, h);
-                    printToLCD(String(buf), "WiFi:Connected");
-                } else {
-                    printToLCD("Smart Home IoT", "WiFi:Connected");
-                }
-            } else {
-                printToLCD("IP: " + WiFi.localIP().toString(), "WiFi:Connected");
+        if (getHasNotification()) {
+            if (now - getNotifStart() >= getNotifDuration()) {
+                getHasNotification() = false;
+                getLastL1() = "";
+                getLastL2() = "";
+                showDefaultScreen();
             }
         } else {
-            printToLCD("Connecting WiFi...", "");
-        }
-    }
-
-    static void updateLCD() {
-        if (getHasNotification()) {
-            if (millis() - getNotifStart() >= getNotifDuration()) {
-                getHasNotification() = false;
-                showStandbyScreen();
+            if (now - getLastDefaultUpdate() >= 2000) {
+                getLastDefaultUpdate() = now;
+                showDefaultScreen();
             }
         }
     }

@@ -129,8 +129,8 @@ void setup() {
 
     fbHelper.logEvent("system", "Hệ thống khởi động thành công và đã đồng bộ với Firebase.");
 
-    // Hiển thị màn hình chờ trên LCD
-    WifiHelper::showStandbyScreen();
+    // Hiển thị màn hình mặc định trên LCD
+    WifiHelper::showDefaultScreen();
 }
 
 void loop() {

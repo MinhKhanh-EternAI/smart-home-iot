@@ -146,7 +146,7 @@ public:
     }
 
     void showStandbyMessage() {
-        WifiHelper::showStandbyScreen();
+        WifiHelper::showDefaultScreen();
     }
 
     void setAutoCloseDelay(unsigned long ms) {
