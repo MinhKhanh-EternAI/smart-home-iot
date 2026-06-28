@@ -5,7 +5,7 @@
 #include "Secrets.h"
 
 // Tăng số này mỗi lần flash code mới để tự động xoá EEPROM (WiFi, cấu hình cũ)
-#define FIRMWARE_VERSION      2
+#define FIRMWARE_VERSION      3
 
 #define DEFAULT_WIFI_SSID     "Your_WiFi_SSID"
 #define DEFAULT_WIFI_PASSWORD "Your_WiFi_Password"
