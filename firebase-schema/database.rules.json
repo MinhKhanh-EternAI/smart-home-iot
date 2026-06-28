@@ -7,11 +7,21 @@
       ".read": "auth != null",
       ".write": "auth != null",
       "indoor_light": {
-        "status": { ".validate": "newData.isBoolean()" }
+        "status": { ".validate": "newData.isBoolean()" },
+        "mode": { ".validate": "newData.isString()" },
+        "schedule": { ".validate": "newData.hasChildren(['enabled', 'on_time', 'off_time', 'days'])" }
+      },
+      "outdoor_light": {
+        "status": { ".validate": "newData.isBoolean()" },
+        "mode": { ".validate": "newData.isString()" }
       },
       "door": {
         "status": { ".validate": "newData.isString() && (newData.val() == 'open' || newData.val() == 'closed')" },
         "auto_close_ms": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 60000" }
+      },
+      "fan": {
+        ".validate": "newData.isBoolean() || newData.hasChildren(['status'])",
+        "status": { ".validate": "newData.isBoolean()" }
       }
     },
 
@@ -20,6 +30,8 @@
       ".write": "auth != null",
       "temperature": { ".validate": "newData.isNumber()" },
       "humidity": { ".validate": "newData.isNumber()" },
+      "motion": { ".validate": "newData.isBoolean()" },
+      "rain": { ".validate": "newData.isBoolean()" },
       "last_updated": { ".validate": "newData.isNumber()" },
       "history": {
         "$entry_id": {
@@ -36,7 +48,7 @@
         ".write": "auth != null",
         "$event_id": {
           "timestamp": { ".validate": "newData.isNumber()" },
-          "type": { ".validate": "newData.isString() && (newData.val() == 'system' || newData.val() == 'security' || newData.val() == 'door')" },
+          "type": { ".validate": "newData.isString()" },
           "message": { ".validate": "newData.isString()" }
         }
       }
@@ -59,7 +71,7 @@
           "timestamp": { ".validate": "newData.isNumber()" },
           "card_uid": { ".validate": "newData.isString()" },
           "name": { ".validate": "newData.isString()" },
-          "status": { ".validate": "newData.isString() && (newData.val() == 'granted' || newData.val() == 'denied' || newData.val() == 'inactive_denied')" }
+          "status": { ".validate": "newData.isString()" }
         }
       }
     },
@@ -71,18 +83,10 @@
         "ip": { ".validate": "newData.isString()" },
         "last_seen": { ".validate": "newData.isNumber()" }
       },
-      "last_event": {
+      "esp32": {
         ".write": "auth != null",
-        "timestamp": { ".validate": "newData.isNumber()" },
-        "type": { ".validate": "newData.isString()" },
-        "message": { ".validate": "newData.isString()" }
-      },
-      "last_rfid": {
-        ".write": "auth != null",
-        "timestamp": { ".validate": "newData.isNumber()" },
-        "card_uid": { ".validate": "newData.isString()" },
-        "name": { ".validate": "newData.isString()" },
-        "status": { ".validate": "newData.isString() && (newData.val() == 'granted' || newData.val() == 'denied' || newData.val() == 'inactive_denied')" }
+        "ip": { ".validate": "newData.isString()" },
+        "last_seen": { ".validate": "newData.isNumber()" }
       }
     }
   }
