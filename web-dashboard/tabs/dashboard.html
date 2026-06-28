@@ -50,19 +50,39 @@
                         </div>
                         <div class="sensor-footer-text">Độ ẩm</div>
                     </div>
-                    <!-- Chart -->
-                    <div class="sensor-card chart-card">
+                    <!-- Rain Sensor -->
+                    <div class="sensor-card">
                         <div class="sensor-header">
-                            <i class="fa-solid fa-chart-line icon" style="color: var(--accent);"></i>
-                            <h3>Lịch sử biến động Nhiệt độ &amp; Độ ẩm</h3>
+                            <div class="sensor-icon-circle" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
+                                <i class="fa-solid fa-cloud-rain"></i>
+                            </div>
+                            <h3>Mưa</h3>
                         </div>
-                        <div class="chart-container-wrapper" style="position: relative; height: 200px; width: 100%;">
-                            <canvas id="temp-hum-chart"></canvas>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 48px; margin-bottom: 8px;" id="rain-icon">
+                                <i class="fa-solid fa-sun" style="color: #f59e0b;"></i>
+                            </div>
+                            <div style="font-size: 20px; font-weight: 700;" id="rain-status">Không mưa</div>
                         </div>
+                        <div class="sensor-footer-text">Cảm biến mưa</div>
+                    </div>
+                    <!-- Light Sensor -->
+                    <div class="sensor-card">
+                        <div class="sensor-header">
+                            <div class="sensor-icon-circle" style="background: rgba(250, 204, 21, 0.12); color: #eab308;">
+                                <i class="fa-solid fa-sun"></i>
+                            </div>
+                            <h3>Ánh sáng</h3>
+                        </div>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 44px; font-weight: 800;" id="light-val">--</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">lux</div>
+                        </div>
+                        <div class="sensor-footer-text" id="light-desc">Cảm biến ánh sáng</div>
                     </div>
                 </div>
 
-                <!-- Connection Header -->
+                <!-- Connection Status -->
                 <div class="device-section-title-row">
                     <i class="fa-solid fa-circle-nodes"></i>
                     <h2>Trạng thái Kết nối</h2>
@@ -75,7 +95,7 @@
                                 <i class="fa-solid fa-microchip" style="font-size: 1.1rem;"></i>
                             </div>
                             <div>
-                                <h4 style="margin: 0; font-weight: 600; font-size: 0.95rem;">ESP8266 Core (Mạch chính)</h4>
+                                <h4 style="margin: 0; font-weight: 600; font-size: 0.95rem;">ESP32 Core (Mạch chính)</h4>
                                 <span class="device-ip-lbl" style="font-size: 0.78rem; opacity: 0.7;">IP: Đang quét...</span>
                             </div>
                         </div>
@@ -83,14 +103,22 @@
                     </div>
                 </div>
 
-                <!-- Devices Header -->
+                <!-- Devices Header with Filter Tabs -->
                 <div class="device-section-title-row">
                     <i class="fa-solid fa-microchip"></i>
                     <h2>Thiết bị</h2>
                 </div>
+                <div class="device-section-toolbar">
+                    <div class="device-filter-tabs" id="device-filter-tabs">
+                        <button class="device-filter-btn active" data-filter="all">Tất cả</button>
+                        <button class="device-filter-btn" data-filter="indoor">Trong nhà</button>
+                        <button class="device-filter-btn" data-filter="outdoor">Ngoài trời</button>
+                    </div>
+                </div>
+
                 <div class="devices-grid" id="devices-container">
-                    <!-- Indoor Light -->
-                    <div class="device-card" data-zone="indoor">
+                    <!-- INDOOR LIGHT -->
+                    <div class="device-card" data-device-id="indoor_light" data-zone="indoor">
                         <div class="device-header">
                             <div class="device-title">
                                 <div class="device-icon-wrapper">
@@ -112,8 +140,37 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Smart Door -->
-                    <div class="device-card" data-zone="outdoor">
+
+                    <!-- OUTDOOR LIGHT -->
+                    <div class="device-card" data-device-id="outdoor_light" data-zone="outdoor">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-lightbulb device-icon"></i>
+                                </div>
+                                <div>
+                                    <h3>Đèn Sân Vườn</h3>
+                                    <span class="device-location">Ngoài trời</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="outdoor-light-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="device-body">
+                            <div class="mode-selector-container">
+                                <span class="mode-label">Chế độ</span>
+                                <div class="mode-group">
+                                    <button class="mode-btn active" data-mode="manual" id="ol-mode-manual">Thủ công</button>
+                                    <button class="mode-btn" data-mode="auto" id="ol-mode-auto">Tự động</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SMART DOOR -->
+                    <div class="device-card" data-device-id="door" data-zone="outdoor">
                         <div class="device-header">
                             <div class="device-title">
                                 <div class="device-icon-wrapper">
@@ -121,7 +178,7 @@
                                 </div>
                                 <div>
                                     <h3>Cửa Thông Minh</h3>
-                                    <span class="device-location">Cửa chính</span>
+                                    <span class="device-location">Cửa chính RFID</span>
                                 </div>
                             </div>
                             <span class="badge" id="door-status-badge">Đóng</span>
@@ -140,6 +197,71 @@
                                 <div class="slider-val-box">
                                     <input type="range" id="door-autoclose-range" min="3" max="30" value="5">
                                     <span id="door-autoclose-lbl">5s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SMART ROOF -->
+                    <div class="device-card" data-device-id="roof" data-zone="outdoor">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-umbrella device-icon"></i>
+                                </div>
+                                <div>
+                                    <h3>Mái Che Thông Minh</h3>
+                                    <span class="device-location">Sân thượng</span>
+                                </div>
+                            </div>
+                            <span class="badge" id="roof-status-badge">Đóng</span>
+                        </div>
+                        <div class="device-body flex-col">
+                            <div class="door-btn-row">
+                                <button class="door-btn door-btn-open" id="roof-open-btn">
+                                    <i class="fa-solid fa-up-long"></i> Mở mái
+                                </button>
+                                <button class="door-btn door-btn-close" id="roof-close-btn">
+                                    <i class="fa-solid fa-down-long"></i> Đóng mái
+                                </button>
+                            </div>
+                            <div class="mode-selector-container">
+                                <span class="mode-label">Chế độ</span>
+                                <div class="mode-group">
+                                    <button class="mode-btn" data-mode="manual" id="roof-mode-manual">Thủ công</button>
+                                    <button class="mode-btn active" data-mode="auto" id="roof-mode-auto">Tự động</button>
+                                </div>
+                            </div>
+                            <div class="warning-row-roof" id="roof-warning" style="display: none;">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>Phát hiện mưa — mái che sẽ tự động đóng!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAN -->
+                    <div class="device-card" data-device-id="fan" data-zone="indoor">
+                        <div class="device-header">
+                            <div class="device-title">
+                                <div class="device-icon-wrapper">
+                                    <i class="fa-solid fa-fan device-icon"></i>
+                                </div>
+                                <div>
+                                    <h3>Quạt Thông Gió</h3>
+                                    <span class="device-location">Phòng khách</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="fan-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="device-body">
+                            <div class="slider-config-row">
+                                <span>Tốc độ quạt:</span>
+                                <div class="slider-val-box">
+                                    <input type="range" id="fan-speed-range" min="0" max="100" value="50">
+                                    <span id="fan-speed-lbl">50%</span>
                                 </div>
                             </div>
                         </div>

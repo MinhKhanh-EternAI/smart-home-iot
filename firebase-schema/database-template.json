@@ -3,20 +3,35 @@
     "indoor_light": {
       "status": false
     },
+    "outdoor_light": {
+      "status": false,
+      "mode": "manual"
+    },
     "door": {
       "status": "closed",
       "auto_close_ms": 5000
+    },
+    "roof": {
+      "status": "closed",
+      "mode": "auto"
+    },
+    "fan": {
+      "status": false,
+      "speed": 50
     }
   },
   "sensors": {
     "temperature": 28.0,
     "humidity": 65.0,
+    "rain": 0,
+    "light": 720,
     "last_updated": 1718496000000,
     "history": {
       "entry_1": {
         "timestamp": 1718496000000,
         "temperature": 28.0,
-        "humidity": 65.0
+        "humidity": 65.0,
+        "rain": 0
       }
     }
   },

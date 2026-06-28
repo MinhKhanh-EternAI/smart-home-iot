@@ -1148,6 +1148,55 @@ body.light-mode .badge.open {
     transform: none !important;
 }
 
+.door-btn-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.door-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--panel-border);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+}
+
+.door-btn:hover {
+    transform: translateY(-1px);
+}
+
+.door-btn-open {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.25);
+    color: #34d399;
+}
+
+.door-btn-open:hover {
+    background: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
+.door-btn-close {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #f87171;
+}
+
+.door-btn-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
 .primary-btn {
     width: 100%;
     background: var(--accent);

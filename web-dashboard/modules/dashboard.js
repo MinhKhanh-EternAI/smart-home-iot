@@ -64,11 +64,7 @@ function initChart() {
                     labels: {
                         color: textColor,
                         boxWidth: 8,
-                        font: {
-                            family: 'Outfit',
-                            size: 11,
-                            weight: '500'
-                        }
+                        font: { family: 'Outfit', size: 11, weight: '500' }
                     }
                 },
                 tooltip: {
@@ -96,24 +92,18 @@ function initChart() {
                     }
                 },
                 'y-temp': {
-                    type: 'linear',
-                    position: 'left',
-                    grid: {
-                        color: gridColor,
-                        borderDash: [5, 5]
-                    },
+                    type: 'linear', position: 'left',
+                    grid: { color: gridColor, borderDash: [5, 5] },
                     border: { display: false },
                     ticks: {
                         color: textColor,
                         font: { family: 'Outfit', size: 11 },
                         callback: function(val) { return val + '°C'; }
                     },
-                    min: 15,
-                    max: 45
+                    min: 15, max: 45
                 },
                 'y-hum': {
-                    type: 'linear',
-                    position: 'right',
+                    type: 'linear', position: 'right',
                     grid: { drawOnChartArea: false },
                     border: { display: false },
                     ticks: {
@@ -121,8 +111,7 @@ function initChart() {
                         font: { family: 'Outfit', size: 11 },
                         callback: function(val) { return val + '%'; }
                     },
-                    min: 20,
-                    max: 100
+                    min: 20, max: 100
                 }
             }
         }
@@ -174,84 +163,146 @@ window.addEventListener("themechanged", (e) => {
     }
 });
 
+function updateSensorUI(data) {
+    if (data.temperature !== undefined) state.sensors.temperature = data.temperature;
+    if (data.humidity !== undefined) state.sensors.humidity = data.humidity;
+    if (data.rain !== undefined) state.sensors.rain = data.rain;
+    if (data.light !== undefined) state.sensors.light = data.light;
+
+    const temp = state.sensors.temperature;
+    const hum = state.sensors.humidity;
+    const rain = state.sensors.rain;
+    const light = state.sensors.light;
+
+    const tempEl = document.getElementById("temp-val");
+    const humEl = document.getElementById("hum-val");
+    const tempGaugeCircular = document.getElementById("temp-gauge-circular");
+    const humGaugeCircular = document.getElementById("hum-gauge-circular");
+    const circumferenceCircular = Math.PI * 45 * 1.5;
+
+    if (tempEl) tempEl.innerText = temp !== null ? Math.round(temp) : "--";
+    if (humEl) humEl.innerText = hum !== null ? Math.round(hum) : "--";
+
+    if (tempGaugeCircular) {
+        const progress = temp !== null ? Math.max(0, Math.min(temp / 50, 1)) : 0;
+        tempGaugeCircular.style.strokeDasharray = circumferenceCircular;
+        tempGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
+    }
+    if (humGaugeCircular) {
+        const progress = hum !== null ? Math.max(0, Math.min(hum / 100, 1)) : 0;
+        humGaugeCircular.style.strokeDasharray = circumferenceCircular;
+        humGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
+    }
+
+    const rainIcon = document.getElementById("rain-icon");
+    const rainStatus = document.getElementById("rain-status");
+    if (rainIcon && rainStatus) {
+        if (rain == 1) {
+            rainIcon.innerHTML = '<i class="fa-solid fa-cloud-rain" style="color: #38bdf8;"></i>';
+            rainStatus.innerText = "Đang mưa";
+            rainStatus.style.color = "var(--info)";
+        } else {
+            rainIcon.innerHTML = '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>';
+            rainStatus.innerText = "Không mưa";
+            rainStatus.style.color = "var(--warning)";
+        }
+    }
+
+    const lightVal = document.getElementById("light-val");
+    const lightDesc = document.getElementById("light-desc");
+    if (lightVal) lightVal.innerText = light !== null ? Math.round(light) : "--";
+    if (lightDesc) {
+        if (light === null) lightDesc.innerText = "Cảm biến ánh sáng";
+        else if (light < 50) lightDesc.innerText = "Tối";
+        else if (light < 500) lightDesc.innerText = "Ánh sáng yếu";
+        else if (light < 2000) lightDesc.innerText = "Ánh sáng tốt";
+        else lightDesc.innerText = "Rất sáng";
+    }
+
+    const roofWarning = document.getElementById("roof-warning");
+    if (roofWarning && rain == 1) {
+        roofWarning.style.display = "flex";
+        if (state.devices.roof && state.devices.roof.mode === "auto" && state.devices.roof.status !== "closed") {
+            roofWarning.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>Phát hiện mưa — đang tự động đóng mái che!</span>';
+        }
+    } else if (roofWarning) {
+        roofWarning.style.display = "none";
+    }
+}
+
 export function initDashboard(database, globalState) {
     db = database;
     state = globalState;
 
-    // Đọc giá trị Cảm biến (cập nhật gauge)
     onValue(ref(db, "sensors"), (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-
-        if (data.temperature !== undefined) state.sensors.temperature = data.temperature;
-        else if (data.temp !== undefined) state.sensors.temperature = data.temp;
-
-        if (data.humidity !== undefined) state.sensors.humidity = data.humidity;
-
-        const tempEl = document.getElementById("temp-val");
-        const humEl = document.getElementById("hum-val");
-        const tempGaugeCircular = document.getElementById("temp-gauge-circular");
-        const humGaugeCircular = document.getElementById("hum-gauge-circular");
-        const circumferenceCircular = Math.PI * 45 * 1.5;
-
-        const temp = (state.sensors.temperature !== null && state.sensors.temperature !== undefined) ? parseFloat(state.sensors.temperature) : null;
-        const hum = (state.sensors.humidity !== null && state.sensors.humidity !== undefined) ? parseFloat(state.sensors.humidity) : null;
-
-        if (tempEl) tempEl.innerText = temp !== null ? Math.round(temp).toString() : "--";
-        if (humEl) humEl.innerText = hum !== null ? Math.round(hum).toString() : "--";
-
-        if (tempGaugeCircular) {
-            const progress = temp !== null ? Math.max(0, Math.min(temp / 50, 1)) : 0;
-            tempGaugeCircular.style.strokeDasharray = circumferenceCircular;
-            tempGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
-        }
-        if (humGaugeCircular) {
-            const progress = hum !== null ? Math.max(0, Math.min(hum / 100, 1)) : 0;
-            humGaugeCircular.style.strokeDasharray = circumferenceCircular;
-            humGaugeCircular.style.strokeDashoffset = circumferenceCircular * (1 - progress);
-        }
+        updateSensorUI(data);
     });
 
-    // Đọc lịch sử cảm biến (cập nhật biểu đồ)
     onValue(query(ref(db, "sensors/history"), limitToLast(288)), (snapshot) => {
         updateChartFromHistory(snapshot);
     });
 
-    // Đọc trạng thái thiết bị
     onValue(ref(db, "devices"), (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
         state.devices = data;
 
-        // --- Đèn Trong Nhà ---
-        const inLight = data.indoor_light || { status: false };
-        const inLightToggle = document.getElementById("indoor-light-toggle");
-        if (inLightToggle) {
-            inLightToggle.checked = inLight.status;
-            const card = inLightToggle.closest(".device-card");
-            if (card) card.classList.toggle("active", inLight.status);
+        updateIndoorLight(data);
+        updateOutdoorLight(data);
+        updateDoor(data);
+        updateRoof(data);
+        updateFan(data);
+    });
+
+    function updateIndoorLight(data) {
+        const device = data.indoor_light || { status: false };
+        const toggle = document.getElementById("indoor-light-toggle");
+        if (toggle) {
+            toggle.checked = device.status;
+            const card = toggle.closest(".device-card");
+            if (card) card.classList.toggle("active", device.status);
+        }
+    }
+
+    function updateOutdoorLight(data) {
+        const device = data.outdoor_light || { status: false, mode: "manual" };
+        const toggle = document.getElementById("outdoor-light-toggle");
+        if (toggle) {
+            toggle.checked = device.status;
+            const card = toggle.closest(".device-card");
+            if (card) card.classList.toggle("active", device.status);
         }
 
-        // --- Cửa Thông Minh ---
-        const door = data.door || {};
-        const doorStatus = door.status || "closed";
-        const autoCloseMs = door.auto_close_ms !== undefined ? door.auto_close_ms : 15000;
+        const manualBtn = document.getElementById("ol-mode-manual");
+        const autoBtn = document.getElementById("ol-mode-auto");
+        if (manualBtn && autoBtn) {
+            manualBtn.classList.toggle("active", device.mode === "manual");
+            autoBtn.classList.toggle("active", device.mode === "auto");
+        }
+    }
 
-        const doorBadge = document.getElementById("door-status-badge");
-        const doorIcon = document.getElementById("door-icon");
-        if (doorBadge && doorIcon) {
-            const doorCard = doorBadge.closest(".device-card");
-            if (doorStatus === "open") {
-                doorBadge.innerText = "Mở";
-                doorBadge.className = "badge open";
-                doorIcon.className = "fa-solid fa-lock-open device-icon";
-                if (doorCard) doorCard.classList.add("active");
+    function updateDoor(data) {
+        const device = data.door || {};
+        const status = device.status || "closed";
+        const autoCloseMs = device.auto_close_ms !== undefined ? device.auto_close_ms : 5000;
+
+        const badge = document.getElementById("door-status-badge");
+        const icon = document.getElementById("door-icon");
+        if (badge && icon) {
+            const card = badge.closest(".device-card");
+            if (status === "open") {
+                badge.innerText = "Mở";
+                badge.className = "badge open";
+                icon.className = "fa-solid fa-lock-open device-icon";
+                if (card) card.classList.add("active");
             } else {
-                doorBadge.innerText = "Đóng";
-                doorBadge.className = "badge closed";
-                doorIcon.className = "fa-solid fa-lock device-icon";
-                if (doorCard) doorCard.classList.remove("active");
+                badge.innerText = "Đóng";
+                badge.className = "badge closed";
+                icon.className = "fa-solid fa-lock device-icon";
+                if (card) card.classList.remove("active");
             }
         }
 
@@ -260,11 +311,55 @@ export function initDashboard(database, globalState) {
         const rangeLbl = document.getElementById("door-autoclose-lbl");
         if (rangeInput) rangeInput.value = seconds;
         if (rangeLbl) rangeLbl.innerText = seconds + "s";
-    });
+    }
 
-    // ==========================================
-    // Event Listeners
-    // ==========================================
+    function updateRoof(data) {
+        const device = data.roof || { status: "closed", mode: "auto" };
+        const badge = document.getElementById("roof-status-badge");
+        if (badge) {
+            const card = badge.closest(".device-card");
+            if (device.status === "open") {
+                badge.innerText = "Mở";
+                badge.className = "badge open";
+                if (card) card.classList.add("active");
+            } else {
+                badge.innerText = "Đóng";
+                badge.className = "badge closed";
+                if (card) card.classList.remove("active");
+            }
+        }
+
+        const manualBtn = document.getElementById("roof-mode-manual");
+        const autoBtn = document.getElementById("roof-mode-auto");
+        if (manualBtn && autoBtn) {
+            manualBtn.classList.toggle("active", device.mode === "manual");
+            autoBtn.classList.toggle("active", device.mode === "auto");
+        }
+
+        if (state.sensors.rain == 1 && device.mode === "auto") {
+            const warning = document.getElementById("roof-warning");
+            if (warning) {
+                warning.style.display = "flex";
+                warning.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>Phát hiện mưa — đang tự động đóng mái che!</span>';
+            }
+        }
+    }
+
+    function updateFan(data) {
+        const device = data.fan || { status: false, speed: 50 };
+        const toggle = document.getElementById("fan-toggle");
+        if (toggle) {
+            toggle.checked = device.status;
+            const card = toggle.closest(".device-card");
+            if (card) card.classList.toggle("active", device.status);
+        }
+
+        const speedRange = document.getElementById("fan-speed-range");
+        const speedLbl = document.getElementById("fan-speed-lbl");
+        if (speedRange) speedRange.value = device.speed || 0;
+        if (speedLbl) speedLbl.innerText = (device.speed || 0) + "%";
+    }
+
     const inLightToggle = document.getElementById("indoor-light-toggle");
     if (inLightToggle) {
         inLightToggle.addEventListener("change", (e) => {
@@ -272,18 +367,40 @@ export function initDashboard(database, globalState) {
         });
     }
 
-    const doorOpenBtn = document.getElementById("door-open-btn");
-    const doorCloseBtn = document.getElementById("door-close-btn");
-    if (doorOpenBtn) {
-        doorOpenBtn.addEventListener("click", () => {
-            set(ref(db, "devices/door/status"), "open");
+    const olToggle = document.getElementById("outdoor-light-toggle");
+    if (olToggle) {
+        olToggle.addEventListener("change", (e) => {
+            set(ref(db, "devices/outdoor_light/status"), e.target.checked);
         });
     }
-    if (doorCloseBtn) {
-        doorCloseBtn.addEventListener("click", () => {
-            set(ref(db, "devices/door/status"), "closed");
-        });
-    }
+
+    document.getElementById("ol-mode-manual")?.addEventListener("click", () => {
+        set(ref(db, "devices/outdoor_light/mode"), "manual");
+    });
+    document.getElementById("ol-mode-auto")?.addEventListener("click", () => {
+        set(ref(db, "devices/outdoor_light/mode"), "auto");
+    });
+
+    document.getElementById("roof-open-btn")?.addEventListener("click", () => {
+        set(ref(db, "devices/roof/status"), "open");
+    });
+    document.getElementById("roof-close-btn")?.addEventListener("click", () => {
+        set(ref(db, "devices/roof/status"), "closed");
+    });
+
+    document.getElementById("roof-mode-manual")?.addEventListener("click", () => {
+        set(ref(db, "devices/roof/mode"), "manual");
+    });
+    document.getElementById("roof-mode-auto")?.addEventListener("click", () => {
+        set(ref(db, "devices/roof/mode"), "auto");
+    });
+
+    document.getElementById("door-open-btn")?.addEventListener("click", () => {
+        set(ref(db, "devices/door/status"), "open");
+    });
+    document.getElementById("door-close-btn")?.addEventListener("click", () => {
+        set(ref(db, "devices/door/status"), "closed");
+    });
 
     const doorRangeInput = document.getElementById("door-autoclose-range");
     if (doorRangeInput) {
@@ -298,6 +415,40 @@ export function initDashboard(database, globalState) {
         });
     }
 
-    // Khởi tạo đồ thị
+    const fanToggle = document.getElementById("fan-toggle");
+    if (fanToggle) {
+        fanToggle.addEventListener("change", (e) => {
+            set(ref(db, "devices/fan/status"), e.target.checked);
+        });
+    }
+
+    const fanSpeedRange = document.getElementById("fan-speed-range");
+    if (fanSpeedRange) {
+        fanSpeedRange.addEventListener("input", (e) => {
+            const val = parseInt(e.target.value);
+            const speedLbl = document.getElementById("fan-speed-lbl");
+            if (speedLbl) speedLbl.innerText = val + "%";
+        });
+        fanSpeedRange.addEventListener("change", (e) => {
+            set(ref(db, "devices/fan/speed"), parseInt(e.target.value));
+        });
+    }
+
+    const filterBtns = document.querySelectorAll("#device-filter-tabs .device-filter-btn");
+    filterBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const filter = btn.dataset.filter;
+            document.querySelectorAll("#devices-container .device-card").forEach(card => {
+                if (filter === "all" || card.dataset.zone === filter) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+
     initChart();
 }

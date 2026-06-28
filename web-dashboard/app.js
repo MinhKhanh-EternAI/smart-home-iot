@@ -21,10 +21,13 @@ signInAnonymously(auth).catch((err) => console.error("Firebase auth error:", err
 
 // Trạng thái toàn cục
 export const state = {
-    sensors: { temperature: null, humidity: null },
+    sensors: { temperature: null, humidity: null, rain: null, light: null },
     devices: {
         indoor_light: { status: false },
-        door: { status: "closed" }
+        outdoor_light: { status: false, mode: "manual" },
+        door: { status: "closed", auto_close_ms: 5000 },
+        roof: { status: "closed", mode: "auto" },
+        fan: { status: false, speed: 50 }
     }
 };
 
