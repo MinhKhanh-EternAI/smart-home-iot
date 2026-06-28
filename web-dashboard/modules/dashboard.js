@@ -9,11 +9,6 @@ function getVietnameseDayOfWeek() {
     return `hôm nay (${dayName})`;
 }
 
-// Hàm kiểm tra cảnh báo thông minh: Trời mưa + Mái che mở ở chế độ thủ công (Đã tắt theo yêu cầu)
-export function checkSmartAlerts() {
-    // Đã xóa cảnh báo chữ và viền đỏ
-}
-
 function scrollToSelected(container, val) {
     const selected = container.querySelector(`.time-item-premium[data-val="${val}"]`);
     if (selected) {
@@ -469,8 +464,6 @@ export function initDashboard(database, globalState) {
             updateChartData(temp, hum);
         }
 
-        // Kiểm tra cảnh báo thông minh
-        checkSmartAlerts();
     };
 
     onValue(ref(db, "sensors"), (snapshot) => {
@@ -664,8 +657,6 @@ export function initDashboard(database, globalState) {
             }
         }
 
-        // Kiểm tra cảnh báo thông minh
-        checkSmartAlerts();
     });
 
     // Đọc trạng thái Quạt từ Firebase

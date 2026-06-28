@@ -243,33 +243,24 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
-// Trạng thái cục bộ của các thiết bị để theo dõi IP và nhịp tim
+// Trạng thái cục bộ theo dõi IP và nhịp tim ESP8266
 let deviceStatusData = {
-    esp8266: { ip: "", last_seen: 0 },
-    esp32: { ip: "", last_seen: 0 }
+    esp8266: { ip: "", last_seen: 0 }
 };
 
 function initDeviceStatus(db) {
-    const statusKeys = ["esp8266", "esp32"];
-    
-    statusKeys.forEach(device => {
-        const deviceRef = ref(db, `status/${device}`);
-        onValue(deviceRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                deviceStatusData[device].ip = data.ip || "";
-                deviceStatusData[device].last_seen = data.last_seen || 0;
-                updateDeviceUI(device);
-            }
-        });
+    const deviceRef = ref(db, "status/esp8266");
+    onValue(deviceRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            deviceStatusData.esp8266.ip = data.ip || "";
+            deviceStatusData.esp8266.last_seen = data.last_seen || 0;
+            updateDeviceUI("esp8266");
+        }
     });
 
-    // Định kỳ kiểm tra (mỗi 5 giây) để cập nhật trạng thái Online/Offline dựa trên last_seen
-    setInterval(() => {
-        statusKeys.forEach(device => {
-            updateDeviceUI(device);
-        });
-    }, 5000);
+    // Định kỳ kiểm tra (mỗi 5 giây) trạng thái Online/Offline dựa trên last_seen
+    setInterval(() => updateDeviceUI("esp8266"), 5000);
 }
 
 function updateDeviceUI(device) {

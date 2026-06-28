@@ -18,12 +18,14 @@ private:
     static const unsigned long STREAM_RETRY_INTERVAL = 30000;
 
     FirebaseData fbData;
+    FirebaseData fbCtrlData;
     FirebaseData fbStream;
     FirebaseAuth auth;
     FirebaseConfig config;
     bool isReady = false;
     bool streamStarted = false;
     unsigned long lastStreamRetry = 0;
+    volatile bool inStreamCallback = false;
 
     DeviceControlCallback controlCallback = nullptr;
 
@@ -93,22 +95,22 @@ public:
 
     bool setFloat(const String& path, float val) {
         if (!ready()) return false;
-        return Firebase.RTDB.setFloat(&fbData, path.c_str(), val);
+        return Firebase.RTDB.setFloat(inStreamCallback ? &fbCtrlData : &fbData, path.c_str(), val);
     }
 
     bool setBool(const String& path, bool val) {
         if (!ready()) return false;
-        return Firebase.RTDB.setBool(&fbData, path.c_str(), val);
+        return Firebase.RTDB.setBool(inStreamCallback ? &fbCtrlData : &fbData, path.c_str(), val);
     }
 
     bool setInt(const String& path, int val) {
         if (!ready()) return false;
-        return Firebase.RTDB.setInt(&fbData, path.c_str(), val);
+        return Firebase.RTDB.setInt(inStreamCallback ? &fbCtrlData : &fbData, path.c_str(), val);
     }
 
     bool setString(const String& path, const String& val) {
         if (!ready()) return false;
-        return Firebase.RTDB.setString(&fbData, path.c_str(), val.c_str());
+        return Firebase.RTDB.setString(inStreamCallback ? &fbCtrlData : &fbData, path.c_str(), val.c_str());
     }
 
     void updateHeartbeat(const String& ip) {
@@ -122,7 +124,7 @@ public:
             json.add("ip", ip.c_str());
             json.add("last_seen", currentTimestamp());
             
-            Firebase.RTDB.setJSON(&fbData, "/status/esp8266", &json);
+            Firebase.RTDB.setJSON(inStreamCallback ? &fbCtrlData : &fbData, "/status/esp8266", &json);
         }
     }
 
@@ -156,7 +158,7 @@ public:
         json.add("type", type.c_str());
         json.add("message", message.c_str());
 
-        Firebase.RTDB.pushJSON(&fbData, "/logs/event_logs", &json);
+        Firebase.RTDB.pushJSON(inStreamCallback ? &fbCtrlData : &fbData, "/logs/event_logs", &json);
     }
 
     // Ghi log quét thẻ RFID
@@ -169,11 +171,13 @@ public:
         json.add("name", name.c_str());
         json.add("status", status.c_str());
 
-        Firebase.RTDB.pushJSON(&fbData, "/rfid/access_logs", &json);
+        Firebase.RTDB.pushJSON(inStreamCallback ? &fbCtrlData : &fbData, "/rfid/access_logs", &json);
     }
 
     void handleStreamUpdate(const String& path, FirebaseStream& data) {
         if (controlCallback == nullptr) return;
+
+        inStreamCallback = true;
 
         // Path có dạng: /indoor_light/status hoặc /
         // Phân tách path để tìm tên thiết bị và thuộc tính thay đổi
@@ -233,6 +237,8 @@ public:
         if (device.length() > 0 && key.length() > 0) {
             controlCallback(device, key, valStr);
         }
+
+        inStreamCallback = false;
     }
 
 private:

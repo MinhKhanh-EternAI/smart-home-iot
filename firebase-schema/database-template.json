@@ -1,7 +1,7 @@
 {
   "config": {
     "mcp": {
-      "endpoint": "http://your-xiaozhi-mcp-endpoint/api"
+      "endpoint": "wss://api.xiaozhi.me/mcp/?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjk3NDc3MCwiYWdlbnRJZCI6MjA3NTY2NywiZW5kcG9pbnRJZCI6ImFnZW50XzIwNzU2NjciLCJwdXJwb3NlIjoibWNwLWVuZHBvaW50IiwiaWF0IjoxNzgyNjI4OTIyLCJleHAiOjE4MTQxODY1MjJ9.9JAQENO2psnk0X0VVcCg2Vlu5GsFLGoDIrQ2HriGFW-ejFpgvqWAOhaLnOqLrbCrpHrrxu0tcWkEud0VsMdYxg"
     },
     "tools": [
       {
@@ -24,11 +24,7 @@
         "desc": "Mái che tự động",
         "pin": "RX"
       }
-    ],
-    "wifi": {
-      "ssid": "Your_WiFi_SSID",
-      "password": "Your_WiFi_Password"
-    }
+    ]
   },
   "devices": {
     "indoor_light": {

@@ -4,6 +4,7 @@
 #include <Servo.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
+#include "WifiHelper.h"
 
 class RoofController {
 private:
@@ -14,6 +15,8 @@ private:
     String mode = "auto"; // "auto" hoặc "manual"
     unsigned long lastSensorRead = 0;
     const unsigned long sensorReadInterval = 3000; // Đọc cảm biến nước mỗi 3 giây
+    unsigned long lastToggleTime = 0;
+    const unsigned long toggleCooldown = 30000; // Chờ 30s mới cho phép đổi trạng thái
 
 public:
     RoofController() {}
@@ -40,13 +43,15 @@ public:
             // Cập nhật trạng thái mưa lên Firebase
             fb->setBool("/sensors/rain", isRaining);
             
-            // Chế độ Tự động (Auto Mode)
-            if (mode == "auto") {
+            // Chế độ Tự động (Auto Mode) — có cooldown chống flapping
+            if (mode == "auto" && (now - lastToggleTime >= toggleCooldown)) {
                 if (isRaining && !isClosed) {
                     closeRoof();
+                    lastToggleTime = millis();
                     fb->logEvent("automation", "Tự động đóng mái che do phát hiện trời mưa.");
                 } else if (!isRaining && isClosed) {
                     openRoof();
+                    lastToggleTime = millis();
                     fb->logEvent("automation", "Tự động mở mái che do trời đã tạnh mưa.");
                 }
             }
@@ -58,6 +63,7 @@ public:
         isClosed = false;
         fb->setString("/devices/roof/status", "open");
         Serial.println("Roof opened.");
+        WifiHelper::showNotification("Mai che", "DA MO");
     }
 
     void closeRoof() {
@@ -65,6 +71,7 @@ public:
         isClosed = true;
         fb->setString("/devices/roof/status", "closed");
         Serial.println("Roof closed.");
+        WifiHelper::showNotification("Mai che", "DA DONG");
     }
 
     void setStatusFromFirebase(const String& status) {

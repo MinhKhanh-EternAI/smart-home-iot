@@ -5,40 +5,106 @@
 
     "devices": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      "indoor_light": {
+        "status": { ".validate": "newData.isBoolean()" },
+        "mode": { ".validate": "newData.isString() && (newData.val() == 'manual' || newData.val() == 'schedule')" },
+        "schedule": {
+          "enabled": { ".validate": "newData.isBoolean()" },
+          "on_time": { ".validate": "newData.isString() && newData.val().matches(/^\\d{2}:\\d{2}$/)" },
+          "off_time": { ".validate": "newData.isString() && newData.val().matches(/^\\d{2}:\\d{2}$/)" },
+          "days": {
+            "$day": { ".validate": "newData.isBoolean()" }
+          }
+        }
+      },
+      "outdoor_light": {
+        "status": { ".validate": "newData.isBoolean()" },
+        "mode": { ".validate": "newData.isString() && (newData.val() == 'auto' || newData.val() == 'manual')" }
+      },
+      "door": {
+        "status": { ".validate": "newData.isString() && (newData.val() == 'open' || newData.val() == 'closed')" },
+        "auto_close_ms": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 60000" }
+      },
+      "roof": {
+        "status": { ".validate": "newData.isString() && (newData.val() == 'open' || newData.val() == 'closed')" },
+        "mode": { ".validate": "newData.isString() && (newData.val() == 'auto' || newData.val() == 'manual')" }
+      },
+      "fan": {
+        "status": { ".validate": "newData.isBoolean()" },
+        "schedule": {
+          "enabled": { ".validate": "newData.isBoolean()" },
+          "on_time": { ".validate": "newData.isString() && newData.val().matches(/^\\d{2}:\\d{2}$/)" },
+          "off_time": { ".validate": "newData.isString() && newData.val().matches(/^\\d{2}:\\d{2}$/)" },
+          "days": {
+            "$day": { ".validate": "newData.isBoolean()" }
+          }
+        }
+      }
     },
 
     "sensors": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      "temperature": { ".validate": "newData.isNumber()" },
+      "humidity": { ".validate": "newData.isNumber()" },
+      "rain": { ".validate": "newData.isBoolean()" },
+      "motion": { ".validate": "newData.isBoolean()" },
+      "last_updated": { ".validate": "newData.isNumber()" }
     },
 
     "logs": {
       ".read": "auth != null",
       "event_logs": {
-        ".write": "auth != null"
+        ".write": "auth != null",
+        "$event_id": {
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "type": { ".validate": "newData.isString() && (newData.val() == 'system' || newData.val() == 'sensor' || newData.val() == 'automation' || newData.val() == 'schedule' || newData.val() == 'security' || newData.val() == 'door')" },
+          "message": { ".validate": "newData.isString()" }
+        }
       }
     },
 
     "rfid": {
       "cards": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null",
+        "$card_uid": {
+          "name": { ".validate": "newData.isString()" },
+          "active": { ".validate": "newData.isBoolean()" },
+          "created_at": { ".validate": "newData.isNumber()" }
+        }
       },
       "access_logs": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null",
+        "$log_id": {
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "card_uid": { ".validate": "newData.isString()" },
+          "name": { ".validate": "newData.isString()" },
+          "status": { ".validate": "newData.isString() && (newData.val() == 'granted' || newData.val() == 'denied' || newData.val() == 'inactive_denied')" }
+        }
       }
     },
 
     "status": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      "esp8266": {
+        ".write": "auth != null",
+        "ip": { ".validate": "newData.isString()" },
+        "last_seen": { ".validate": "newData.isNumber()" }
+      }
     },
 
     "config": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      "mcp": {
+        "endpoint": { ".validate": "newData.isString()" }
+      },
+      "tools": {
+        ".validate": "newData.val() != null"
+      }
     }
   }
 }

@@ -5,6 +5,7 @@
 #include <time.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
+#include "WifiHelper.h"
 
 class LightController {
 private:
@@ -79,9 +80,10 @@ public:
         if (currentPIR != pirState) {
             pirState = currentPIR;
             fb->setBool("/sensors/motion", pirState);
-            
+
+            lastMotionTime = millis();
+
             if (pirState) {
-                lastMotionTime = millis();
                 Serial.println("Motion detected!");
                 if (outdoorMode == "auto" && !outdoorStatus) {
                     setOutdoorLight(true);
@@ -109,40 +111,46 @@ public:
     }
 
     void setIndoorLight(bool status) {
+        if (status == indoorStatus) return;
         indoorStatus = status;
         writeRelay(PCF_RELAY_INDOOR, indoorStatus);
         fb->setBool("/devices/indoor_light/status", indoorStatus);
         Serial.printf("Indoor Light status: %s\n", indoorStatus ? "ON" : "OFF");
+        WifiHelper::showNotification("Den trong nha", status ? "BAT" : "TAT");
     }
 
     void setOutdoorLight(bool status) {
+        if (status == outdoorStatus) return;
         outdoorStatus = status;
         writeRelay(PCF_RELAY_OUTDOOR, outdoorStatus);
         fb->setBool("/devices/outdoor_light/status", outdoorStatus);
         Serial.printf("Outdoor Light status: %s\n", outdoorStatus ? "ON" : "OFF");
+        WifiHelper::showNotification("Den ngoai", status ? "BAT" : "TAT");
     }
 
     void setFan(bool status) {
+        if (status == fanStatus) return;
         fanStatus = status;
         writeRelay(PCF_FAN_RELAY, fanStatus);
-        fb->setBool("/devices/fan", fanStatus);
+        fb->setBool("/devices/fan/status", fanStatus);
         Serial.printf("Fan status: %s\n", fanStatus ? "ON" : "OFF");
+        WifiHelper::showNotification("Quat", status ? "BAT" : "TAT");
     }
 
     void setIndoorMode(const String& mode) {
-        if (mode == "schedule" || mode == "manual") {
-            indoorMode = mode;
-            fb->setString("/devices/indoor_light/mode", indoorMode);
-            Serial.printf("Indoor Light mode updated: %s\n", indoorMode.c_str());
-        }
+        if (mode != "schedule" && mode != "manual") return;
+        if (mode == indoorMode) return;
+        indoorMode = mode;
+        fb->setString("/devices/indoor_light/mode", indoorMode);
+        Serial.printf("Indoor Light mode updated: %s\n", indoorMode.c_str());
     }
 
     void setOutdoorMode(const String& mode) {
-        if (mode == "auto" || mode == "manual") {
-            outdoorMode = mode;
-            fb->setString("/devices/outdoor_light/mode", outdoorMode);
-            Serial.printf("Outdoor Light mode updated: %s\n", outdoorMode.c_str());
-        }
+        if (mode != "auto" && mode != "manual") return;
+        if (mode == outdoorMode) return;
+        outdoorMode = mode;
+        fb->setString("/devices/outdoor_light/mode", outdoorMode);
+        Serial.printf("Outdoor Light mode updated: %s\n", outdoorMode.c_str());
     }
 
     void setScheduleEnabled(const String& device, bool enabled) {

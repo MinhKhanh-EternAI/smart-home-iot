@@ -106,6 +106,88 @@ public:
         }
     }
 
+    // ===== LCD Notification & Standby System =====
+    static String& getNotifLine1() {
+        static String line1 = ""; return line1;
+    }
+    static String& getNotifLine2() {
+        static String line2 = ""; return line2;
+    }
+    static unsigned long& getNotifStart() {
+        static unsigned long start = 0; return start;
+    }
+    static unsigned long& getNotifDuration() {
+        static unsigned long dur = 5000; return dur;
+    }
+    static bool& getHasNotification() {
+        static bool has = false; return has;
+    }
+
+    static float& getStandbyTemp() {
+        static float t = -999.0f; return t;
+    }
+    static float& getStandbyHum() {
+        static float h = -999.0f; return h;
+    }
+    static unsigned long& getLastStandbySwitch() {
+        static unsigned long t = 0; return t;
+    }
+    static int& getStandbyPage() {
+        static int p = 0; return p;
+    }
+
+    static void showNotification(const String& line1, const String& line2, unsigned long durationMs = 5000) {
+        getNotifLine1() = line1;
+        getNotifLine2() = line2;
+        getNotifStart() = millis();
+        getNotifDuration() = durationMs;
+        getHasNotification() = true;
+        printToLCD(line1, line2);
+    }
+
+    static void setStandbyData(float temp, float hum) {
+        getStandbyTemp() = temp;
+        getStandbyHum() = hum;
+    }
+
+    static void showStandbyScreen() {
+        if (getAPMode()) {
+            printToLCD("AP: " + String(AP_SSID), "IP: " + WiFi.softAPIP().toString());
+            return;
+        }
+        unsigned long now = millis();
+        if (now - getLastStandbySwitch() >= 4000) {
+            getLastStandbySwitch() = now;
+            getStandbyPage() = (getStandbyPage() + 1) % 2;
+        }
+        if (WiFi.status() == WL_CONNECTED) {
+            if (getStandbyPage() == 0) {
+                float t = getStandbyTemp();
+                float h = getStandbyHum();
+                if (t > -998.0f) {
+                    char buf[17];
+                    snprintf(buf, sizeof(buf), "T:%.1fC H:%.0f%%", t, h);
+                    printToLCD(String(buf), "WiFi:Connected");
+                } else {
+                    printToLCD("Smart Home IoT", "WiFi:Connected");
+                }
+            } else {
+                printToLCD("IP: " + WiFi.localIP().toString(), "WiFi:Connected");
+            }
+        } else {
+            printToLCD("Connecting WiFi...", "");
+        }
+    }
+
+    static void updateLCD() {
+        if (getHasNotification()) {
+            if (millis() - getNotifStart() >= getNotifDuration()) {
+                getHasNotification() = false;
+                showStandbyScreen();
+            }
+        }
+    }
+
     static void init() {
         Serial.println("\n--- [WifiHelper] Bat dau khoi tao WiFi & EEPROM ---");
         EEPROM.begin(EEPROM_SIZE);
@@ -142,10 +224,10 @@ public:
         Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
         
         // Dò tìm LCD trên bus I2C để tránh treo chip khi phần cứng bị lỏng/thiếu nguồn
-        Serial.println("[WifiHelper] Quet I2C bus tim LCD (0x27, 0x3F, 0x20)...");
+        Serial.println("[WifiHelper] Quet I2C bus tim LCD (0x27, 0x3F)...");
         int lcdAddr = -1;
-        byte addresses[] = {0x27, 0x3F, 0x20};
-        for (int i = 0; i < 3; i++) {
+        byte addresses[] = {0x27, 0x3F};
+        for (size_t i = 0; i < sizeof(addresses) / sizeof(addresses[0]); i++) {
             Wire.beginTransmission(addresses[i]);
             byte error = Wire.endTransmission();
             if (error == 0) {
@@ -163,7 +245,7 @@ public:
         
         bool connected = false;
         
-        if (savedSSID.length() > 0 && savedSSID != "Your_SSID" && savedSSID[0] != 0xFF) {
+                if (savedSSID.length() > 0 && savedSSID != "Your_SSID" && (unsigned char)savedSSID[0] != 0xFF) {
             printToLCD("Connecting WiFi", savedSSID);
             
             WiFi.mode(WIFI_STA);
@@ -413,8 +495,7 @@ public:
                 String savedSSID = readStringFromEEPROM(0, 32);
                 String savedPass = readStringFromEEPROM(32, 64);
                 
-                if (savedSSID.length() > 0 && savedSSID != "Your_SSID" && savedSSID[0] != 0xFF) {
-                    WiFi.disconnect();
+                if (savedSSID.length() > 0 && savedSSID != "Your_SSID" && (unsigned char)savedSSID[0] != 0xFF) {
                     WiFi.begin(savedSSID.c_str(), savedPass.c_str());
                 }
             }

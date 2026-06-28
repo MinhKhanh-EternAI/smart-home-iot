@@ -131,6 +131,7 @@ public:
             openTime = millis();
             fb->setString("/devices/door/status", "open");
             Serial.println("Door opened.");
+            WifiHelper::showNotification("Cua thong minh", "DA MO");
         }
     }
 
@@ -140,15 +141,12 @@ public:
             isOpen = false;
             fb->setString("/devices/door/status", "closed");
             Serial.println("Door closed.");
-            showStandbyMessage();
+            WifiHelper::showNotification("Cua thong minh", "DA DONG");
         }
     }
 
     void showStandbyMessage() {
-        if (WifiHelper::getAPMode()) {
-            return;
-        }
-        WifiHelper::printToLCD("   SMART HOME   ", "Scan RFID Card..");
+        WifiHelper::showStandbyScreen();
     }
 
     void setAutoCloseDelay(unsigned long ms) {

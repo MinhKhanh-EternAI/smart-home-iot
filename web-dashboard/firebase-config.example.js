@@ -19,5 +19,3 @@ export const firebaseConfig = {
     databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
-export const DEFAULT_AP_IP = "192.168.1.86";
-

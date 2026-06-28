@@ -4,6 +4,7 @@
 #include <time.h>
 #include "Config.h"
 #include "FirebaseHelper.h"
+#include "WifiHelper.h"
 
 #if USE_DHT
 #include <DHT.h>
@@ -60,6 +61,7 @@ public:
                 
                 Serial.printf("DHT11: Temp: %.1f C, Hum: %.1f %%\n", t, h);
                 
+                WifiHelper::setStandbyData(t, h);
                 fb->setFloat("/sensors/temperature", t);
                 fb->setFloat("/sensors/humidity", h);
                 

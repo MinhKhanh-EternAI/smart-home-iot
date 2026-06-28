@@ -128,6 +128,9 @@ void setup() {
     roofCtrl.init(&fbHelper);
 
     fbHelper.logEvent("system", "Hệ thống khởi động thành công và đã đồng bộ với Firebase.");
+
+    // Hiển thị màn hình chờ trên LCD
+    WifiHelper::showStandbyScreen();
 }
 
 void loop() {
@@ -147,6 +150,9 @@ void loop() {
     roofCtrl.update();
     lightCtrl.update();
     climateCtrl.update();
+
+    // Cập nhật LCD (notification timeout, standby screen)
+    WifiHelper::updateLCD();
 
     // Giải phóng CPU cho ESP8266 chạy background tasks
     yield();
